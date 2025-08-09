@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karam Libnan | Authentic Homemade & Canned Lebanese Products</title>
+  <meta name="description" content="Karam Libnan offers premium homemade and canned Lebanese products. Discover authentic flavors and traditions through our catalog." />
+  <meta name="keywords" content="Karam Libnan, Lebanese homemade products, Lebanese canned goods, traditional Lebanese food, organic Lebanon products, Lebanese catalog" />
+  <meta name="author" content="Karam Libnan" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="Karam Libnan | Authentic Homemade & Canned Lebanese Products" />
+  <meta property="og:description" content="Discover authentic Lebanese flavors through our premium homemade and canned goods." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1604908176985-dcb7e7f3a0bf?auto=format&fit=crop&w=1200&q=80" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.placeholder-karam-libnan.com" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="preload" href="css/styles.css" as="style" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="site-header" id="top">
+    <div class="container flex between center-v">
+      <div class="logo">Karam <span>Libnan</span></div>
+      <nav class="main-nav" aria-label="Primary Navigation">
+        <button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
+        <ul id="navMenu" class="nav-list">
+          <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#products">Products</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero" role="banner" aria-label="Hero Welcome Section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+      <h1>Authentic Homemade & Canned Lebanese Products</h1>
+      <p>Crafted with passion, tradition, and the richness of Lebanon's natural bounty.</p>
+      <a href="#products" class="btn btn-primary">Explore Catalog</a>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="featured section-padding" aria-labelledby="featuredHeading">
+    <div class="container">
+      <h2 id="featuredHeading" class="section-title">Featured Highlights</h2>
+      <div class="grid cards-3" id="featuredProducts">
+        <!-- JS will inject sample featured items -->
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about section-alt section-padding" aria-labelledby="aboutHeading">
+    <div class="container grid two-col">
+      <div>
+        <h2 id="aboutHeading" class="section-title">Our Story</h2>
+        <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p>
+        <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p>
+        <ul class="values-list">
+          <li>Authentic Recipes</li>
+          <li>Natural Ingredients</li>
+          <li>Handcrafted Quality</li>
+          <li>Sustainable Sourcing</li>
+        </ul>
+      </div>
+      <div class="about-image-wrapper">
+  <img src="images/ourstory.png" alt="Our story - Lebanese heritage" class="responsive about-image" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section id="products" class="products section-padding" aria-labelledby="productsHeading">
+    <div class="container">
+      <h2 id="productsHeading" class="section-title">Our Products</h2>
+      <p class="section-intro">Browse our categories of homemade and canned Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)</p>
+
+      <!-- Product Filters -->
+      <div class="filters" aria-label="Product Category Filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="homemade">Homemade</button>
+        <button class="filter-btn" data-filter="canned">Canned</button>
+        <button class="filter-btn" data-filter="herbal">Herbal</button>
+        <button class="filter-btn" data-filter="sweets">Sweets</button>
+      </div>
+
+      <div class="grid cards-3" id="productGrid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact section-alt section-padding" aria-labelledby="contactHeading">
+    <div class="container">
+      <h2 id="contactHeading" class="section-title">Contact Us</h2>
+      <div class="grid two-col contact-layout">
+        <div>
+          <form id="contactForm" novalidate aria-describedby="formStatus">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required placeholder="Your Name" />
+              <small class="error" data-error-for="name"></small>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required placeholder="you@example.com" />
+              <small class="error" data-error-for="email"></small>
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" rows="5" required placeholder="Write your message..."></textarea>
+              <small class="error" data-error-for="message"></small>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+            <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+          <div class="contact-info">
+            <h3>Company Info</h3>
+            <p><strong>Email:</strong> <a href="mailto:info@karamlibnan.com">info@karamlibnan.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+9611234567">+961 1 234 567</a></p>
+            <p><strong>Location:</strong> Placeholder Address, Lebanon</p>
+            <p>Follow us on social media:</p>
+            <ul class="social-list">
+              <li><a href="#" aria-label="Facebook">Facebook</a></li>
+              <li><a href="#" aria-label="Instagram">Instagram</a></li>
+              <li><a href="#" aria-label="Twitter">Twitter</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="map-wrapper">
+          <iframe title="Google Maps placeholder" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26269.964643537265!2d35.4851683!3d33.8886289!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151f1721595bd76d%3A0xe20fd75f635d8d71!2sBeirut!5e0!3m2!1sen!2slb!4v0000000000000" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <div class="logo">Karam <span>Libnan</span></div>
+        <p>Authentic Lebanese homemade & canned products. Tradition preserved in every jar.</p>
+      </div>
+      <nav aria-label="Footer Navigation">
+        <ul class="footer-nav">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#products">Products</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="footer-contact">
+        <p><strong>Email:</strong> info@karamlibnan.com</p>
+        <p><strong>Phone:</strong> +961 1 234 567</p>
+      </div>
+    </div>
+    <div class="sub-footer">
+      <p>&copy; <span id="year"></span> Karam Libnan. All rights reserved.</p>
+      <a href="#top" class="back-to-top" aria-label="Back to Top">▲</a>
+    </div>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
