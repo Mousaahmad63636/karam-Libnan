@@ -122,13 +122,17 @@
 
   </main>
 </div>
-<script type="module" src="https://esm.sh/@supabase/supabase-js@2"></script>
-<script>
-  window.SUPABASE_ANON_KEY = 'ANON_KEY_PLACEHOLDER';
-  window.createSupabaseClient = (url, key) => window.supabase.createClient(url, key);
-  const supabase = window.createSupabaseClient('https://xbznaxiummganlidnmdd.supabase.co', window.SUPABASE_ANON_KEY);
-</script>
 <script type="module">
+// Supabase initialization (ESM import)
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+// TODO: Replace placeholder with an injected value at deploy time (e.g. from server template or meta tag)
+const SUPABASE_URL = 'https://xbznaxiummganlidnmdd.supabase.co';
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'ANON_KEY_PLACEHOLDER';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Expose for debugging (optional)
+window.supabase = supabase;
 
 const authPanel = document.getElementById('authPanel')
 const panels = ['panel-products','panel-subcats','panel-sections'].map(id=>document.getElementById(id))
