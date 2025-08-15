@@ -122,17 +122,16 @@
 
   </main>
 </div>
+<meta name="supabase-url" content="https://xbznaxiummganlidnmdd.supabase.co" />
+<meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs" />
 <script type="module">
-// Supabase initialization (ESM import)
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-// TODO: Replace placeholder with an injected value at deploy time (e.g. from server template or meta tag)
-const SUPABASE_URL = 'https://xbznaxiummganlidnmdd.supabase.co';
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'ANON_KEY_PLACEHOLDER';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-// Expose for debugging (optional)
-window.supabase = supabase;
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = document.querySelector('meta[name="supabase-url"]').content;
+  const SUPABASE_ANON_KEY = document.querySelector('meta[name="supabase-anon-key"]').content;
+  window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
+  window.createSupabaseClient = (url,key)=> createClient(url,key);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.supabase = supabase;
 
 const authPanel = document.getElementById('authPanel')
 const panels = ['panel-products','panel-subcats','panel-sections'].map(id=>document.getElementById(id))

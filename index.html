@@ -7,6 +7,9 @@
   <meta name="description" content="Karam Libnan offers premium homemade and canned Lebanese products. Discover authentic flavors and traditions through our catalog." />
   <meta name="keywords" content="Karam Libnan, Lebanese homemade products, Lebanese canned goods, traditional Lebanese food, organic Lebanon products, Lebanese catalog" />
   <meta name="author" content="Karam Libnan" />
+  <!-- Supabase Configuration Meta (anon key is safe to expose) -->
+  <meta name="supabase-url" content="https://xbznaxiummganlidnmdd.supabase.co" />
+  <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs" />
   <!-- Open Graph -->
   <meta property="og:title" content="Karam Libnan | Authentic Homemade & Canned Lebanese Products" />
   <meta property="og:description" content="Discover authentic Lebanese flavors through our premium homemade and canned goods." />
@@ -207,11 +210,14 @@
   <!-- Floating WhatsApp -->
   <a href="https://wa.me/9611234567" class="float-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp Chat">💬</a>
 
-  <!-- Supabase (runtime injection). Replace ANON_KEY placeholder with real anon key in deployment -->
-  <script type="module" src="https://esm.sh/@supabase/supabase-js@2"></script>
-  <script>
-    window.SUPABASE_ANON_KEY = 'ANON_KEY_PLACEHOLDER';
-    window.createSupabaseClient = (url, key) => window.supabase.createClient(url, key);
+  <!-- Supabase Initialization -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    const SUPABASE_URL = document.querySelector('meta[name="supabase-url"]').content;
+    const SUPABASE_ANON_KEY = document.querySelector('meta[name="supabase-anon-key"]').content;
+    window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY; // for app.js usage
+    window.createSupabaseClient = (url,key)=> createClient(url,key);
+    window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <script src="js/app.js" defer></script>
 </body>
