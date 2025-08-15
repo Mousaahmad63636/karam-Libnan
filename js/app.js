@@ -180,12 +180,15 @@ function renderFeatured() {
 
 // Product card template
 function cardTemplate(item, isFeatured = false) {
+  const searchTerm = (document.getElementById('productSearch')?.value || '').trim();
+  const name = highlight(item.name, searchTerm);
+  const desc = highlight(item.description, searchTerm);
   return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}">
     ${isFeatured ? '<span class="badge">Featured</span>' : ''}
     <img src="${item.image}" alt="${item.name} image" loading="lazy" data-original="${item.image}" />
     <div class="card-body">
-      <h3 class="card-title">${item.name}</h3>
-      <p class="desc">${item.description}</p>
+      <h3 class="card-title">${name}</h3>
+      <p class="desc">${desc}</p>
       <div class="ingredients"><strong>Ingredients:</strong> ${item.ingredients.join(', ')}</div>
       <span class="category-tag">${item.sub}</span>
     </div>
@@ -200,10 +203,10 @@ function renderProducts() {
   if (!grid) return;
   const searchTerm = (document.getElementById('productSearch')?.value || '').trim().toLowerCase();
   const items = productsData.filter(p => p.mainType === currentMain && (currentSub === 'all' || p.sub === currentSub) && (!searchTerm || p.name.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm)));
-  grid.innerHTML = items.map(p => cardTemplate(p)).join('');
+  // Optional skeleton effect (quick, not async) for perceived performance
+  grid.innerHTML = items.map(()=>'<div class="card skeleton" style="height:260px;border-radius:10px;"></div>').join('');
+  setTimeout(()=>{ grid.innerHTML = items.map(p => cardTemplate(p)).join(''); attachImageFallbacks(); observeFadeIns(); }, 80);
   updateBanner();
-  attachImageFallbacks();
-  observeFadeIns();
 }
 
 function updateBanner() {
@@ -338,6 +341,15 @@ function applyTranslations() {
     const key = el.getAttribute('data-i18n');
     if (map[key]) el.textContent = map[key];
   });
+}
+
+// Highlight helper
+function highlight(text, term) {
+  if (!term) return text;
+  try {
+    const re = new RegExp(`(${term.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&')})`,'ig');
+    return text.replace(re,'<mark style="background:rgba(200,16,46,0.25);padding:0 .15em;border-radius:3px;">$1</mark>');
+  } catch { return text; }
 }
 
 // Scroll header transparency handling
