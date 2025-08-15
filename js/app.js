@@ -699,7 +699,11 @@ async function tryRemoteLoad(){
   try {
     const client = window.createSupabaseClient('https://xbznaxiummganlidnmdd.supabase.co', anonKey);
     // Load subcategories
-    const { data: subs } = await client.from('subcategories').select('*').eq('active', true).order('sort_order');
+    const { data: subs, error: subsErr } = await client.from('subcategories').select('*').eq('active', true).order('sort_order');
+    if (subsErr && /not found/i.test(subsErr.message)) {
+      console.warn('Supabase table subcategories not found. Did you run the migration? Skipping remote load.');
+      return; // abort further remote attempts
+    }
     if (subs?.length){
       SUBCATS.single = subs.filter(s=>s.category_type==='single').map(s=>s.slug.replace(/-/g,' '));
       SUBCATS.bulk = subs.filter(s=>s.category_type==='bulk').map(s=>s.slug.replace(/-/g,' '));
@@ -707,7 +711,10 @@ async function tryRemoteLoad(){
       subs.forEach(s=>{ if (s.banner_image_url) BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url; });
     }
     // Load products
-    const { data: prods } = await client.from('products').select('*').eq('active', true).limit(500);
+    const { data: prods, error: prodsErr } = await client.from('products').select('*').eq('active', true).limit(500);
+    if (prodsErr && /not found/i.test(prodsErr.message)) {
+      console.warn('Supabase table products not found. Skipping remote products load.');
+    }
     if (prods?.length){
       productsData.length = 0;
       prods.forEach(p=> productsData.push({
@@ -723,7 +730,10 @@ async function tryRemoteLoad(){
       }));
     }
     // Sections (hero/about) override
-    const { data: sections } = await client.from('sections').select('*');
+    const { data: sections, error: sectionsErr } = await client.from('sections').select('*');
+    if (sectionsErr && /not found/i.test(sectionsErr.message)) {
+      console.warn('Supabase table sections not found.');
+    }
     if (sections?.length){
       SITE_OVERRIDES = SITE_OVERRIDES || {};
       sections.forEach(sec=>{
