@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin | Karam Libnan</title>
+<link rel="stylesheet" href="css/styles.css" />
+<style>
+  body { background:#fafafa; }
+  .admin-layout { display:grid; grid-template-columns: 240px 1fr; min-height:100vh; }
+  .sidebar { background:#222; color:#fff; padding:1rem; display:flex; flex-direction:column; gap:1rem; }
+  .sidebar a { color:#fff; font-weight:600; font-size:.9rem; }
+  .main { padding:1.5rem; }
+  .panel { background:#fff; padding:1rem 1.2rem; border:1px solid #ddd; border-radius:10px; margin-bottom:1.5rem; }
+  .panel h2 { margin:.2rem 0 1rem; font-size:1.1rem; }
+  table { width:100%; border-collapse:collapse; font-size:.8rem; }
+  th,td { padding:.45rem .6rem; border-bottom:1px solid #eee; text-align:left; }
+  tbody tr:hover { background:#f5f5f5; }
+  .flex-row { display:flex; gap:.6rem; flex-wrap:wrap; }
+  .badge-small { background:#c8102e; color:#fff; padding:.15rem .45rem; border-radius:999px; font-size:.65rem; }
+  .danger { background:#c8102e; }
+  .btn.small { padding:.45rem .8rem; font-size:.7rem; }
+  form.inline-grid { display:grid; gap:.5rem; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); }
+  input, select, textarea { font-size:.75rem; }
+  .status-bar { font-size:.7rem; opacity:.7; }
+</style>
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="logo">Karam <span>Libnan</span></div>
+    <nav>
+      <a href="#panel-products">Products</a>
+      <a href="#panel-subcats">Subcategories</a>
+      <a href="#panel-sections">Sections</a>
+      <a href="#" id="logoutBtn">Logout</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div id="authPanel" class="panel">
+      <h2>Login</h2>
+      <form id="loginForm" class="inline-grid">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button class="btn btn-primary" type="submit">Login</button>
+      </form>
+      <div id="loginStatus" class="status-bar"></div>
+    </div>
+
+    <div id="panel-products" class="panel" hidden>
+      <h2>Products <span id="prodCount" class="badge-small">0</span></h2>
+      <div class="flex-row" style="margin-bottom:.8rem;">
+        <input type="text" id="prodSearch" placeholder="Search" />
+        <button id="newProductBtn" class="btn btn-primary small">New Product</button>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Sub</th><th>Active</th><th>Featured</th><th></th></tr></thead>
+        <tbody id="productsTable"></tbody>
+      </table>
+      <div id="productFormWrap" class="panel" style="margin-top:1rem; background:#fdfdfd;" hidden>
+        <h3 id="productFormTitle">New Product</h3>
+        <form id="productForm" class="inline-grid">
+          <input name="name_en" placeholder="Name EN" required />
+          <input name="name_ar" placeholder="Name AR" />
+          <input name="image_url" placeholder="Image URL" />
+          <select name="main_type" required>
+            <option value="single">Single</option>
+            <option value="bulk">Bulk</option>
+          </select>
+          <select name="sub_slug" id="subSlugSelect"></select>
+          <input name="featured" type="checkbox" /> Featured
+          <input name="active" type="checkbox" checked /> Active
+          <textarea name="description_en" placeholder="Description EN"></textarea>
+          <textarea name="description_ar" placeholder="Description AR"></textarea>
+          <input name="ingredients" placeholder='Ingredients JSON ["A","B"]' />
+          <button class="btn btn-primary small" type="submit">Save</button>
+          <button class="btn small" type="button" id="cancelProduct">Cancel</button>
+        </form>
+        <div id="productFormStatus" class="status-bar"></div>
+      </div>
+    </div>
+
+    <div id="panel-subcats" class="panel" hidden>
+      <h2>Subcategories</h2>
+      <form id="subcatForm" class="inline-grid">
+        <input name="slug" placeholder="slug" required />
+        <input name="title_en" placeholder="Title EN" required />
+        <input name="title_ar" placeholder="Title AR" />
+        <select name="category_type" required>
+          <option value="single">Single</option>
+          <option value="bulk">Bulk</option>
+        </select>
+        <input name="banner_image_url" placeholder="Banner Image URL" />
+        <input name="sort_order" type="number" placeholder="Sort" />
+        <label style="display:flex;align-items:center;gap:.3rem;">Active <input name="active" type="checkbox" checked /></label>
+        <button class="btn btn-primary small" type="submit">Add/Update</button>
+      </form>
+      <table style="margin-top:1rem;">
+        <thead><tr><th>Slug</th><th>Type</th><th>Title</th><th>Order</th><th>Active</th><th></th></tr></thead>
+        <tbody id="subcatTable"></tbody>
+      </table>
+      <div id="subcatStatus" class="status-bar"></div>
+    </div>
+
+    <div id="panel-sections" class="panel" hidden>
+      <h2>Sections</h2>
+      <form id="sectionForm" class="inline-grid">
+        <input name="key" placeholder="Key (hero/about)" required />
+        <input name="title_en" placeholder="Title EN" />
+        <input name="title_ar" placeholder="Title AR" />
+        <textarea name="body_en" placeholder="Body EN"></textarea>
+        <textarea name="body_ar" placeholder="Body AR"></textarea>
+        <input name="image_url" placeholder="Image URL" />
+        <button class="btn btn-primary small" type="submit">Save Section</button>
+      </form>
+      <table style="margin-top:1rem;">
+        <thead><tr><th>Key</th><th>Title EN</th><th>Updated</th><th></th></tr></thead>
+        <tbody id="sectionsTable"></tbody>
+      </table>
+      <div id="sectionStatus" class="status-bar"></div>
+    </div>
+
+  </main>
+</div>
+<script type="module" src="https://esm.sh/@supabase/supabase-js@2"></script>
+<script>
+  window.SUPABASE_ANON_KEY = 'ANON_KEY_PLACEHOLDER';
+  window.createSupabaseClient = (url, key) => window.supabase.createClient(url, key);
+  const supabase = window.createSupabaseClient('https://xbznaxiummganlidnmdd.supabase.co', window.SUPABASE_ANON_KEY);
+</script>
+<script type="module">
+
+const authPanel = document.getElementById('authPanel')
+const panels = ['panel-products','panel-subcats','panel-sections'].map(id=>document.getElementById(id))
+const loginForm = document.getElementById('loginForm')
+const loginStatus = document.getElementById('loginStatus')
+const logoutBtn = document.getElementById('logoutBtn')
+
+async function checkSession(){
+  const { data:{ session } } = await supabase.auth.getSession()
+  if(session){ onLogin() } else { onLogout() }
+}
+
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault()
+  loginStatus.textContent = 'Signing in...'
+  const email = loginForm.querySelector('#loginEmail').value
+  const password = loginForm.querySelector('#loginPassword').value
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if(error){ loginStatus.textContent = error.message; return }
+  loginStatus.textContent = 'Success.'
+  onLogin()
+})
+
+logoutBtn.addEventListener('click', async e => { e.preventDefault(); await supabase.auth.signOut(); onLogout() })
+
+function onLogin(){
+  authPanel.hidden = true
+  panels.forEach(p=>p.hidden=false)
+  loadAll()
+}
+function onLogout(){
+  authPanel.hidden = false
+  panels.forEach(p=>p.hidden=true)
+}
+
+// PRODUCTS
+const productsTable = document.getElementById('productsTable')
+const prodCount = document.getElementById('prodCount')
+const newProductBtn = document.getElementById('newProductBtn')
+const productFormWrap = document.getElementById('productFormWrap')
+const productForm = document.getElementById('productForm')
+const productFormStatus = document.getElementById('productFormStatus')
+let editingProductId = null
+
+newProductBtn.addEventListener('click', ()=>{ editingProductId=null; productForm.reset(); productFormWrap.hidden=false })
+
+document.getElementById('cancelProduct').addEventListener('click', ()=>{ productFormWrap.hidden=true })
+
+productForm.addEventListener('submit', async e => {
+  e.preventDefault()
+  productFormStatus.textContent = 'Saving...'
+  const formData = new FormData(productForm)
+  const payload = Object.fromEntries(formData.entries())
+  payload.featured = formData.get('featured') === 'on'
+  payload.active = formData.get('active') === 'on'
+  if(payload.ingredients){
+    try { payload.ingredients = JSON.parse(payload.ingredients) } catch { payload.ingredients = [] }
+  }
+  if(editingProductId){
+    const { error } = await supabase.from('products').update(payload).eq('id', editingProductId)
+    if(error){ productFormStatus.textContent = error.message; return }
+  } else {
+    const { error } = await supabase.from('products').insert(payload)
+    if(error){ productFormStatus.textContent = error.message; return }
+  }
+  productFormStatus.textContent = 'Saved.'
+  loadProducts()
+})
+
+async function loadProducts(){
+  const { data, error } = await supabase.from('products').select('*').order('id', { ascending:false })
+  if(error){ productsTable.innerHTML = `<tr><td colspan=7>${error.message}</td></tr>`; return }
+  prodCount.textContent = data.length
+  productsTable.innerHTML = data.map(p=>`<tr><td>${p.id}</td><td>${p.name_en||''}</td><td>${p.main_type}</td><td>${p.sub_slug||''}</td><td>${p.active?'✓':''}</td><td>${p.featured?'★':''}</td><td><button data-id="${p.id}" class="btn small">Edit</button> <button data-del="${p.id}" class="btn small danger">Del</button></td></tr>`).join('')
+}
+
+productsTable.addEventListener('click', async e => {
+  if(e.target.matches('[data-id]')){
+    const id = e.target.getAttribute('data-id')
+    const { data } = await supabase.from('products').select('*').eq('id', id).single()
+    if(data){
+      editingProductId = id
+      productFormWrap.hidden=false
+      productForm.querySelector('[name="name_en"]').value = data.name_en||''
+      productForm.querySelector('[name="name_ar"]').value = data.name_ar||''
+      productForm.querySelector('[name="image_url"]').value = data.image_url||''
+      productForm.querySelector('[name="main_type"]').value = data.main_type
+      productForm.querySelector('[name="sub_slug"]').value = data.sub_slug||''
+      productForm.querySelector('[name="featured"]').checked = !!data.featured
+      productForm.querySelector('[name="active"]').checked = !!data.active
+      productForm.querySelector('[name="description_en"]').value = data.description_en||''
+      productForm.querySelector('[name="description_ar"]').value = data.description_ar||''
+      productForm.querySelector('[name="ingredients"]').value = JSON.stringify(data.ingredients||[])
+    }
+  }
+  if(e.target.matches('[data-del]')){
+    const id = e.target.getAttribute('data-del')
+    if(confirm('Delete product '+id+'?')){
+      await supabase.from('products').delete().eq('id', id)
+      loadProducts()
+    }
+  }
+})
+
+// SUBCATEGORIES
+const subcatTable = document.getElementById('subcatTable')
+const subcatForm = document.getElementById('subcatForm')
+const subcatStatus = document.getElementById('subcatStatus')
+const subSlugSelect = document.getElementById('subSlugSelect')
+
+subcatForm.addEventListener('submit', async e => {
+  e.preventDefault()
+  subcatStatus.textContent='Saving...'
+  const fd = new FormData(subcatForm)
+  const payload = Object.fromEntries(fd.entries())
+  payload.active = fd.get('active') === 'on'
+  if(!payload.slug) return
+  const existing = await supabase.from('subcategories').select('slug').eq('slug', payload.slug).single()
+  if(existing.data){
+    const { error } = await supabase.from('subcategories').update(payload).eq('slug', payload.slug)
+    if(error){ subcatStatus.textContent = error.message; return }
+  } else {
+    const { error } = await supabase.from('subcategories').insert(payload)
+    if(error){ subcatStatus.textContent = error.message; return }
+  }
+  subcatStatus.textContent = 'Saved.'
+  loadSubcats()
+})
+
+subcatTable.addEventListener('click', async e => {
+  if(e.target.matches('[data-edit-sub]')){
+    const slug = e.target.getAttribute('data-edit-sub')
+    const { data } = await supabase.from('subcategories').select('*').eq('slug', slug).single()
+    if(data){
+      subcatForm.querySelector('[name="slug"]').value = data.slug
+      subcatForm.querySelector('[name="title_en"]').value = data.title_en||''
+      subcatForm.querySelector('[name="title_ar"]').value = data.title_ar||''
+      subcatForm.querySelector('[name="category_type"]').value = data.category_type
+      subcatForm.querySelector('[name="banner_image_url"]').value = data.banner_image_url||''
+      subcatForm.querySelector('[name="sort_order"]').value = data.sort_order||0
+      subcatForm.querySelector('[name="active"]').checked = !!data.active
+    }
+  }
+  if(e.target.matches('[data-del-sub]')){
+    const slug = e.target.getAttribute('data-del-sub')
+    if(confirm('Delete subcategory '+slug+'?')){
+      await supabase.from('subcategories').delete().eq('slug', slug)
+      loadSubcats()
+    }
+  }
+})
+
+async function loadSubcats(){
+  const { data, error } = await supabase.from('subcategories').select('*').order('sort_order')
+  if(error){ subcatTable.innerHTML = `<tr><td colspan=6>${error.message}</td></tr>`; return }
+  subcatTable.innerHTML = data.map(s=>`<tr><td>${s.slug}</td><td>${s.category_type}</td><td>${s.title_en}</td><td>${s.sort_order}</td><td>${s.active?'✓':''}</td><td><button data-edit-sub="${s.slug}" class="btn small">Edit</button> <button data-del-sub="${s.slug}" class="btn small danger">Del</button></td></tr>`).join('')
+  subSlugSelect.innerHTML = '<option value="">(none)</option>' + data.filter(s=>s.active).map(s=>`<option value="${s.slug}">${s.title_en}</option>`).join('')
+}
+
+// SECTIONS
+const sectionsTable = document.getElementById('sectionsTable')
+const sectionForm = document.getElementById('sectionForm')
+const sectionStatus = document.getElementById('sectionStatus')
+
+sectionForm.addEventListener('submit', async e => {
+  e.preventDefault()
+  sectionStatus.textContent='Saving...'
+  const fd = new FormData(sectionForm)
+  const payload = Object.fromEntries(fd.entries())
+  const existing = await supabase.from('sections').select('key').eq('key', payload.key).single()
+  if(existing.data){
+    const { error } = await supabase.from('sections').update(payload).eq('key', payload.key)
+    if(error){ sectionStatus.textContent = error.message; return }
+  } else {
+    const { error } = await supabase.from('sections').insert(payload)
+    if(error){ sectionStatus.textContent = error.message; return }
+  }
+  sectionStatus.textContent='Saved.'
+  loadSections()
+})
+
+sectionsTable.addEventListener('click', async e => {
+  if(e.target.matches('[data-edit-section]')){
+    const key = e.target.getAttribute('data-edit-section')
+    const { data } = await supabase.from('sections').select('*').eq('key', key).single()
+    if(data){
+      ['key','title_en','title_ar','body_en','body_ar','image_url'].forEach(f=>{ sectionForm.querySelector(`[name="${f}"]`).value = data[f]||'' })
+    }
+  }
+})
+
+async function loadSections(){
+  const { data, error } = await supabase.from('sections').select('*').order('updated_at',{ascending:false})
+  if(error){ sectionsTable.innerHTML = `<tr><td colspan=4>${error.message}</td></tr>`; return }
+  sectionsTable.innerHTML = data.map(s=>`<tr><td>${s.key}</td><td>${s.title_en||''}</td><td>${new Date(s.updated_at).toLocaleString()}</td><td><button data-edit-section="${s.key}" class="btn small">Edit</button></td></tr>`).join('')
+}
+
+async function loadAll(){
+  await Promise.all([loadProducts(), loadSubcats(), loadSections()])
+}
+
+checkSession()
+
+</script>
+</body>
+</html>

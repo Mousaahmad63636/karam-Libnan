@@ -207,6 +207,12 @@
   <!-- Floating WhatsApp -->
   <a href="https://wa.me/9611234567" class="float-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp Chat">💬</a>
 
+  <!-- Supabase (runtime injection). Replace ANON_KEY placeholder with real anon key in deployment -->
+  <script type="module" src="https://esm.sh/@supabase/supabase-js@2"></script>
+  <script>
+    window.SUPABASE_ANON_KEY = 'ANON_KEY_PLACEHOLDER';
+    window.createSupabaseClient = (url, key) => window.supabase.createClient(url, key);
+  </script>
   <script src="js/app.js" defer></script>
 </body>
 </html>

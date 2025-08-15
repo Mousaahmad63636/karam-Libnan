@@ -404,6 +404,63 @@ const BANNERS = {
   'kishik': 'images/hero.png'
 };
 
+// ----- Overrides Loading (Admin Support) -----
+let SITE_OVERRIDES = null;
+function loadOverrides() {
+  try {
+    const raw = localStorage.getItem('siteOverrides');
+    if (!raw) return;
+    SITE_OVERRIDES = JSON.parse(raw);
+    if (SITE_OVERRIDES.products && Array.isArray(SITE_OVERRIDES.products)) {
+      productsData.length = 0; // mutate in place
+      SITE_OVERRIDES.products.forEach(p => productsData.push(p));
+    }
+    if (SITE_OVERRIDES.subcats) {
+      if (SITE_OVERRIDES.subcats.single) SUBCATS.single = SITE_OVERRIDES.subcats.single;
+      if (SITE_OVERRIDES.subcats.bulk) SUBCATS.bulk = SITE_OVERRIDES.subcats.bulk;
+    }
+    if (SITE_OVERRIDES.banners) {
+      Object.assign(BANNERS, SITE_OVERRIDES.banners);
+    }
+  } catch (e) {
+    console.warn('Failed loading overrides', e);
+  }
+}
+
+function applyContentOverrides() {
+  if (!SITE_OVERRIDES) return;
+  // Hero
+  if (SITE_OVERRIDES.hero) {
+    const heroTitle = document.querySelector('.hero h1');
+    const heroLead = document.querySelector('.hero .lead, .hero p');
+    if (SITE_OVERRIDES.hero.title && heroTitle) heroTitle.textContent = SITE_OVERRIDES.hero.title;
+    if (SITE_OVERRIDES.hero.lead && heroLead) heroLead.textContent = SITE_OVERRIDES.hero.lead;
+    if (SITE_OVERRIDES.hero.image) {
+      const heroSection = document.querySelector('.hero');
+      if (heroSection) heroSection.style.backgroundImage = `var(--gradient-hero), url('${SITE_OVERRIDES.hero.image}')`;
+    }
+  }
+  // About
+  if (SITE_OVERRIDES.about) {
+    if (SITE_OVERRIDES.about.heading) {
+      const aboutHeading = document.querySelector('#aboutHeading');
+      if (aboutHeading) aboutHeading.textContent = SITE_OVERRIDES.about.heading;
+    }
+    if (SITE_OVERRIDES.about.text && Array.isArray(SITE_OVERRIDES.about.text)) {
+      const aboutSection = document.querySelector('#about .container > div:first-child');
+      if (aboutSection) {
+        // Replace first two <p>
+        const ps = aboutSection.querySelectorAll('p');
+        SITE_OVERRIDES.about.text.forEach((t,i)=>{ if (ps[i]) ps[i].textContent = t; });
+      }
+    }
+    if (SITE_OVERRIDES.about.image) {
+      const img = document.querySelector('.about-image-wrapper img');
+      if (img) img.src = SITE_OVERRIDES.about.image;
+    }
+  }
+}
+
 // Navigation toggle
 const navToggle = document.querySelector('.nav-toggle');
 const navList = document.querySelector('.nav-list');
@@ -623,13 +680,65 @@ window.addEventListener('scroll', () => {
   if (window.scrollY > 60) document.body.classList.add('scrolled'); else document.body.classList.remove('scrolled');
 });
 
-// Initial renders & setup
-renderFeatured();
-buildSubFilters();
-initMainTabs();
-renderProducts();
-observeFadeIns();
-applyTranslations();
+// Initial renders & setup with optional Supabase fetch
+async function initializeSite(){
+  loadOverrides();
+  await tryRemoteLoad();
+  buildSubFilters();
+  initMainTabs();
+  renderFeatured();
+  renderProducts();
+  observeFadeIns();
+  applyTranslations();
+  applyContentOverrides();
+}
+
+async function tryRemoteLoad(){
+  const anonKey = window.SUPABASE_ANON_KEY; // expect injection
+  if(!anonKey || !window.createSupabaseClient) return; // no remote
+  try {
+    const client = window.createSupabaseClient('https://xbznaxiummganlidnmdd.supabase.co', anonKey);
+    // Load subcategories
+    const { data: subs } = await client.from('subcategories').select('*').eq('active', true).order('sort_order');
+    if (subs?.length){
+      SUBCATS.single = subs.filter(s=>s.category_type==='single').map(s=>s.slug.replace(/-/g,' '));
+      SUBCATS.bulk = subs.filter(s=>s.category_type==='bulk').map(s=>s.slug.replace(/-/g,' '));
+      // banners mapping
+      subs.forEach(s=>{ if (s.banner_image_url) BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url; });
+    }
+    // Load products
+    const { data: prods } = await client.from('products').select('*').eq('active', true).limit(500);
+    if (prods?.length){
+      productsData.length = 0;
+      prods.forEach(p=> productsData.push({
+        id: p.id,
+        name: p.name_en || 'Unnamed',
+        category: p.sub_slug || 'general',
+        mainType: p.main_type,
+        sub: (p.sub_slug || '').replace(/-/g,' '),
+        featured: !!p.featured,
+        image: p.image_url || FALLBACK_IMAGE,
+        description: p.description_en || '',
+        ingredients: Array.isArray(p.ingredients)? p.ingredients : []
+      }));
+    }
+    // Sections (hero/about) override
+    const { data: sections } = await client.from('sections').select('*');
+    if (sections?.length){
+      SITE_OVERRIDES = SITE_OVERRIDES || {};
+      sections.forEach(sec=>{
+        if (sec.key==='hero') {
+          SITE_OVERRIDES.hero = { title: sec.title_en, lead: sec.body_en, image: sec.image_url };
+        }
+        if (sec.key==='about') {
+          SITE_OVERRIDES.about = { heading: sec.title_en, text: sec.body_en? [sec.body_en]:[], image: sec.image_url };
+        }
+      });
+    }
+  } catch(err){ console.warn('Remote load failed', err); }
+}
+
+initializeSite();
 
 // Attach fallback handlers to images (run after each render)
 function attachImageFallbacks() {
