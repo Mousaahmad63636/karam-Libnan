@@ -7,8 +7,8 @@
   --color-bg-alt: #efe9e1;
   --color-primary: #5e6b3d; /* olive green */
   --color-primary-accent: #7c8b4d;
-  --color-secondary: #b68655; /* warm wood */
-  --color-accent: #c49d62;
+  --color-secondary: #c8102e; /* Lebanese flag red replacing light brown */
+  --color-accent: #e53342;
   --color-text: #3e3a36;
   --color-text-light: #6d655e;
   --color-white: #ffffff;
@@ -54,16 +54,53 @@ a:hover, a:focus { color: var(--color-secondary); }
 .responsive { width: 100%; height: auto; }
 
 /* Header */
-.site-header { position: sticky; top: 0; background: rgba(246,243,238,0.92); backdrop-filter: blur(6px); box-shadow: var(--shadow-sm); z-index: 100; }
+.site-header { position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); box-shadow: var(--shadow-sm); z-index: 120; transition: background .3s ease, box-shadow .3s ease; }
+.site-header.header-transparent { background: transparent; box-shadow: none; }
+.scrolled .site-header.header-transparent { background: rgba(255,255,255,0.92); box-shadow: var(--shadow-sm); }
 .logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; letter-spacing: .5px; color: var(--color-primary); }
 .logo span { color: var(--color-secondary); }
 .main-nav { position: relative; }
 .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: .5rem; }
 .nav-toggle .bar { display: block; width: 26px; height: 3px; background: var(--color-primary); margin: 5px 0; transition: var(--transition); border-radius: 3px; }
 .nav-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.5rem; }
-.nav-list a { font-weight: 600; padding: .8rem .6rem; border-radius: var(--radius-sm); position: relative; }
-.nav-list a:hover, .nav-list a:focus { background: var(--color-primary); color: var(--color-white); }
-.nav-list a.active { color: var(--color-secondary); }
+.nav-list a { font-weight: 600; padding: .8rem .6rem; border-radius: var(--radius-full); position: relative; overflow: hidden; }
+.nav-list a::after { content:""; position:absolute; left:50%; top:100%; width:0; height:0; background: var(--color-secondary); transform:translateX(-50%); border-radius:50%; transition:.35s ease; }
+.nav-list a:hover, .nav-list a:focus { color: var(--color-secondary); }
+.nav-list a:hover::after, .nav-list a:focus::after { top:0; width:140%; height:140%; opacity:.15; }
+.nav-list a.active { color: var(--color-secondary); font-weight:700; }
+
+/* Header actions */
+.header-actions { display:flex; align-items:center; gap:1rem; }
+.search-wrapper { position:relative; }
+#productSearch { padding:.55rem .9rem .55rem 2.2rem; border:1px solid var(--color-border); border-radius: var(--radius-full); font-size:.85rem; background:#fff; width:180px; transition:width .35s ease; }
+#productSearch:focus { outline:2px solid var(--color-secondary); width:230px; }
+.search-icon { position:absolute; left:.75rem; top:50%; transform:translateY(-50%); font-size:.85rem; pointer-events:none; }
+.lang-toggle { background: var(--color-secondary); color: #fff; border:none; padding:.5rem .9rem; border-radius: var(--radius-full); cursor:pointer; font-weight:600; font-size:.7rem; letter-spacing:.5px; }
+.lang-toggle:hover { background: var(--color-accent); }
+
+/* Main category tabs */
+.main-cat-tabs { display:flex; gap:.6rem; margin:1.2rem 0 1rem; flex-wrap:wrap; }
+.main-cat-tab { background:#fff; border:1px solid var(--color-border); padding:.6rem 1.1rem; border-radius: var(--radius-full); cursor:pointer; font-weight:600; font-size:.8rem; position:relative; }
+.main-cat-tab.active { background: var(--color-secondary); color:#fff; border-color: var(--color-secondary); }
+
+/* Subcategory filters */
+.sub-filters .filter-btn { font-size:.7rem; padding:.45rem .85rem; }
+.hidden { display:none !important; }
+
+/* Category banner */
+.category-banner { margin:1rem 0 2rem; border-radius: var(--radius-md); min-height:160px; background:#ddd center/cover no-repeat; display:flex; align-items:flex-end; padding:1rem 1.2rem; color:#fff; font-family:'Playfair Display', serif; font-size:1.6rem; font-weight:600; box-shadow: var(--shadow-sm); position:relative; overflow:hidden; }
+.category-banner::after { content:""; position:absolute; inset:0; background: linear-gradient(180deg,rgba(0,0,0,0) 10%, rgba(0,0,0,.55) 100%); }
+.category-banner span { position:relative; z-index:2; }
+
+/* Pending section */
+.pending .placeholder { opacity:.6; }
+/* Product grid adjustments for search results */
+.product-grid { transition: opacity .25s ease; }
+body.searching .product-grid { opacity:.4; }
+
+/* Floating WhatsApp */
+.float-whatsapp { position:fixed; bottom:18px; right:18px; background: #25d366; color:#fff; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; box-shadow:0 4px 15px rgba(0,0,0,.25); z-index:150; transition:transform .3s ease, box-shadow .3s ease; }
+.float-whatsapp:hover { transform:translateY(-4px); box-shadow:0 6px 18px rgba(0,0,0,.3); }
 
 /* Hero */
 .hero { position: relative; min-height: 70vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero), url('../images/hero.png') center/cover no-repeat; color: var(--color-white); }
@@ -133,6 +170,16 @@ input:focus, textarea:focus { outline: 2px solid var(--color-secondary); outline
 @media (min-width: 680px) {
   .two-col { grid-template-columns: repeat(2,1fr); align-items: center; }
   .contact-layout { grid-template-columns: 1.1fr 1fr; }
+}
+@media (min-width: 960px) {
+  .product-grid { grid-template-columns: repeat(4,1fr); }
+  body.searching .product-grid { grid-template-columns: repeat(4,1fr); }
+}
+@media (max-width: 640px) {
+  .product-grid { grid-template-columns: repeat(2,1fr); }
+  body.searching .product-grid { grid-template-columns: repeat(2,1fr); }
+  #productSearch { width:140px; }
+  #productSearch:focus { width:180px; }
 }
 @media (max-width: 820px) {
   .nav-toggle { display: block; }

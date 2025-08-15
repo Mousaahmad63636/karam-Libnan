@@ -22,20 +22,30 @@
 </head>
 <body>
   <!-- Header / Navigation -->
-  <header class="site-header" id="top">
-    <div class="container flex between center-v">
-      <div class="logo">Karam <span>Libnan</span></div>
+  <header class="site-header header-transparent" id="top">
+    <div class="container flex between center-v header-inner">
+      <div class="logo" id="logo">Karam <span>Libnan</span></div>
       <nav class="main-nav" aria-label="Primary Navigation">
         <button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
           <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </button>
         <ul id="navMenu" class="nav-list">
-          <li><a href="#home" class="active">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#products">Products</a></li>
-            <li><a href="#contact">Contact</a></li>
+          <li><a href="#home" class="active" data-i18n="nav.home">Home</a></li>
+          <li><a href="#about" data-i18n="nav.about">About</a></li>
+          <li><a href="#products" data-i18n="nav.products">Products</a></li>
+          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+          <li><a href="services.html" data-i18n="nav.services">Services</a></li>
+          <li><a href="faq.html" data-i18n="nav.faq">F&Q</a></li>
+          <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+          <li class="lang-switch-item"><button id="langToggle" class="lang-toggle" aria-label="Toggle language">AR</button></li>
         </ul>
       </nav>
+      <div class="header-actions">
+        <div class="search-wrapper">
+          <input type="text" id="productSearch" placeholder="Search products" aria-label="Search products" />
+          <span class="search-icon" aria-hidden="true">🔍</span>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -82,19 +92,38 @@
   <!-- Products Section -->
   <section id="products" class="products section-padding" aria-labelledby="productsHeading">
     <div class="container">
-      <h2 id="productsHeading" class="section-title">Our Products</h2>
-      <p class="section-intro">Browse our categories of homemade and canned Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)</p>
+      <h2 id="productsHeading" class="section-title" data-i18n="products.title">Our Products</h2>
+      <p class="section-intro" data-i18n="products.intro">Browse our categories of Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)</p>
 
-      <!-- Product Filters -->
-      <div class="filters" aria-label="Product Category Filters">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="homemade">Homemade</button>
-        <button class="filter-btn" data-filter="canned">Canned</button>
-        <button class="filter-btn" data-filter="herbal">Herbal</button>
-        <button class="filter-btn" data-filter="sweets">Sweets</button>
+      <!-- Main Category Tabs -->
+      <div class="main-cat-tabs" role="tablist" aria-label="Main product groups">
+        <button role="tab" aria-selected="true" class="main-cat-tab active" data-main="single" data-i18n="products.singleServe">Single Serve Products</button>
+        <button role="tab" aria-selected="false" class="main-cat-tab" data-main="bulk" data-i18n="products.bulk">Bulk Products</button>
       </div>
 
-      <div class="grid cards-3" id="productGrid" aria-live="polite"></div>
+      <!-- Subcategory Filters -->
+      <div class="subcategory-wrapper" aria-live="polite">
+        <div class="filters sub-filters" id="subFiltersSingle" aria-label="Single Serve Subcategories"></div>
+        <div class="filters sub-filters hidden" id="subFiltersBulk" aria-label="Bulk Subcategories"></div>
+      </div>
+
+      <!-- Category Banner -->
+      <div class="category-banner" id="categoryBanner" aria-hidden="true"></div>
+
+      <div class="grid cards-3 product-grid" id="productGrid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- Pending / Coming Soon Section -->
+  <section id="pending" class="pending section-alt section-padding" aria-labelledby="pendingHeading">
+    <div class="container">
+      <h2 id="pendingHeading" class="section-title" data-i18n="pending.title">Coming Soon</h2>
+      <p class="section-intro" data-i18n="pending.intro">New authentic items are being prepared. Stay tuned!</p>
+      <div class="grid cards-3" id="pendingGrid">
+        <article class="card placeholder"><div class="card-body"><h3 class="card-title" data-i18n="pending.placeholder">Pending Item</h3><p data-i18n="pending.desc">Awaiting arrival...</p></div></article>
+        <article class="card placeholder"><div class="card-body"><h3 class="card-title" data-i18n="pending.placeholder">Pending Item</h3><p data-i18n="pending.desc">Awaiting arrival...</p></div></article>
+        <article class="card placeholder"><div class="card-body"><h3 class="card-title" data-i18n="pending.placeholder">Pending Item</h3><p data-i18n="pending.desc">Awaiting arrival...</p></div></article>
+      </div>
     </div>
   </section>
 
@@ -155,6 +184,9 @@
           <li><a href="#home">Home</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#products">Products</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="faq.html">F&Q</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
       </nav>
@@ -168,6 +200,9 @@
       <a href="#top" class="back-to-top" aria-label="Back to Top">▲</a>
     </div>
   </footer>
+
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/9611234567" class="float-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp Chat">💬</a>
 
   <script src="js/app.js" defer></script>
 </body>
