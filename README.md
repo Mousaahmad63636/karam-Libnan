@@ -1,13 +1,35 @@
 # Karam Libnan Website
 
-Modern catalog + lightweight CMS (admin panel) for Lebanese homemade & canned products. Frontend is static HTML/CSS/JS; dynamic data loaded from Supabase (Postgres + Auth + Storage). Admin dashboard provides CRUD for products, subcategories, and content sections (hero, about, banners, etc.).
+Modern catalog + comprehensive admin system for Lebanese homemade & canned products. Frontend is static HTML/CSS/JS; dynamic data loaded from Supabase (Postgres + Auth + Storage). Professional admin dashboard provides complete website management.
+
+## 🚀 **STATUS: PRODUCTION READY** ✅
+
+**📋 For New Development Sessions:**
+1. **Read First:** [`PROJECT_STATUS.md`](./PROJECT_STATUS.md) - Complete achievement summary
+2. **Technical Reference:** [`PROJECT_INDEX.md`](./PROJECT_INDEX.md) - Detailed documentation  
+3. **Database:** Fully deployed and operational at Supabase
+4. **Admin Panel:** Fully functional with complete CRUD capabilities
+
+## Quick Start
+
+**🌐 Website Access:**
+- **Main Site:** Open `index.html` in browser
+- **Admin Panel:** Open `admin.html` and login with admin credentials
+
+**🔧 Development:**
+```bash
+# Serve locally for ES modules
+python -m http.server 8000
+# Access: http://localhost:8000
+```
 
 ## Tech Stack
-- Frontend: Vanilla HTML/CSS/JS (progressive enhancement)
-- Backend: Supabase (Postgres, Auth, Storage, RLS)
-- Optional Overrides: Local `localStorage` fallback for dev/demo
+- **Frontend:** Vanilla HTML/CSS/JS (progressive enhancement)
+- **Backend:** Supabase (Postgres, Auth, Storage, RLS)
+- **Admin:** Complete dashboard with CRUD operations
+- **Database:** Full schema with FTS and security policies
 
-## Repository Structure
+## Project Structure
 - `index.html` – Public landing (hero, about, products, contact, pending section)
 - `events.html`, `services.html`, `faq.html` – Additional marketing pages
 - `admin.html` – Auth + CRUD dashboard (Supabase powered)
@@ -101,4 +123,22 @@ Use `admin.html` (preferable). Static fallback array in `app.js` is only a seed;
 Placeholder content/images—replace with brand-approved assets prior to production.
 
 ---
-Questions or deployment issues: update schema or open admin panel for troubleshooting.
+
+## 📚 **Complete Documentation Available:**
+
+- **[`PROJECT_STATUS.md`](./PROJECT_STATUS.md)** - **READ THIS FIRST** for new Claude sessions
+  - Complete achievement summary
+  - Current project status  
+  - Production readiness checklist
+  - Context for continuing development
+
+- **[`PROJECT_INDEX.md`](./PROJECT_INDEX.md)** - Technical reference guide
+  - Detailed file structure and purposes
+  - Database schema explanations
+  - Development workflow guidelines
+  - Security considerations
+
+**For any new development work, start by reading PROJECT_STATUS.md to understand what has been accomplished and the current state of the project.**
+
+---
+Questions or deployment issues: Check PROJECT_STATUS.md or open admin panel for system diagnostics.

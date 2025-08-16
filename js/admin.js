@@ -11,7 +11,7 @@ class AdminManager {
     this.editingItem = null;
     
     // Storage configuration
-    this.STORAGE_BUCKET = 'karam-libnan';
+    this.STORAGE_BUCKET = 'karamlebnanbucket';
     this.MAX_IMAGE_SIZE = 4 * 1024 * 1024; // 4MB
     
     this.init();
