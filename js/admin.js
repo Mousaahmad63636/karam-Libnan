@@ -136,15 +136,15 @@ class AdminManager {
   // ==================== UI MANAGEMENT ====================
   showLogin() {
     this.hideAllSections();
-    document.getElementById('authPanel').hidden = false;
-    document.getElementById('sidebar').hidden = true;
-    document.getElementById('topbar').hidden = true;
+    document.getElementById('authPanel').classList.remove('hidden');
+    document.getElementById('sidebar').classList.add('hidden');
+    document.getElementById('topbar').classList.add('hidden');
   }
 
   showDashboard() {
-    document.getElementById('authPanel').hidden = true;
-    document.getElementById('sidebar').hidden = false;
-    document.getElementById('topbar').hidden = false;
+    document.getElementById('authPanel').classList.add('hidden');
+    document.getElementById('sidebar').classList.remove('hidden');
+    document.getElementById('topbar').classList.remove('hidden');
     this.showSection('dashboard');
     this.loadDashboardStats();
     
@@ -153,6 +153,7 @@ class AdminManager {
   }
 
   showSection(sectionName) {
+    console.log('Showing section:', sectionName);
     this.currentSection = sectionName;
     this.hideAllSections();
     
@@ -161,17 +162,33 @@ class AdminManager {
       el.classList.toggle('active', el.dataset.section === sectionName);
     });
     
-    // Show section
+    // Update topbar title
+    const topbarTitle = document.querySelector('#topbar h1');
+    if (topbarTitle) {
+      const titles = {
+        dashboard: 'Dashboard',
+        products: 'Products Management',
+        subcategories: 'Categories Management',
+        sections: 'Content Sections',
+        media: 'Media Management'
+      };
+      topbarTitle.textContent = titles[sectionName] || 'Admin Panel';
+    }
+    
+    // Show section by removing hidden class
     const section = document.getElementById(`section-${sectionName}`);
+    console.log('Found section element:', section);
     if (section) {
-      section.hidden = false;
+      section.classList.remove('hidden');
       this.loadSectionData(sectionName);
+    } else {
+      console.error(`Section not found: section-${sectionName}`);
     }
   }
 
   hideAllSections() {
     document.querySelectorAll('[id^="section-"]').forEach(el => {
-      el.hidden = true;
+      el.classList.add('hidden');
     });
   }
 
@@ -463,7 +480,7 @@ class AdminManager {
     const title = document.getElementById('productFormTitle');
     
     if (form) {
-      form.hidden = false;
+      form.classList.remove('hidden');
       if (title) {
         title.textContent = isEdit ? 'Edit Product' : 'New Product';
       }
@@ -473,7 +490,7 @@ class AdminManager {
   hideProductForm() {
     const form = document.getElementById('productFormPanel');
     if (form) {
-      form.hidden = true;
+      form.classList.add('hidden');
       const productForm = document.getElementById('productForm');
       if (productForm) {
         productForm.reset();
@@ -1409,7 +1426,7 @@ class AdminManager {
     const title = document.getElementById('subcategoryFormTitle');
     
     if (form) {
-      form.hidden = false;
+      form.classList.remove('hidden');
       if (title) {
         title.textContent = isEdit ? 'Edit Subcategory' : 'New Subcategory';
       }
@@ -1460,7 +1477,7 @@ class AdminManager {
     const title = document.getElementById('sectionFormTitle');
     
     if (form) {
-      form.hidden = false;
+      form.classList.remove('hidden');
       if (title) {
         title.textContent = isEdit ? 'Edit Section' : 'New Section';
       }
@@ -1470,7 +1487,7 @@ class AdminManager {
   hideSubcategoryForm() {
     const form = document.getElementById('subcategoryFormPanel');
     if (form) {
-      form.hidden = true;
+      form.classList.add('hidden');
       const subcategoryForm = document.getElementById('subcategoryForm');
       if (subcategoryForm) {
         subcategoryForm.reset();
@@ -1482,7 +1499,7 @@ class AdminManager {
   hideSectionForm() {
     const form = document.getElementById('sectionFormPanel');
     if (form) {
-      form.hidden = true;
+      form.classList.add('hidden');
       const sectionForm = document.getElementById('sectionForm');
       if (sectionForm) {
         sectionForm.reset();
