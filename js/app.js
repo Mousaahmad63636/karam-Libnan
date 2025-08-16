@@ -729,7 +729,7 @@ async function tryRemoteLoad(){
         ingredients: Array.isArray(p.ingredients)? p.ingredients : []
       }));
     }
-    // Sections (hero/about/contact/etc) override - handle all sections with simple ordering
+    // Sections (hero/about/contact/etc) override - handle all sections with proper ordering
     const { data: sections, error: sectionsErr } = await client.from('sections').select('*');
     if (sectionsErr && /not found/i.test(sectionsErr.message)) {
       console.warn('Supabase table sections not found.');
@@ -737,35 +737,34 @@ async function tryRemoteLoad(){
     if (sections?.length){
       SITE_OVERRIDES = SITE_OVERRIDES || {};
       
-      // Define section order: fixed sections first, then custom sections
-      const sectionOrder = ['hero', 'about', 'contact'];
-      const orderedSections = [];
+      // Define section order: hero, about, products, pending, custom sections, then contact at end
+      const fixedSections = ['hero', 'about'];
+      const contactSection = sections.find(s => s.key === 'contact');
+      const customSections = sections.filter(s => !fixedSections.includes(s.key) && s.key !== 'contact');
       
-      // Add fixed sections first (in order)
-      sectionOrder.forEach(key => {
+      // Process fixed sections first (hero, about)
+      fixedSections.forEach(key => {
         const section = sections.find(s => s.key === key);
-        if (section) orderedSections.push(section);
-      });
-      
-      // Add any other sections at the end
-      sections.forEach(sec => {
-        if (!sectionOrder.includes(sec.key)) {
-          orderedSections.push(sec);
+        if (section) {
+          if (section.key === 'hero') {
+            SITE_OVERRIDES.hero = { title: section.title_en, lead: section.body_en, image: section.image_url };
+          }
+          if (section.key === 'about') {
+            SITE_OVERRIDES.about = { heading: section.title_en, text: section.body_en? [section.body_en]:[], image: section.image_url };
+          }
+          updateSectionContent(section.key, section);
         }
       });
       
-      orderedSections.forEach(sec => {
-        // Handle specific known sections
-        if (sec.key === 'hero') {
-          SITE_OVERRIDES.hero = { title: sec.title_en, lead: sec.body_en, image: sec.image_url };
-        }
-        if (sec.key === 'about') {
-          SITE_OVERRIDES.about = { heading: sec.title_en, text: sec.body_en? [sec.body_en]:[], image: sec.image_url };
-        }
-        
-        // Handle all sections dynamically - update existing section content
+      // Process custom sections (appear after pending/coming soon)
+      customSections.forEach(sec => {
         updateSectionContent(sec.key, sec);
       });
+      
+      // Process contact section last (always at bottom)
+      if (contactSection) {
+        updateSectionContent('contact', contactSection);
+      }
     }
   } catch(err){ console.warn('Remote load failed', err); }
 }
@@ -816,7 +815,8 @@ function updateSectionContent(sectionKey, sectionData) {
 // Create new section if it doesn't exist in HTML  
 function createNewSection(sectionKey, sectionData) {
   const main = document.querySelector('main') || document.body;
-  const footer = document.querySelector('footer');
+  const pendingSection = document.getElementById('pending');
+  const contactSection = document.getElementById('contact');
   
   const newSection = document.createElement('section');
   newSection.id = sectionKey;
@@ -832,14 +832,24 @@ function createNewSection(sectionKey, sectionData) {
     </div>
   `;
   
-  // Insert before footer (at end of content)
-  if (footer) {
-    main.insertBefore(newSection, footer);
+  // Insert new sections after pending section, before contact section
+  if (contactSection) {
+    // Insert before contact (contact always stays at bottom)
+    main.insertBefore(newSection, contactSection);
+  } else if (pendingSection) {
+    // Insert after pending section
+    pendingSection.insertAdjacentElement('afterend', newSection);
   } else {
-    main.appendChild(newSection);
+    // Fallback: insert before footer or at end
+    const footer = document.querySelector('footer');
+    if (footer) {
+      main.insertBefore(newSection, footer);
+    } else {
+      main.appendChild(newSection);
+    }
   }
   
-  console.log(`Created new section: ${sectionKey}`);
+  console.log(`Created new section: ${sectionKey} (positioned after pending, before contact)`);
   return newSection;
 }
 
