@@ -729,23 +729,100 @@ async function tryRemoteLoad(){
         ingredients: Array.isArray(p.ingredients)? p.ingredients : []
       }));
     }
-    // Sections (hero/about) override
+    // Sections (hero/about/contact/etc) override - handle all sections dynamically
     const { data: sections, error: sectionsErr } = await client.from('sections').select('*');
     if (sectionsErr && /not found/i.test(sectionsErr.message)) {
       console.warn('Supabase table sections not found.');
     }
     if (sections?.length){
       SITE_OVERRIDES = SITE_OVERRIDES || {};
-      sections.forEach(sec=>{
-        if (sec.key==='hero') {
+      sections.forEach(sec => {
+        // Handle specific known sections
+        if (sec.key === 'hero') {
           SITE_OVERRIDES.hero = { title: sec.title_en, lead: sec.body_en, image: sec.image_url };
         }
-        if (sec.key==='about') {
+        if (sec.key === 'about') {
           SITE_OVERRIDES.about = { heading: sec.title_en, text: sec.body_en? [sec.body_en]:[], image: sec.image_url };
         }
+        
+        // Handle all sections dynamically - update existing section content
+        updateSectionContent(sec.key, sec);
       });
     }
   } catch(err){ console.warn('Remote load failed', err); }
+}
+
+// Update section content dynamically based on section data from database
+function updateSectionContent(sectionKey, sectionData) {
+  let section = document.getElementById(sectionKey);
+  
+  // If section doesn't exist, create it dynamically
+  if (!section) {
+    section = createNewSection(sectionKey, sectionData);
+    if (!section) return;
+  }
+  
+  // Update section title if exists
+  const titleElement = section.querySelector('.section-title, h2, h3');
+  if (titleElement && sectionData.title_en) {
+    titleElement.textContent = sectionData.title_en;
+  }
+  
+  // Handle different section types
+  if (sectionKey === 'contact') {
+    // For contact section, update the contact-info content
+    const contactInfo = section.querySelector('.contact-info');
+    if (contactInfo && sectionData.body_en) {
+      // Keep the h3 title, replace the content after it
+      const h3 = contactInfo.querySelector('h3');
+      contactInfo.innerHTML = (h3 ? h3.outerHTML : '<h3>Company Info</h3>') + sectionData.body_en;
+    }
+  } else {
+    // For other sections, update general content areas
+    const bodyElement = section.querySelector('.section-content, .section-text, p:not(.form-status)');
+    if (bodyElement && sectionData.body_en) {
+      bodyElement.innerHTML = sectionData.body_en;
+    }
+  }
+  
+  // Update section image if exists
+  const imageElement = section.querySelector('img:not([src*="maps"])'); // Exclude maps iframe
+  if (imageElement && sectionData.image_url) {
+    imageElement.src = sectionData.image_url;
+    imageElement.alt = sectionData.title_en || 'Section image';
+  }
+  
+  console.log(`Updated section: ${sectionKey}`, sectionData);
+}
+
+// Create new section if it doesn't exist in HTML
+function createNewSection(sectionKey, sectionData) {
+  const main = document.querySelector('main') || document.body;
+  const footer = document.querySelector('footer');
+  
+  const newSection = document.createElement('section');
+  newSection.id = sectionKey;
+  newSection.className = 'section-padding section-alt';
+  
+  newSection.innerHTML = `
+    <div class="container">
+      <h2 class="section-title">${sectionData.title_en || sectionKey}</h2>
+      <div class="section-content">
+        ${sectionData.body_en || ''}
+      </div>
+      ${sectionData.image_url ? `<img src="${sectionData.image_url}" alt="${sectionData.title_en || sectionKey}" loading="lazy" />` : ''}
+    </div>
+  `;
+  
+  // Insert before footer
+  if (footer) {
+    main.insertBefore(newSection, footer);
+  } else {
+    main.appendChild(newSection);
+  }
+  
+  console.log(`Created new section: ${sectionKey}`);
+  return newSection;
 }
 
 initializeSite();
