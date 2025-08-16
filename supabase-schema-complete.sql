@@ -244,3 +244,6 @@ select 'Sections created' as status, count(*) as count from sections;
 
 -- SUCCESS MESSAGE
 select 'Database setup completed successfully!' as message;
+
+
+ALTER TABLE sections ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;

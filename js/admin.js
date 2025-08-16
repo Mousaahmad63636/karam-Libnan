@@ -650,7 +650,7 @@ class AdminManager {
       const { data, error } = await this.supabase
         .from('sections')
         .select('*')
-        .order('updated_at', { ascending: false });
+        .order('sort_order', { ascending: true });
       
       if (error) throw error;
       
@@ -673,6 +673,7 @@ class AdminManager {
           <div class="table-title">${section.title_en || ''}</div>
           <div class="table-subtitle">${section.title_ar || ''}</div>
         </td>
+        <td><strong>${section.sort_order || 0}</strong></td>
         <td>
           ${section.image_url ? `<img src="${section.image_url}" alt="" class="table-thumb">` : '-'}
         </td>
@@ -982,6 +983,11 @@ class AdminManager {
       } catch {
         obj.ingredients = [];
       }
+    }
+    
+    // Convert numeric fields
+    if (obj.sort_order !== undefined && obj.sort_order !== null && obj.sort_order !== '') {
+      obj.sort_order = parseInt(obj.sort_order, 10) || 0;
     }
     
     return obj;

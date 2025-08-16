@@ -730,7 +730,7 @@ async function tryRemoteLoad(){
       }));
     }
     // Sections (hero/about/contact/etc) override - handle all sections dynamically
-    const { data: sections, error: sectionsErr } = await client.from('sections').select('*');
+    const { data: sections, error: sectionsErr } = await client.from('sections').select('*').order('sort_order', { ascending: true });
     if (sectionsErr && /not found/i.test(sectionsErr.message)) {
       console.warn('Supabase table sections not found.');
     }
@@ -814,14 +814,32 @@ function createNewSection(sectionKey, sectionData) {
     </div>
   `;
   
-  // Insert before footer
-  if (footer) {
+  // Find the correct position based on sort order
+  const sections = Array.from(main.querySelectorAll('section[id]'));
+  const sortOrder = sectionData.sort_order || 0;
+  
+  let insertPosition = null;
+  for (let section of sections) {
+    const sectionOrder = parseInt(section.dataset.sortOrder) || 0;
+    if (sortOrder < sectionOrder) {
+      insertPosition = section;
+      break;
+    }
+  }
+  
+  // Set sort order as data attribute for future reference
+  newSection.dataset.sortOrder = sortOrder;
+  
+  // Insert in correct position
+  if (insertPosition) {
+    main.insertBefore(newSection, insertPosition);
+  } else if (footer) {
     main.insertBefore(newSection, footer);
   } else {
     main.appendChild(newSection);
   }
   
-  console.log(`Created new section: ${sectionKey}`);
+  console.log(`Created new section: ${sectionKey} with sort order: ${sortOrder}`);
   return newSection;
 }
 
