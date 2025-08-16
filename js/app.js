@@ -729,14 +729,32 @@ async function tryRemoteLoad(){
         ingredients: Array.isArray(p.ingredients)? p.ingredients : []
       }));
     }
-    // Sections (hero/about/contact/etc) override - handle all sections dynamically
-    const { data: sections, error: sectionsErr } = await client.from('sections').select('*').order('sort_order', { ascending: true });
+    // Sections (hero/about/contact/etc) override - handle all sections with simple ordering
+    const { data: sections, error: sectionsErr } = await client.from('sections').select('*');
     if (sectionsErr && /not found/i.test(sectionsErr.message)) {
       console.warn('Supabase table sections not found.');
     }
     if (sections?.length){
       SITE_OVERRIDES = SITE_OVERRIDES || {};
+      
+      // Define section order: fixed sections first, then custom sections
+      const sectionOrder = ['hero', 'about', 'contact'];
+      const orderedSections = [];
+      
+      // Add fixed sections first (in order)
+      sectionOrder.forEach(key => {
+        const section = sections.find(s => s.key === key);
+        if (section) orderedSections.push(section);
+      });
+      
+      // Add any other sections at the end
       sections.forEach(sec => {
+        if (!sectionOrder.includes(sec.key)) {
+          orderedSections.push(sec);
+        }
+      });
+      
+      orderedSections.forEach(sec => {
         // Handle specific known sections
         if (sec.key === 'hero') {
           SITE_OVERRIDES.hero = { title: sec.title_en, lead: sec.body_en, image: sec.image_url };
@@ -795,7 +813,7 @@ function updateSectionContent(sectionKey, sectionData) {
   console.log(`Updated section: ${sectionKey}`, sectionData);
 }
 
-// Create new section if it doesn't exist in HTML
+// Create new section if it doesn't exist in HTML  
 function createNewSection(sectionKey, sectionData) {
   const main = document.querySelector('main') || document.body;
   const footer = document.querySelector('footer');
@@ -814,32 +832,14 @@ function createNewSection(sectionKey, sectionData) {
     </div>
   `;
   
-  // Find the correct position based on sort order
-  const sections = Array.from(main.querySelectorAll('section[id]'));
-  const sortOrder = sectionData.sort_order || 0;
-  
-  let insertPosition = null;
-  for (let section of sections) {
-    const sectionOrder = parseInt(section.dataset.sortOrder) || 0;
-    if (sortOrder < sectionOrder) {
-      insertPosition = section;
-      break;
-    }
-  }
-  
-  // Set sort order as data attribute for future reference
-  newSection.dataset.sortOrder = sortOrder;
-  
-  // Insert in correct position
-  if (insertPosition) {
-    main.insertBefore(newSection, insertPosition);
-  } else if (footer) {
+  // Insert before footer (at end of content)
+  if (footer) {
     main.insertBefore(newSection, footer);
   } else {
     main.appendChild(newSection);
   }
   
-  console.log(`Created new section: ${sectionKey} with sort order: ${sortOrder}`);
+  console.log(`Created new section: ${sectionKey}`);
   return newSection;
 }
 
