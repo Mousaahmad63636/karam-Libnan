@@ -497,7 +497,7 @@ window.addEventListener('scroll', onScroll);
 function renderFeatured() {
   const container = document.getElementById('featuredProducts');
   if (!container) return;
-  const featured = productsData.filter(p => p.featured).slice(0, 3);
+  const featured = productsData.filter(p => p.featured);
   container.innerHTML = featured.map(p => cardTemplate(p, true)).join('');
 }
 
