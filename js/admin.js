@@ -370,11 +370,16 @@ class AdminManager {
       
       const product = this.formDataToObject(formData);
       
+      // Extract section assignments
+      const selectedSections = formData.getAll('sections');
+      
       // Handle image upload
       const imageFile = formData.get('image_file');
       if (imageFile && imageFile.size > 0) {
         product.image_url = await this.uploadImage(imageFile, 'products');
       }
+      
+      let productId;
       
       if (this.editingItem) {
         const { error } = await this.supabase
@@ -383,16 +388,40 @@ class AdminManager {
           .eq('id', this.editingItem);
         
         if (error) throw error;
-        this.showSuccess('Product updated successfully!', 'products');
+        productId = this.editingItem;
+        
+        // Delete existing section assignments
+        await this.supabase
+          .from('product_sections')
+          .delete()
+          .eq('product_id', productId);
+        
       } else {
-        const { error } = await this.supabase
+        const { data, error } = await this.supabase
           .from('products')
-          .insert(product);
+          .insert(product)
+          .select('id')
+          .single();
         
         if (error) throw error;
-        this.showSuccess('Product created successfully!', 'products');
+        productId = data.id;
       }
       
+      // Insert new section assignments
+      if (selectedSections.length > 0) {
+        const sectionInserts = selectedSections.map(sectionKey => ({
+          product_id: productId,
+          section_key: sectionKey
+        }));
+        
+        const { error: sectionError } = await this.supabase
+          .from('product_sections')
+          .insert(sectionInserts);
+        
+        if (sectionError) throw sectionError;
+      }
+      
+      this.showSuccess(this.editingItem ? 'Product updated successfully!' : 'Product created successfully!', 'products');
       this.hideProductForm();
       await this.loadProducts();
       
@@ -422,16 +451,25 @@ class AdminManager {
 
   async loadProductForEdit(id) {
     try {
-      const { data, error } = await this.supabase
+      // Load product data
+      const { data: product, error: productError } = await this.supabase
         .from('products')
         .select('*')
         .eq('id', id)
         .single();
       
-      if (error) throw error;
+      if (productError) throw productError;
+      
+      // Load product sections
+      const { data: sections, error: sectionsError } = await this.supabase
+        .from('product_sections')
+        .select('section_key')
+        .eq('product_id', id);
+      
+      if (sectionsError) throw sectionsError;
       
       this.editingItem = id;
-      this.populateProductForm(data);
+      this.populateProductForm(product, sections.map(s => s.section_key));
       this.showProductForm(true);
       
     } catch (error) {
@@ -439,7 +477,7 @@ class AdminManager {
     }
   }
 
-  populateProductForm(product) {
+  populateProductForm(product, assignedSections = []) {
     const form = document.getElementById('productForm');
     if (!form) return;
     
@@ -465,6 +503,22 @@ class AdminManager {
       }
     }
     
+    // Handle section checkboxes
+    const sectionCheckboxes = form.querySelectorAll('[name="sections"]');
+    sectionCheckboxes.forEach(checkbox => {
+      checkbox.checked = assignedSections.includes(checkbox.value);
+    });
+    
+    // Show image preview if available
+    if (product.image_url) {
+      const preview = document.getElementById('productImagePreview');
+      if (preview) {
+        preview.src = product.image_url;
+        preview.style.display = 'block';
+      }
+    }
+  }
+    
     // Show image preview
     if (product.image_url) {
       const preview = document.getElementById('productImagePreview');
@@ -485,6 +539,10 @@ class AdminManager {
         title.textContent = isEdit ? 'Edit Product' : 'New Product';
       }
     }
+    
+    // Load subcategories and sections for form
+    this.loadSubcategoriesForDropdown();
+    this.loadSectionsForCheckboxes();
   }
 
   hideProductForm() {
@@ -576,6 +634,32 @@ class AdminManager {
       
     } catch (error) {
       console.error('Failed to load subcategories for dropdown:', error);
+    }
+  }
+
+  async loadSectionsForCheckboxes() {
+    try {
+      const { data, error } = await this.supabase
+        .from('sections')
+        .select('key, title_en')
+        .order('sort_order');
+      
+      if (error) throw error;
+      
+      const container = document.getElementById('sectionCheckboxes');
+      if (container) {
+        container.innerHTML = data.map(section => `
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal;">
+              <input type="checkbox" name="sections" value="${section.key}">
+              ${section.title_en || section.key}
+            </label>
+          </div>
+        `).join('');
+      }
+      
+    } catch (error) {
+      console.error('Failed to load sections for checkboxes:', error);
     }
   }
 
