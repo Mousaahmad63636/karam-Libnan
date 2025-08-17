@@ -538,13 +538,20 @@ function renderSeasonal() {
 function renderCustomSections() {
   // Get all unique section keys from products (excluding core sections)
   const coreSection = ['featured', 'bestsellers', 'new-arrivals', 'seasonal', 'hero', 'about', 'contact', 'pending'];
+  
+  // Debug: Log all product sections
+  console.log('DEBUG: All products with sections:', productsData.map(p => ({id: p.id, name: p.name, sections: p.sections})));
+  
   const customSections = [...new Set(
     productsData.flatMap(p => p.sections || [])
       .filter(section => !coreSection.includes(section))
   )];
 
+  console.log('DEBUG: Custom sections found:', customSections);
+
   customSections.forEach(sectionKey => {
     const products = productsData.filter(p => p.sections?.includes(sectionKey));
+    console.log(`DEBUG: Section "${sectionKey}" has ${products.length} products:`, products.map(p => p.name));
     if (products.length === 0) return;
 
     // Create section if it doesn't exist
@@ -810,10 +817,12 @@ async function tryRemoteLoad(){
       console.warn('Supabase table products not found. Skipping remote products load.');
     }
     if (prods?.length){
+      console.log('DEBUG: Raw products from database:', prods.slice(0,2)); // Show first 2 products
       productsData.length = 0;
       prods.forEach(p=> {
         // Extract section keys
         const sections = p.product_sections?.map(ps => ps.section_key) || [];
+        console.log(`DEBUG: Product "${p.name_en}" sections:`, sections);
         
         productsData.push({
           id: p.id,
