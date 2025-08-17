@@ -435,7 +435,15 @@ class AdminManager {
       }
       
       this.showSuccess(this.editingItem ? 'Product updated successfully!' : 'Product created successfully!', 'products');
-      this.hideProductForm();
+      
+      if (this.editingItem) {
+        // Keep form open for edits and refresh with updated data
+        await this.loadProductForEdit(this.editingItem);
+      } else {
+        // Hide form for new products
+        this.hideProductForm();
+      }
+      
       await this.loadProducts();
       
     } catch (error) {
