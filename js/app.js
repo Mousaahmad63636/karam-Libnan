@@ -794,6 +794,12 @@ function updateSectionContent(sectionKey, sectionData) {
       const h3 = contactInfo.querySelector('h3');
       contactInfo.innerHTML = (h3 ? h3.outerHTML : '<h3>Company Info</h3>') + sectionData.body_en;
     }
+  } else if (sectionKey === 'pending') {
+    // For pending section, update the intro text
+    const introElement = section.querySelector('.section-intro');
+    if (introElement && sectionData.body_en) {
+      introElement.innerHTML = sectionData.body_en;
+    }
   } else {
     // For other sections, update general content areas
     const bodyElement = section.querySelector('.section-content, .section-text, p:not(.form-status)');

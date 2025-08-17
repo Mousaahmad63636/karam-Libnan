@@ -666,8 +666,8 @@ class AdminManager {
     const tbody = document.getElementById('sectionsTableBody');
     if (!tbody) return;
 
-    // Protected sections that cannot be deleted
-    const protectedSections = ['hero', 'about', 'contact', 'pending'];
+    // Core sections can be edited but not deleted
+    const protectedSections = ['hero', 'about', 'contact', 'pending', 'products'];
 
     tbody.innerHTML = sections.map(section => `
       <tr>
@@ -686,7 +686,7 @@ class AdminManager {
               Edit
             </button>
             ${protectedSections.includes(section.key) ? 
-              '<span class="text-muted small">Protected</span>' : 
+              '<span class="text-muted small">Core</span>' : 
               `<button class="btn btn-sm btn-danger" data-action="delete-section" data-key="${section.key}" title="Delete section">Delete</button>`
             }
           </div>
@@ -741,11 +741,11 @@ class AdminManager {
   }
 
   async deleteSection(sectionKey) {
-    // Protected sections cannot be deleted
-    const protectedSections = ['hero', 'about', 'contact', 'pending'];
+    // Core sections can be edited but not deleted
+    const protectedSections = ['hero', 'about', 'contact', 'pending', 'products'];
     
     if (protectedSections.includes(sectionKey)) {
-      this.showError('Cannot delete protected section: ' + sectionKey, 'sections');
+      this.showError('Cannot delete core section: ' + sectionKey + '. You can edit it instead.', 'sections');
       return;
     }
 
@@ -965,6 +965,10 @@ class AdminManager {
 
         case 'check-system':
           await this.checkSystemStatus();
+          break;
+          
+        case 'init-core-sections':
+          await this.initializeCoreSections();
           break;
           
         // Add more actions as needed
@@ -1554,6 +1558,66 @@ class AdminManager {
         sectionForm.reset();
       }
       this.editingItem = null;
+    }
+  }
+  
+  async initializeCoreSections() {
+    try {
+      this.showStatus('Initializing core sections...', 'sections');
+      
+      const coreSections = [
+        {
+          key: 'hero',
+          title_en: 'Authentic Homemade & Canned Lebanese Products',
+          body_en: 'Crafted with passion, tradition, and the richness of Lebanon\'s natural bounty.',
+          sort_order: 10
+        },
+        {
+          key: 'about',
+          title_en: 'Our Story',
+          body_en: '<p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p><p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p><ul class="values-list"><li>Authentic Recipes</li><li>Natural Ingredients</li><li>Handcrafted Quality</li><li>Sustainable Sourcing</li></ul>',
+          sort_order: 20
+        },
+        {
+          key: 'pending',
+          title_en: 'Coming Soon',
+          body_en: 'New authentic items are being prepared. Stay tuned!',
+          sort_order: 25
+        }
+      ];
+      
+      let addedCount = 0;
+      
+      for (const section of coreSections) {
+        // Check if section already exists
+        const { data: existing } = await this.supabase
+          .from('sections')
+          .select('key')
+          .eq('key', section.key)
+          .single();
+          
+        if (!existing) {
+          const { error } = await this.supabase
+            .from('sections')
+            .insert(section);
+            
+          if (error) {
+            console.warn(`Failed to add section ${section.key}:`, error);
+          } else {
+            addedCount++;
+          }
+        }
+      }
+      
+      if (addedCount > 0) {
+        this.showSuccess(`Added ${addedCount} core sections to database!`, 'sections');
+        await this.loadSections();
+      } else {
+        this.showSuccess('All core sections already exist in database', 'sections');
+      }
+      
+    } catch (error) {
+      this.showError('Failed to initialize core sections: ' + error.message, 'sections');
     }
   }
 }
