@@ -223,10 +223,10 @@ function createCustomSection(sectionKey, sectionTitle) {
     </div>
   `;
 
-  // Insert before products section
+  // Insert after products section
   const productsSection = document.getElementById('products');
   if (productsSection) {
-    productsSection.parentNode.insertBefore(section, productsSection);
+    productsSection.insertAdjacentElement('afterend', section);
   }
 
   return section;
@@ -587,11 +587,18 @@ function createNewSection(sectionKey, sectionData) {
     </div>
   `;
   
-  // Insert new sections before contact section (contact always stays at bottom)
-  if (contactSection) {
+  // Insert new sections after products section, before contact (contact always stays at bottom)
+  const productsSection = document.getElementById('products');
+  const contactSection = document.getElementById('contact');
+  
+  if (productsSection) {
+    // Insert after products section
+    productsSection.insertAdjacentElement('afterend', newSection);
+  } else if (contactSection) {
+    // Fallback: insert before contact if products section not found
     main.insertBefore(newSection, contactSection);
   } else {
-    // Fallback: insert before footer or at end
+    // Final fallback: insert before footer or at end
     const footer = document.querySelector('footer');
     if (footer) {
       main.insertBefore(newSection, footer);
@@ -600,7 +607,7 @@ function createNewSection(sectionKey, sectionData) {
     }
   }
   
-  console.log(`Created new section: ${sectionKey} (positioned before contact)`);
+  console.log(`Created new section: ${sectionKey} (positioned after products, before contact)`);
   return newSection;
 }
 
