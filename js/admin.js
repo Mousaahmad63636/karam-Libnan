@@ -518,16 +518,6 @@ class AdminManager {
       }
     }
   }
-    
-    // Show image preview
-    if (product.image_url) {
-      const preview = document.getElementById('productImagePreview');
-      if (preview) {
-        preview.src = product.image_url;
-        preview.style.display = 'block';
-      }
-    }
-  }
 
   showProductForm(isEdit = false) {
     const form = document.getElementById('productFormPanel');
