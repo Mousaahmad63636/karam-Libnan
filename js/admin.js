@@ -486,10 +486,13 @@ class AdminManager {
       // Show form first to load section checkboxes
       this.showProductForm(true);
       
-      // Wait a moment for checkboxes to render, then populate form
+      // Wait for sections to load, then populate form
+      await this.loadSectionsForCheckboxes();
+      
+      // Additional small delay to ensure DOM updates
       setTimeout(() => {
         this.populateProductForm(product, sections.map(s => s.section_key));
-      }, 100);
+      }, 50);
       
     } catch (error) {
       this.showError('Failed to load product: ' + error.message, 'products');
@@ -553,9 +556,13 @@ class AdminManager {
       }
     }
     
-    // Load subcategories and sections for form
+    // Load subcategories for form
     this.loadSubcategoriesForDropdown();
-    this.loadSectionsForCheckboxes();
+    
+    // Only load sections for new products (edit products load after form shows)
+    if (!isEdit) {
+      this.loadSectionsForCheckboxes();
+    }
   }
 
   hideProductForm() {
