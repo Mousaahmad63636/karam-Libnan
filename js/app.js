@@ -589,7 +589,6 @@ function createNewSection(sectionKey, sectionData) {
   
   // Insert new sections after products section, before contact (contact always stays at bottom)
   const productsSection = document.getElementById('products');
-  const contactSection = document.getElementById('contact');
   
   if (productsSection) {
     // Insert after products section
