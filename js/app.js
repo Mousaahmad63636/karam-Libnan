@@ -534,6 +534,60 @@ function renderSeasonal() {
   }
 }
 
+// Render custom sections dynamically
+function renderCustomSections() {
+  // Get all unique section keys from products (excluding core sections)
+  const coreSection = ['featured', 'bestsellers', 'new-arrivals', 'seasonal', 'hero', 'about', 'contact', 'pending'];
+  const customSections = [...new Set(
+    productsData.flatMap(p => p.sections || [])
+      .filter(section => !coreSection.includes(section))
+  )];
+
+  customSections.forEach(sectionKey => {
+    const products = productsData.filter(p => p.sections?.includes(sectionKey));
+    if (products.length === 0) return;
+
+    // Create section if it doesn't exist
+    let section = document.querySelector(`[data-section="${sectionKey}"]`);
+    if (!section) {
+      section = createCustomSection(sectionKey);
+    }
+
+    // Populate with products
+    const container = section.querySelector('.grid');
+    if (container) {
+      container.innerHTML = products.map(p => cardTemplate(p)).join('');
+      section.style.display = 'block';
+    }
+  });
+}
+
+// Create HTML structure for custom section
+function createCustomSection(sectionKey) {
+  const sectionTitle = sectionKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
+  const section = document.createElement('section');
+  section.className = 'custom-section section-padding';
+  section.dataset.section = sectionKey;
+  section.style.display = 'none';
+  section.innerHTML = `
+    <div class="container">
+      <h2 class="section-title">${sectionTitle}</h2>
+      <div class="grid cards-3">
+        <!-- Products will be injected here -->
+      </div>
+    </div>
+  `;
+
+  // Insert before products section
+  const productsSection = document.getElementById('products');
+  if (productsSection) {
+    productsSection.parentNode.insertBefore(section, productsSection);
+  }
+
+  return section;
+}
+
 // Product card template
 function cardTemplate(item, isFeatured = false) {
   const searchTerm = (document.getElementById('productSearch')?.value || '').trim();
@@ -723,6 +777,7 @@ async function initializeSite(){
   renderBestsellers();
   renderNewArrivals();
   renderSeasonal();
+  renderCustomSections();
   renderProducts();
   observeFadeIns();
   applyTranslations();

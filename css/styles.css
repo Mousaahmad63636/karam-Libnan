@@ -210,6 +210,12 @@ body.rtl .search-icon { left:auto; right:.75rem; }
   .nav-list.open { opacity: 1; visibility: visible; transform: translateY(0); }
   .nav-list a { width: 100%; }
 }
+
+/* Custom sections styling */
+.custom-section:nth-of-type(odd) {
+  background: var(--color-bg-alt);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
