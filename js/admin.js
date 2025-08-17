@@ -373,6 +373,9 @@ class AdminManager {
       // Extract section assignments
       const selectedSections = formData.getAll('sections');
       
+      // Remove sections from product object (it goes to junction table)
+      delete product.sections;
+      
       // Handle image upload
       const imageFile = formData.get('image_file');
       if (imageFile && imageFile.size > 0) {
