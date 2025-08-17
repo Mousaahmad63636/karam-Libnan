@@ -779,7 +779,7 @@ class AdminManager {
     if (!tbody) return;
 
     // Core sections can be edited but not deleted
-    const protectedSections = ['hero', 'about', 'contact', 'pending', 'products'];
+    const protectedSections = ['hero', 'about', 'contact', 'products'];
 
     tbody.innerHTML = sections.map(section => `
       <tr>
@@ -854,7 +854,7 @@ class AdminManager {
 
   async deleteSection(sectionKey) {
     // Core sections can be edited but not deleted
-    const protectedSections = ['hero', 'about', 'contact', 'pending', 'products'];
+    const protectedSections = ['hero', 'about', 'contact', 'products'];
     
     if (protectedSections.includes(sectionKey)) {
       this.showError('Cannot delete core section: ' + sectionKey + '. You can edit it instead.', 'sections');
@@ -1704,10 +1704,6 @@ class AdminManager {
         {
           key: 'about', 
           title_en: 'Our Story'
-        },
-        {
-          key: 'pending',
-          title_en: 'Coming Soon'
         }
       ];
       
@@ -1760,7 +1756,7 @@ class AdminManager {
       this.showStatus('Cleaning up sections...', 'sections');
       
       // Remove any sections that don't have proper keys or are duplicates
-      const validKeys = ['hero', 'about', 'contact', 'pending', 'products'];
+      const validKeys = ['hero', 'about', 'contact', 'products'];
       
       // Get all sections
       const { data: allSections, error: fetchError } = await this.supabase
