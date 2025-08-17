@@ -196,9 +196,63 @@ body.rtl .search-icon { left:auto; right:.75rem; }
   .product-grid { grid-template-columns: repeat(4,1fr); }
   body.searching .product-grid { grid-template-columns: repeat(4,1fr); }
 }
+/* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
-  .product-grid { grid-template-columns: repeat(2,1fr); }
-  body.searching .product-grid { grid-template-columns: repeat(2,1fr); }
+  .products .container {
+    position: relative;
+  }
+  
+  .products .container::after {
+    content: "← Swipe to explore more products →";
+    display: block;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+  
+  .product-grid { 
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .product-grid::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .product-grid::-webkit-scrollbar-track {
+    background: var(--color-bg-alt);
+    border-radius: 3px;
+  }
+  
+  .product-grid::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 3px;
+  }
+  
+  .product-grid .card {
+    min-width: calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+  
+  body.searching .product-grid { 
+    display: flex;
+    overflow-x: auto;
+  }
+  
+  body.searching .product-grid .card {
+    min-width: calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+  }
+  
   #productSearch { width:140px; }
   #productSearch:focus { width:180px; }
 }
