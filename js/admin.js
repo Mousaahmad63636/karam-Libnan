@@ -666,6 +666,9 @@ class AdminManager {
     const tbody = document.getElementById('sectionsTableBody');
     if (!tbody) return;
 
+    // Protected sections that cannot be deleted
+    const protectedSections = ['hero', 'about', 'contact', 'pending'];
+
     tbody.innerHTML = sections.map(section => `
       <tr>
         <td><code>${section.key}</code></td>
@@ -682,6 +685,10 @@ class AdminManager {
             <button class="btn btn-sm" data-action="edit-section" data-key="${section.key}">
               Edit
             </button>
+            ${protectedSections.includes(section.key) ? 
+              '<span class="text-muted small">Protected</span>' : 
+              `<button class="btn btn-sm btn-danger" data-action="delete-section" data-key="${section.key}" title="Delete section">Delete</button>`
+            }
           </div>
         </td>
       </tr>
@@ -730,6 +737,44 @@ class AdminManager {
       
     } catch (error) {
       this.showError('Failed to save section: ' + error.message, 'sections');
+    }
+  }
+
+  async deleteSection(sectionKey) {
+    // Protected sections cannot be deleted
+    const protectedSections = ['hero', 'about', 'contact', 'pending'];
+    
+    if (protectedSections.includes(sectionKey)) {
+      this.showError('Cannot delete protected section: ' + sectionKey, 'sections');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete section "${sectionKey}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      this.showStatus('Deleting section...', 'sections');
+      
+      const { error } = await this.supabase
+        .from('sections')
+        .delete()
+        .eq('key', sectionKey);
+      
+      if (error) throw error;
+      
+      this.showSuccess('Section deleted successfully!', 'sections');
+      await this.loadSections();
+      
+      // Remove section from frontend if it exists
+      const sectionElement = document.getElementById(sectionKey);
+      if (sectionElement) {
+        sectionElement.remove();
+        console.log(`Removed section element: ${sectionKey}`);
+      }
+      
+    } catch (error) {
+      this.showError('Failed to delete section: ' + error.message, 'sections');
     }
   }
 
@@ -904,6 +949,10 @@ class AdminManager {
           
         case 'edit-section':
           await this.loadSectionForEdit(key);
+          break;
+
+        case 'delete-section':
+          await this.deleteSection(key);
           break;
 
         case 'cancel-section':
