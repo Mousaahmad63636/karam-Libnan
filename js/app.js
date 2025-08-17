@@ -554,10 +554,20 @@ function renderCustomSections() {
     console.log(`DEBUG: Section "${sectionKey}" has ${products.length} products:`, products.map(p => p.name));
     if (products.length === 0) return;
 
-    // Create section if it doesn't exist
+    // Look up section title from database sections
+    let sectionTitle = sectionKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    
+    if (window.sectionsData) {
+      const sectionData = window.sectionsData.find(s => s.key === sectionKey);
+      if (sectionData && sectionData.title_en) {
+        sectionTitle = sectionData.title_en;
+      }
+    }
+
+    // Create section if it doesn't exist (use key as ID, title as display)
     let section = document.querySelector(`[data-section="${sectionKey}"]`);
     if (!section) {
-      section = createCustomSection(sectionKey);
+      section = createCustomSection(sectionKey, sectionTitle);
     }
 
     // Populate with products
@@ -570,8 +580,8 @@ function renderCustomSections() {
 }
 
 // Create HTML structure for custom section
-function createCustomSection(sectionKey) {
-  const sectionTitle = sectionKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+function createCustomSection(sectionKey, sectionTitle) {
+  const displayTitle = sectionTitle || sectionKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   
   const section = document.createElement('section');
   section.className = 'custom-section section-padding';
@@ -579,7 +589,7 @@ function createCustomSection(sectionKey) {
   section.style.display = 'none';
   section.innerHTML = `
     <div class="container">
-      <h2 class="section-title">${sectionTitle}</h2>
+      <h2 class="section-title">${displayTitle}</h2>
       <div class="grid cards-3">
         <!-- Products will be injected here -->
       </div>
@@ -844,12 +854,14 @@ async function tryRemoteLoad(){
       console.warn('Supabase table sections not found.');
     }
     if (sections?.length){
+      // Store sections data globally for renderCustomSections to use
+      window.sectionsData = sections;
+      
       SITE_OVERRIDES = SITE_OVERRIDES || {};
       
       // Define section order: hero, about, products, pending, custom sections, then contact at end
       const fixedSections = ['hero', 'about'];
       const contactSection = sections.find(s => s.key === 'contact');
-      const customSections = sections.filter(s => !fixedSections.includes(s.key) && s.key !== 'contact');
       
       // Process fixed sections first (hero, about)
       fixedSections.forEach(key => {
@@ -865,17 +877,7 @@ async function tryRemoteLoad(){
         }
       });
       
-      // Process custom sections (appear after pending/coming soon)
-      // Only create sections that have products assigned
-      customSections.forEach(sec => {
-        // Check if this section has any products assigned
-        const hasProducts = productsData.some(p => p.sections?.includes(sec.key));
-        if (hasProducts) {
-          updateSectionContent(sec.key, sec);
-        } else {
-          console.log(`DEBUG: Skipping empty section "${sec.key}" - no products assigned`);
-        }
-      });
+      // Skip custom sections here - they'll be handled by renderCustomSections with products
       
       // Process contact section last (always at bottom)
       if (contactSection) {
