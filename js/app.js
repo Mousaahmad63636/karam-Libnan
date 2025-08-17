@@ -501,6 +501,39 @@ function renderFeatured() {
   container.innerHTML = featured.map(p => cardTemplate(p, true)).join('');
 }
 
+// Inject bestsellers products
+function renderBestsellers() {
+  const container = document.getElementById('bestsellersProducts');
+  if (!container) return;
+  const bestsellers = productsData.filter(p => p.sections?.includes('bestsellers'));
+  if (bestsellers.length > 0) {
+    container.innerHTML = bestsellers.map(p => cardTemplate(p)).join('');
+    document.querySelector('.bestsellers').style.display = 'block';
+  }
+}
+
+// Inject new arrivals products
+function renderNewArrivals() {
+  const container = document.getElementById('newArrivalsProducts');
+  if (!container) return;
+  const newArrivals = productsData.filter(p => p.sections?.includes('new-arrivals'));
+  if (newArrivals.length > 0) {
+    container.innerHTML = newArrivals.map(p => cardTemplate(p)).join('');
+    document.querySelector('.new-arrivals').style.display = 'block';
+  }
+}
+
+// Inject seasonal products
+function renderSeasonal() {
+  const container = document.getElementById('seasonalProducts');
+  if (!container) return;
+  const seasonal = productsData.filter(p => p.sections?.includes('seasonal'));
+  if (seasonal.length > 0) {
+    container.innerHTML = seasonal.map(p => cardTemplate(p)).join('');
+    document.querySelector('.seasonal').style.display = 'block';
+  }
+}
+
 // Product card template
 function cardTemplate(item, isFeatured = false) {
   const searchTerm = (document.getElementById('productSearch')?.value || '').trim();
@@ -687,6 +720,9 @@ async function initializeSite(){
   buildSubFilters();
   initMainTabs();
   renderFeatured();
+  renderBestsellers();
+  renderNewArrivals();
+  renderSeasonal();
   renderProducts();
   observeFadeIns();
   applyTranslations();
@@ -710,24 +746,33 @@ async function tryRemoteLoad(){
       // banners mapping
       subs.forEach(s=>{ if (s.banner_image_url) BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url; });
     }
-    // Load products
-    const { data: prods, error: prodsErr } = await client.from('products').select('*').eq('active', true).limit(500);
+    // Load products with their section assignments
+    const { data: prods, error: prodsErr } = await client.from('products').select(`
+      *,
+      product_sections(section_key)
+    `).eq('active', true).limit(500);
     if (prodsErr && /not found/i.test(prodsErr.message)) {
       console.warn('Supabase table products not found. Skipping remote products load.');
     }
     if (prods?.length){
       productsData.length = 0;
-      prods.forEach(p=> productsData.push({
-        id: p.id,
-        name: p.name_en || 'Unnamed',
-        category: p.sub_slug || 'general',
-        mainType: p.main_type,
-        sub: (p.sub_slug || '').replace(/-/g,' '),
-        featured: !!p.featured,
-        image: p.image_url || FALLBACK_IMAGE,
-        description: p.description_en || '',
-        ingredients: Array.isArray(p.ingredients)? p.ingredients : []
-      }));
+      prods.forEach(p=> {
+        // Extract section keys
+        const sections = p.product_sections?.map(ps => ps.section_key) || [];
+        
+        productsData.push({
+          id: p.id,
+          name: p.name_en || 'Unnamed',
+          category: p.sub_slug || 'general',
+          mainType: p.main_type,
+          sub: (p.sub_slug || '').replace(/-/g,' '),
+          featured: sections.includes('featured'), // Use section assignment instead of flag
+          sections: sections, // Add sections array for filtering
+          image: p.image_url || FALLBACK_IMAGE,
+          description: p.description_en || '',
+          ingredients: Array.isArray(p.ingredients)? p.ingredients : []
+        });
+      });
     }
     // Sections (hero/about/contact/etc) override - handle all sections with proper ordering
     const { data: sections, error: sectionsErr } = await client.from('sections').select('*');
