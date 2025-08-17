@@ -372,6 +372,7 @@ class AdminManager {
       
       // Extract section assignments
       const selectedSections = formData.getAll('sections');
+      console.log('Selected sections:', selectedSections);
       
       // Remove sections from product object (it goes to junction table)
       delete product.sections;
@@ -417,11 +418,20 @@ class AdminManager {
           section_key: sectionKey
         }));
         
+        console.log('Inserting section assignments:', sectionInserts);
+        
         const { error: sectionError } = await this.supabase
           .from('product_sections')
           .insert(sectionInserts);
         
-        if (sectionError) throw sectionError;
+        if (sectionError) {
+          console.error('Section insert error:', sectionError);
+          throw sectionError;
+        }
+        
+        console.log('Section assignments saved successfully');
+      } else {
+        console.log('No sections selected');
       }
       
       this.showSuccess(this.editingItem ? 'Product updated successfully!' : 'Product created successfully!', 'products');
@@ -472,8 +482,14 @@ class AdminManager {
       if (sectionsError) throw sectionsError;
       
       this.editingItem = id;
-      this.populateProductForm(product, sections.map(s => s.section_key));
+      
+      // Show form first to load section checkboxes
       this.showProductForm(true);
+      
+      // Wait a moment for checkboxes to render, then populate form
+      setTimeout(() => {
+        this.populateProductForm(product, sections.map(s => s.section_key));
+      }, 100);
       
     } catch (error) {
       this.showError('Failed to load product: ' + error.message, 'products');
@@ -507,9 +523,13 @@ class AdminManager {
     }
     
     // Handle section checkboxes
+    console.log('Assigned sections:', assignedSections);
     const sectionCheckboxes = form.querySelectorAll('[name="sections"]');
+    console.log('Found section checkboxes:', sectionCheckboxes.length);
     sectionCheckboxes.forEach(checkbox => {
-      checkbox.checked = assignedSections.includes(checkbox.value);
+      const isChecked = assignedSections.includes(checkbox.value);
+      checkbox.checked = isChecked;
+      console.log(`Checkbox ${checkbox.value}: ${isChecked ? 'checked' : 'unchecked'}`);
     });
     
     // Show image preview if available
