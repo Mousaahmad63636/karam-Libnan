@@ -866,8 +866,15 @@ async function tryRemoteLoad(){
       });
       
       // Process custom sections (appear after pending/coming soon)
+      // Only create sections that have products assigned
       customSections.forEach(sec => {
-        updateSectionContent(sec.key, sec);
+        // Check if this section has any products assigned
+        const hasProducts = productsData.some(p => p.sections?.includes(sec.key));
+        if (hasProducts) {
+          updateSectionContent(sec.key, sec);
+        } else {
+          console.log(`DEBUG: Skipping empty section "${sec.key}" - no products assigned`);
+        }
       });
       
       // Process contact section last (always at bottom)
