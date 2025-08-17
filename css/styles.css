@@ -95,8 +95,6 @@ a:hover, a:focus { color: var(--color-secondary); }
 .category-banner::after { content:""; position:absolute; inset:0; background: linear-gradient(180deg,rgba(0,0,0,0) 10%, rgba(0,0,0,.55) 100%); }
 .category-banner span { position:relative; z-index:2; }
 
-/* Pending section */
-.pending .placeholder { opacity:.6; }
 /* Product grid adjustments for search results */
 .product-grid { transition: opacity .25s ease; }
 body.searching .product-grid { opacity:.4; }

@@ -537,7 +537,7 @@ function renderSeasonal() {
 // Render custom sections dynamically
 function renderCustomSections() {
   // Get all unique section keys from products (excluding core sections)
-  const coreSection = ['featured', 'bestsellers', 'new-arrivals', 'seasonal', 'hero', 'about', 'contact', 'pending'];
+  const coreSection = ['featured', 'bestsellers', 'new-arrivals', 'seasonal', 'hero', 'about', 'contact'];
   
   // Debug: Log all product sections
   console.log('DEBUG: All products with sections:', productsData.map(p => ({id: p.id, name: p.name, sections: p.sections})));
@@ -747,8 +747,7 @@ const translations = {
   ar: {
     'nav.home':'الرئيسية','nav.about':'من نحن','nav.products':'المنتجات','nav.events':'الفعاليات','nav.services':'الخدمات','nav.faq':'الأسئلة','nav.contact':'اتصل بنا',
     'products.title':'منتجاتنا','products.intro':'تصفح فئات منتجاتنا اللبنانية. كل صنف يتضمن وصفاً ومكونات.',
-    'products.singleServe':'منتجات فردية','products.bulk':'منتجات بالجملة',
-    'pending.title':'قريباً','pending.intro':'يتم إعداد أصناف جديدة أصيلة. ترقبونا!','pending.placeholder':'منتج قادم','pending.desc':'بانتظار التوفر...'
+    'products.singleServe':'منتجات فردية','products.bulk':'منتجات بالجملة'
   }
 };
 let currentLang = 'en';
@@ -859,7 +858,7 @@ async function tryRemoteLoad(){
       
       SITE_OVERRIDES = SITE_OVERRIDES || {};
       
-      // Define section order: hero, about, products, pending, custom sections, then contact at end
+      // Define section order: hero, about, products, custom sections, then contact at end
       const fixedSections = ['hero', 'about'];
       const contactSection = sections.find(s => s.key === 'contact');
       
@@ -926,12 +925,6 @@ function updateSectionContent(sectionKey, sectionData) {
       const h3 = contactInfo.querySelector('h3');
       contactInfo.innerHTML = (h3 ? h3.outerHTML : '<h3>Company Info</h3>') + sectionData.body_en;
     }
-  } else if (sectionKey === 'pending') {
-    // For pending section, update the intro text
-    const introElement = section.querySelector('.section-intro');
-    if (introElement && sectionData.body_en) {
-      introElement.innerHTML = sectionData.body_en;
-    }
   } else {
     // For other sections, update general content areas
     const bodyElement = section.querySelector('.section-content, .section-text, p:not(.form-status)');
@@ -953,7 +946,6 @@ function updateSectionContent(sectionKey, sectionData) {
 // Create new section if it doesn't exist in HTML  
 function createNewSection(sectionKey, sectionData) {
   const main = document.querySelector('main') || document.body;
-  const pendingSection = document.getElementById('pending');
   const contactSection = document.getElementById('contact');
   
   const newSection = document.createElement('section');
@@ -970,13 +962,9 @@ function createNewSection(sectionKey, sectionData) {
     </div>
   `;
   
-  // Insert new sections after pending section, before contact section
+  // Insert new sections before contact section (contact always stays at bottom)
   if (contactSection) {
-    // Insert before contact (contact always stays at bottom)
     main.insertBefore(newSection, contactSection);
-  } else if (pendingSection) {
-    // Insert after pending section
-    pendingSection.insertAdjacentElement('afterend', newSection);
   } else {
     // Fallback: insert before footer or at end
     const footer = document.querySelector('footer');
@@ -987,7 +975,7 @@ function createNewSection(sectionKey, sectionData) {
     }
   }
   
-  console.log(`Created new section: ${sectionKey} (positioned after pending, before contact)`);
+  console.log(`Created new section: ${sectionKey} (positioned before contact)`);
   return newSection;
 }
 
