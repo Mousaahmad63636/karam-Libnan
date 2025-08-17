@@ -766,7 +766,7 @@ async function tryRemoteLoad(){
           category: p.sub_slug || 'general',
           mainType: p.main_type,
           sub: (p.sub_slug || '').replace(/-/g,' '),
-          featured: sections.includes('featured'), // Use section assignment instead of flag
+          featured: !!p.featured, // Use database featured field
           sections: sections, // Add sections array for filtering
           image: p.image_url || FALLBACK_IMAGE,
           description: p.description_en || '',
