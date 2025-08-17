@@ -771,22 +771,36 @@ async function tryRemoteLoad(){
 
 // Update section content dynamically based on section data from database
 function updateSectionContent(sectionKey, sectionData) {
-  let section = document.getElementById(sectionKey);
+  // Handle hero/home ID mismatch - hero section in HTML has id="home"
+  const actualSectionId = sectionKey === 'hero' ? 'home' : sectionKey;
+  let section = document.getElementById(actualSectionId);
   
-  // If section doesn't exist, create it dynamically
-  if (!section) {
+  // If section doesn't exist, create it dynamically (but not for hero - it already exists as "home")
+  if (!section && sectionKey !== 'hero') {
     section = createNewSection(sectionKey, sectionData);
     if (!section) return;
   }
   
+  // Skip if hero section not found (shouldn't happen)
+  if (!section && sectionKey === 'hero') {
+    console.warn('Hero section with id="home" not found');
+    return;
+  }
+  
   // Update section title if exists
-  const titleElement = section.querySelector('.section-title, h2, h3');
+  const titleElement = section.querySelector('.section-title, h2, h3, h1');
   if (titleElement && sectionData.title_en) {
     titleElement.textContent = sectionData.title_en;
   }
   
   // Handle different section types
-  if (sectionKey === 'contact') {
+  if (sectionKey === 'hero') {
+    // For hero section, update the lead paragraph
+    const leadElement = section.querySelector('.lead, .hero-content p');
+    if (leadElement && sectionData.body_en) {
+      leadElement.innerHTML = sectionData.body_en;
+    }
+  } else if (sectionKey === 'contact') {
     // For contact section, update the contact-info content
     const contactInfo = section.querySelector('.contact-info');
     if (contactInfo && sectionData.body_en) {
@@ -815,7 +829,7 @@ function updateSectionContent(sectionKey, sectionData) {
     imageElement.alt = sectionData.title_en || 'Section image';
   }
   
-  console.log(`Updated section: ${sectionKey}`, sectionData);
+  console.log(`Updated section: ${sectionKey} (HTML id: ${actualSectionId})`, sectionData);
 }
 
 // Create new section if it doesn't exist in HTML  

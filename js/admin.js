@@ -971,6 +971,10 @@ class AdminManager {
           await this.initializeCoreSections();
           break;
           
+        case 'cleanup-sections':
+          await this.cleanupSections();
+          break;
+          
         // Add more actions as needed
       }
     } catch (error) {
@@ -1565,24 +1569,33 @@ class AdminManager {
     try {
       this.showStatus('Initializing core sections...', 'sections');
       
+      // First, let's check what columns exist in the sections table
+      console.log('Checking sections table structure...');
+      
+      // Try to get existing sections to see table structure
+      const { data: existingSections, error: checkError } = await this.supabase
+        .from('sections')
+        .select('*')
+        .limit(1);
+        
+      if (checkError) {
+        console.warn('Error checking sections table:', checkError);
+      } else {
+        console.log('Existing sections structure:', existingSections);
+      }
+      
       const coreSections = [
         {
           key: 'hero',
-          title_en: 'Authentic Homemade & Canned Lebanese Products',
-          body_en: 'Crafted with passion, tradition, and the richness of Lebanon\'s natural bounty.',
-          sort_order: 10
+          title_en: 'Authentic Homemade & Canned Lebanese Products'
         },
         {
-          key: 'about',
-          title_en: 'Our Story',
-          body_en: '<p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p><p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p><ul class="values-list"><li>Authentic Recipes</li><li>Natural Ingredients</li><li>Handcrafted Quality</li><li>Sustainable Sourcing</li></ul>',
-          sort_order: 20
+          key: 'about', 
+          title_en: 'Our Story'
         },
         {
           key: 'pending',
-          title_en: 'Coming Soon',
-          body_en: 'New authentic items are being prepared. Stay tuned!',
-          sort_order: 25
+          title_en: 'Coming Soon'
         }
       ];
       
@@ -1597,6 +1610,7 @@ class AdminManager {
           .single();
           
         if (!existing) {
+          console.log(`Adding section: ${section.key}`);
           const { error } = await this.supabase
             .from('sections')
             .insert(section);
@@ -1605,7 +1619,10 @@ class AdminManager {
             console.warn(`Failed to add section ${section.key}:`, error);
           } else {
             addedCount++;
+            console.log(`Successfully added section: ${section.key}`);
           }
+        } else {
+          console.log(`Section ${section.key} already exists`);
         }
       }
       
@@ -1617,7 +1634,65 @@ class AdminManager {
       }
       
     } catch (error) {
+      console.error('Initialization error:', error);
       this.showError('Failed to initialize core sections: ' + error.message, 'sections');
+    }
+  }
+  
+  async cleanupSections() {
+    if (!confirm('This will remove duplicate and orphaned sections. Continue?')) {
+      return;
+    }
+    
+    try {
+      this.showStatus('Cleaning up sections...', 'sections');
+      
+      // Remove any sections that don't have proper keys or are duplicates
+      const validKeys = ['hero', 'about', 'contact', 'pending', 'products'];
+      
+      // Get all sections
+      const { data: allSections, error: fetchError } = await this.supabase
+        .from('sections')
+        .select('key, title_en');
+        
+      if (fetchError) throw fetchError;
+      
+      let removedCount = 0;
+      
+      for (const section of allSections) {
+        // Remove sections with invalid keys or duplicates of hero content
+        const shouldRemove = 
+          !section.key || 
+          section.key.trim() === '' ||
+          (section.title_en && section.title_en.includes('Authentic Homemade') && section.key !== 'hero');
+          
+        if (shouldRemove) {
+          const { error } = await this.supabase
+            .from('sections')
+            .delete()
+            .eq('key', section.key);
+            
+          if (error) {
+            console.warn(`Failed to remove section ${section.key}:`, error);
+          } else {
+            removedCount++;
+            console.log(`Removed duplicate/orphaned section: ${section.key}`);
+            
+            // Also remove from DOM if it exists
+            const element = document.getElementById(section.key);
+            if (element && element.id !== 'home') { // Don't remove the actual hero section
+              element.remove();
+            }
+          }
+        }
+      }
+      
+      this.showSuccess(`Cleaned up ${removedCount} sections!`, 'sections');
+      await this.loadSections();
+      
+    } catch (error) {
+      console.error('Cleanup error:', error);
+      this.showError('Failed to cleanup sections: ' + error.message, 'sections');
     }
   }
 }
