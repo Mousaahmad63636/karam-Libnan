@@ -170,6 +170,7 @@ class AdminManager {
         products: 'Products Management',
         subcategories: 'Categories Management',
         sections: 'Content Sections',
+        colors: 'Color Settings',
         media: 'Media Management'
       };
       topbarTitle.textContent = titles[sectionName] || 'Admin Panel';
@@ -214,6 +215,9 @@ class AdminManager {
         break;
       case 'sections':
         await this.loadSections();
+        break;
+      case 'colors':
+        await this.loadColorSettings();
         break;
       case 'media':
         await this.loadMedia();
@@ -1380,6 +1384,301 @@ class AdminManager {
     } catch (error) {
       console.error('Failed to initialize default sections:', error);
     }
+  }
+
+  // ==================== COLOR MANAGEMENT ====================
+  async loadColorSettings() {
+    try {
+      this.showStatus('Loading color settings...', 'colors');
+      
+      // Setup color input synchronization
+      this.setupColorInputSync();
+      
+      // Load saved color settings from database or localStorage
+      await this.loadSavedColors();
+      
+      this.clearStatus('colors');
+      
+    } catch (error) {
+      this.showError('Failed to load color settings: ' + error.message, 'colors');
+    }
+  }
+
+  setupColorInputSync() {
+    // Sync color picker with text input for each color setting
+    const colorCategories = [
+      'sectionTitles', 'sectionIntros', 'paragraphs', 'aboutText',
+      'productDesc', 'ingredients', 'filterButtons', 
+      'contactLabels', 'contactInputs', 'contactInfo'
+    ];
+
+    colorCategories.forEach(category => {
+      const colorInput = document.getElementById(`${category}Color`);
+      const textInput = document.getElementById(`${category}ColorText`);
+      
+      if (colorInput && textInput) {
+        // Sync color picker to text input
+        colorInput.addEventListener('input', (e) => {
+          textInput.value = e.target.value;
+          this.previewColorChange(category, e.target.value);
+        });
+        
+        // Sync text input to color picker
+        textInput.addEventListener('input', (e) => {
+          if (this.isValidColor(e.target.value)) {
+            colorInput.value = e.target.value;
+            this.previewColorChange(category, e.target.value);
+          }
+        });
+      }
+    });
+  }
+
+  async loadSavedColors() {
+    try {
+      // Try to load from localStorage for now (can be extended to database)
+      const saved = localStorage.getItem('karamLibnan_colorSettings');
+      const colorSettings = saved ? JSON.parse(saved) : this.getDefaultColors();
+      
+      this.applyColorSettingsToForm(colorSettings);
+      
+    } catch (error) {
+      console.log('No saved colors found, using defaults');
+      this.applyColorSettingsToForm(this.getDefaultColors());
+    }
+  }
+
+  getDefaultColors() {
+    return {
+      sectionTitles: '#001f3f',
+      sectionIntros: '#001f3f', 
+      paragraphs: '#001f3f',
+      aboutText: '#001f3f',
+      productDesc: '#001f3f',
+      ingredients: '#001f3f',
+      filterButtons: '#001f3f',
+      contactLabels: '#001f3f',
+      contactInputs: '#001f3f',
+      contactInfo: '#001f3f'
+    };
+  }
+
+  applyColorSettingsToForm(settings) {
+    Object.keys(settings).forEach(category => {
+      const colorInput = document.getElementById(`${category}Color`);
+      const textInput = document.getElementById(`${category}ColorText`);
+      
+      if (colorInput && textInput) {
+        colorInput.value = settings[category];
+        textInput.value = settings[category];
+      }
+    });
+  }
+
+  previewColorChange(category, color) {
+    // Apply color change immediately for preview
+    this.applyColorToWebsite(category, color);
+  }
+
+  applyColorToWebsite(category, color) {
+    // Create or update dynamic CSS
+    let styleSheet = document.getElementById('dynamicColorStyles');
+    if (!styleSheet) {
+      styleSheet = document.createElement('style');
+      styleSheet.id = 'dynamicColorStyles';
+      document.head.appendChild(styleSheet);
+    }
+
+    // Map categories to CSS selectors
+    const selectorMap = {
+      sectionTitles: '.section-title',
+      sectionIntros: '.section-intro',
+      paragraphs: 'p, .desc',
+      aboutText: '#about p, #about .values-list li',
+      productDesc: '.card-body, .card-body .desc',
+      ingredients: '.ingredients, .card .ingredients',
+      filterButtons: '.filter-btn, .main-cat-tab',
+      contactLabels: '#contact label, #contact .form-status',
+      contactInputs: '#contact input, #contact textarea',
+      contactInfo: '#contact .contact-info p'
+    };
+
+    const selector = selectorMap[category];
+    if (selector) {
+      // Update the CSS rule
+      let existingRules = styleSheet.innerHTML;
+      const rulePattern = new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*{[^}]*}`, 'g');
+      
+      // Remove existing rule for this selector
+      existingRules = existingRules.replace(rulePattern, '');
+      
+      // Add new rule
+      const newRule = `${selector} { color: ${color} !important; }`;
+      styleSheet.innerHTML = existingRules + '\n' + newRule;
+    }
+  }
+
+  async applyColorChanges() {
+    try {
+      this.showStatus('Applying color changes...', 'colors');
+      
+      // Collect all color settings
+      const colorSettings = {};
+      const colorCategories = [
+        'sectionTitles', 'sectionIntros', 'paragraphs', 'aboutText',
+        'productDesc', 'ingredients', 'filterButtons', 
+        'contactLabels', 'contactInputs', 'contactInfo'
+      ];
+
+      colorCategories.forEach(category => {
+        const textInput = document.getElementById(`${category}ColorText`);
+        if (textInput && this.isValidColor(textInput.value)) {
+          colorSettings[category] = textInput.value;
+        }
+      });
+
+      // Save to localStorage
+      localStorage.setItem('karamLibnan_colorSettings', JSON.stringify(colorSettings));
+
+      // Generate and download CSS file
+      await this.generateColorCSS(colorSettings);
+
+      this.showSuccess('Color settings saved! Download the CSS file and upload it to your server.', 'colors');
+      
+    } catch (error) {
+      this.showError('Failed to save color settings: ' + error.message, 'colors');
+    }
+  }
+
+  async generateColorCSS(colorSettings) {
+    // Generate CSS content with new colors
+    const cssContent = `/* Dynamic Color Settings - Generated by Admin Panel */
+:root {
+  --dynamic-section-titles: ${colorSettings.sectionTitles || '#001f3f'};
+  --dynamic-section-intros: ${colorSettings.sectionIntros || '#001f3f'};
+  --dynamic-paragraphs: ${colorSettings.paragraphs || '#001f3f'};
+  --dynamic-about-text: ${colorSettings.aboutText || '#001f3f'};
+  --dynamic-product-desc: ${colorSettings.productDesc || '#001f3f'};
+  --dynamic-ingredients: ${colorSettings.ingredients || '#001f3f'};
+  --dynamic-filter-buttons: ${colorSettings.filterButtons || '#001f3f'};
+  --dynamic-contact-labels: ${colorSettings.contactLabels || '#001f3f'};
+  --dynamic-contact-inputs: ${colorSettings.contactInputs || '#001f3f'};
+  --dynamic-contact-info: ${colorSettings.contactInfo || '#001f3f'};
+}
+
+/* Apply dynamic colors */
+.section-title { color: var(--dynamic-section-titles) !important; }
+.section-intro { color: var(--dynamic-section-intros) !important; }
+
+/* Body text */
+p, .desc { color: var(--dynamic-paragraphs) !important; }
+
+/* About section */
+#about p,
+#about .values-list li { color: var(--dynamic-about-text) !important; }
+
+/* Product text */
+.card-body,
+.card-body .desc { color: var(--dynamic-product-desc) !important; }
+
+.ingredients,
+.card .ingredients { color: var(--dynamic-ingredients) !important; }
+
+/* Filter buttons */
+.filter-btn,
+.main-cat-tab { color: var(--dynamic-filter-buttons) !important; }
+
+/* Contact section */
+#contact label,
+#contact .form-status { color: var(--dynamic-contact-labels) !important; }
+
+#contact input,
+#contact textarea { color: var(--dynamic-contact-inputs) !important; }
+
+#contact .contact-info p { color: var(--dynamic-contact-info) !important; }
+`;
+
+    // Create a blob and download it
+    const blob = new Blob([cssContent], { type: 'text/css' });
+    const url = URL.createObjectURL(blob);
+    
+    // Download the CSS file
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dynamic-colors.css';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    // Also inject it into the current page immediately for preview
+    let dynamicSheet = document.getElementById('dynamicColorSheet');
+    if (!dynamicSheet) {
+      dynamicSheet = document.createElement('style');
+      dynamicSheet.id = 'dynamicColorSheet';
+      document.head.appendChild(dynamicSheet);
+    }
+    dynamicSheet.innerHTML = cssContent;
+  }
+
+  applyColorPreset(presetName) {
+    const presets = {
+      navy: {
+        sectionTitles: '#001f3f', sectionIntros: '#001f3f', paragraphs: '#001f3f',
+        aboutText: '#001f3f', productDesc: '#001f3f', ingredients: '#001f3f',
+        filterButtons: '#001f3f', contactLabels: '#001f3f', contactInputs: '#001f3f', contactInfo: '#001f3f'
+      },
+      black: {
+        sectionTitles: '#000000', sectionIntros: '#000000', paragraphs: '#000000',
+        aboutText: '#000000', productDesc: '#000000', ingredients: '#000000',
+        filterButtons: '#000000', contactLabels: '#000000', contactInputs: '#000000', contactInfo: '#000000'
+      },
+      darkgray: {
+        sectionTitles: '#374151', sectionIntros: '#374151', paragraphs: '#374151',
+        aboutText: '#374151', productDesc: '#374151', ingredients: '#374151',
+        filterButtons: '#374151', contactLabels: '#374151', contactInputs: '#374151', contactInfo: '#374151'
+      },
+      olive: {
+        sectionTitles: '#5e6b3d', sectionIntros: '#5e6b3d', paragraphs: '#5e6b3d',
+        aboutText: '#5e6b3d', productDesc: '#5e6b3d', ingredients: '#5e6b3d',
+        filterButtons: '#5e6b3d', contactLabels: '#5e6b3d', contactInputs: '#5e6b3d', contactInfo: '#5e6b3d'
+      },
+      brown: {
+        sectionTitles: '#8b4513', sectionIntros: '#8b4513', paragraphs: '#8b4513',
+        aboutText: '#8b4513', productDesc: '#8b4513', ingredients: '#8b4513',
+        filterButtons: '#8b4513', contactLabels: '#8b4513', contactInputs: '#8b4513', contactInfo: '#8b4513'
+      }
+    };
+
+    const preset = presets[presetName];
+    if (preset) {
+      this.applyColorSettingsToForm(preset);
+      
+      // Apply preview immediately
+      Object.keys(preset).forEach(category => {
+        this.previewColorChange(category, preset[category]);
+      });
+      
+      this.showSuccess(`Applied ${presetName} color preset!`, 'colors');
+    }
+  }
+
+  resetColorsToDefault() {
+    if (confirm('Reset all colors to default navy theme?')) {
+      const defaultColors = this.getDefaultColors();
+      this.applyColorSettingsToForm(defaultColors);
+      
+      // Apply preview immediately
+      Object.keys(defaultColors).forEach(category => {
+        this.previewColorChange(category, defaultColors[category]);
+      });
+      
+      this.showSuccess('Colors reset to default!', 'colors');
+    }
+  }
+
+  isValidColor(color) {
+    const s = new Option().style;
+    s.color = color;
+    return s.color !== '';
   }
 
   // ==================== MEDIA MANAGEMENT ====================

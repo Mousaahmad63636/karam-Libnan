@@ -572,6 +572,10 @@
           <span class="icon">📄</span>
           Sections
         </a>
+        <a href="#" data-section="colors">
+          <span class="icon">🎨</span>
+          Color Settings
+        </a>
         <a href="#" data-section="media">
           <span class="icon">🖼️</span>
           Media
@@ -949,6 +953,138 @@
               <button type="button" class="btn btn-secondary" data-action="cancel-section">Cancel</button>
             </div>
           </form>
+        </div>
+      </section>
+
+      <!-- Color Settings Section -->
+      <section id="section-colors" class="hidden">
+        <div class="panel">
+          <div class="flex justify-between items-center mb-4">
+            <h2>🎨 Font Color Management</h2>
+            <div class="flex gap-4">
+              <button class="btn btn-outline btn-sm" onclick="adminManager.resetColorsToDefault()">
+                Reset to Default
+              </button>
+              <button class="btn btn-primary" onclick="adminManager.applyColorChanges()">
+                Apply Changes
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+            <!-- Section Headings -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">📝 Section Headings</h3>
+              <div class="form-group">
+                <label for="sectionTitlesColor">Section Titles (Our Story, Products, Contact)</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="sectionTitlesColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="sectionTitlesColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="sectionIntrosColor">Section Introductions</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="sectionIntrosColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="sectionIntrosColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Body Text -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">📄 Body Text</h3>
+              <div class="form-group">
+                <label for="paragraphsColor">Paragraphs & Descriptions</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="paragraphsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="paragraphsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="aboutTextColor">About Section Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="aboutTextColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="aboutTextColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Text -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">🛍️ Product Text</h3>
+              <div class="form-group">
+                <label for="productDescColor">Product Descriptions</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="productDescColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="productDescColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="ingredientsColor">Ingredients Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="ingredientsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="ingredientsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="filterButtonsColor">Filter Buttons Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="filterButtonsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="filterButtonsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">📞 Contact Section</h3>
+              <div class="form-group">
+                <label for="contactLabelsColor">Form Labels</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="contactLabelsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="contactLabelsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="contactInputsColor">Input Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="contactInputsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="contactInputsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="contactInfoColor">Contact Information</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="contactInfoColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="contactInfoColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel" style="margin-top: 2rem;">
+            <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">🎨 Color Presets</h3>
+            <div class="flex gap-2" style="flex-wrap: wrap; margin-bottom: 1rem;">
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('navy')">Navy (Current)</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('black')">Black</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('darkgray')">Dark Gray</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('olive')">Olive Green</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('brown')">Brown</button>
+            </div>
+            
+            <div class="status-message" style="margin-top: 1rem;">
+              <strong>Preview:</strong> Changes are applied to the main website immediately. Refresh the main page to see changes.
+            </div>
+          </div>
+          
+          <div id="colorsStatus" class="status-message"></div>
         </div>
       </section>
 
