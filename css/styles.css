@@ -10,6 +10,7 @@
   --color-secondary: #c8102e; /* Lebanese flag red replacing light brown */
   --color-accent: #e53342;
   --color-text: #001f3f; /* navy for default text */
+  --color-navy: #001f3f;
   --color-text-light: #6d655e;
   --color-white: #ffffff;
   --color-border: #d3c7b8;
@@ -55,6 +56,9 @@ a:hover, a:focus { color: var(--color-secondary); }
 .section-title::after { content: ''; width: 70px; height: 4px; background: var(--color-secondary); display: block; margin-top: .6rem; border-radius: 2px; }
 .section-intro { max-width: 720px; margin-bottom: 2rem; }
 .responsive { width: 100%; height: auto; }
+/* Navy emphasis for section headings and intros */
+.section-title { color: var(--color-navy); }
+.section-intro { color: var(--color-navy); }
 
 /* Header */
 .site-header { position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); box-shadow: var(--shadow-sm); z-index: 120; transition: background .3s ease, box-shadow .3s ease; }
@@ -146,6 +150,9 @@ body.searching .product-grid { opacity:.4; }
 /* About */
 .about-image-wrapper { position: relative; }
 .about-image { border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
+/* About section text to navy */
+#about p,
+#about .values-list li { color: var(--color-navy); }
 
 /* Filters */
 .filters { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.5rem 0 2rem; }
@@ -172,6 +179,9 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 .social-list { list-style: none; display: flex; gap: 1rem; padding: 0; margin: .5rem 0 0; }
 .social-list a { font-weight: 600; }
 .map-wrapper { min-height: 320px; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+/* Contact section text and inputs to navy */
+#contact, #contact .contact-info, #contact label, #contact .form-status { color: var(--color-navy); }
+#contact input, #contact textarea { color: var(--color-navy); }
 
 /* Footer */
 .site-footer { background: #312a23; color: var(--color-bg); margin-top: 3rem; font-size: .9rem; }
