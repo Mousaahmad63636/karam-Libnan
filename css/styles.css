@@ -38,6 +38,16 @@ body {
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
 }
+
+/* Ensure all text elements use navy color instead of black */
+* {
+  color: inherit;
+}
+
+/* Override any potential black colors from browser defaults */
+div, span, p, h1, h2, h3, h4, h5, h6, li, td, th, label, small {
+  color: inherit;
+}
 img { max-width: 100%; display: block; }
 a { color: var(--color-primary); text-decoration: none; }
 a:hover, a:focus { color: var(--color-secondary); }
@@ -154,6 +164,28 @@ body.searching .product-grid { opacity:.4; }
 #about p,
 #about .values-list li { color: var(--color-navy); }
 
+/* Ensure all product descriptions and card text use navy */
+.card-body,
+.card-body p,
+.desc,
+.ingredients { color: var(--color-navy); }
+
+/* Product section content to navy */
+#products p,
+#products .section-intro,
+#products .card-body,
+#products .desc,
+#products .ingredients { color: var(--color-navy); }
+
+/* Ensure all paragraphs and text content use navy instead of black */
+p, 
+.ingredients,
+.desc,
+li:not(.nav-list li),
+.contact-info p,
+.footer-contact p,
+.sub-footer p { color: var(--color-navy); }
+
 /* Filters */
 .filters { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.5rem 0 2rem; }
 .filter-btn { background: var(--color-white); border: 1px solid var(--color-border); padding: .55rem 1rem; border-radius: var(--radius-full); font-weight: 600; font-size: .85rem; cursor: pointer; transition: var(--transition); }
@@ -182,6 +214,21 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 /* Contact section text and inputs to navy */
 #contact, #contact .contact-info, #contact label, #contact .form-status { color: var(--color-navy); }
 #contact input, #contact textarea { color: var(--color-navy); }
+
+/* Featured products and all product sections text to navy */
+.featured .card-body,
+.bestsellers .card-body,
+.new-arrivals .card-body,
+.seasonal .card-body,
+.featured p,
+.bestsellers p,
+.new-arrivals p,
+.seasonal p { color: var(--color-navy); }
+
+/* Ensure form placeholders and text are navy */
+::placeholder { color: var(--color-navy); opacity: 0.7; }
+input::placeholder,
+textarea::placeholder { color: var(--color-navy); opacity: 0.7; }
 
 /* Footer */
 .site-footer { background: #312a23; color: var(--color-bg); margin-top: 3rem; font-size: .9rem; }
