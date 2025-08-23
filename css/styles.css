@@ -9,7 +9,7 @@
   --color-primary-accent: #7c8b4d;
   --color-secondary: #c8102e; /* Lebanese flag red replacing light brown */
   --color-accent: #e53342;
-  --color-text: #3e3a36;
+  --color-text: #001f3f; /* navy for default text */
   --color-text-light: #6d655e;
   --color-white: #ffffff;
   --color-border: #d3c7b8;
@@ -198,12 +198,12 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 }
 /* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
-  .products .container {
-    position: relative;
-  }
-  
+  .featured .container::after,
+  .bestsellers .container::after,
+  .new-arrivals .container::after,
+  .seasonal .container::after,
   .products .container::after {
-    content: "← Swipe to explore more products →";
+    content: "← Swipe to explore more →";
     display: block;
     text-align: center;
     font-size: 0.75rem;
@@ -212,7 +212,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     font-style: italic;
   }
   
-  .product-grid { 
+  .cards-3 { 
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -222,21 +222,21 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     -webkit-overflow-scrolling: touch;
   }
   
-  .product-grid::-webkit-scrollbar {
+  .cards-3::-webkit-scrollbar {
     height: 6px;
   }
   
-  .product-grid::-webkit-scrollbar-track {
+  .cards-3::-webkit-scrollbar-track {
     background: var(--color-bg-alt);
     border-radius: 3px;
   }
   
-  .product-grid::-webkit-scrollbar-thumb {
+  .cards-3::-webkit-scrollbar-thumb {
     background: var(--color-primary);
     border-radius: 3px;
   }
   
-  .product-grid .card {
+  .cards-3 .card {
     min-width: calc(50% - 0.5rem);
     max-width: calc(50% - 0.5rem);
     flex-shrink: 0;
@@ -268,6 +268,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     line-height: 1.1;
     margin: 0 0 0.3rem 0;
     display: -webkit-box;
+  line-clamp: 1;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -278,6 +279,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     line-height: 1.2;
     margin: 0 0 0.4rem 0;
     display: -webkit-box;
+  line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -289,6 +291,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     line-height: 1.1;
     margin: 0 0 0.4rem 0;
     display: -webkit-box;
+  line-clamp: 1;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -300,12 +303,12 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     margin-top: auto;
   }
   
-  body.searching .product-grid { 
+  body.searching .cards-3 { 
     display: flex;
     overflow-x: auto;
   }
   
-  body.searching .product-grid .card {
+  body.searching .cards-3 .card {
     min-width: calc(50% - 0.5rem);
     max-width: calc(50% - 0.5rem);
   }

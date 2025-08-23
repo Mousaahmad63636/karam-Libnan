@@ -744,13 +744,6 @@
                 </div>
               </div>
               
-              <div class="form-group full-width">
-                <label>Display Sections</label>
-                <div id="sectionCheckboxes" class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
-                  <!-- Section checkboxes will be populated dynamically -->
-                </div>
-              </div>
-              
               <div class="form-group">
                 <label>
                   <input type="checkbox" name="featured"> Featured Product
@@ -877,17 +870,9 @@
         <div class="panel">
           <div class="flex justify-between items-center mb-4">
             <h2>📄 Content Sections <span class="badge" id="sectionCount">0</span></h2>
-            <div class="flex gap-2">
-              <button class="btn btn-secondary btn-sm" data-action="init-core-sections" title="Add missing core sections to database">
-                Initialize Core Sections
-              </button>
-              <button class="btn btn-warning btn-sm" data-action="cleanup-sections" title="Remove duplicate/orphaned sections">
-                Cleanup Sections
-              </button>
-              <button class="btn btn-primary" data-action="new-section">
-                Add Section
-              </button>
-            </div>
+            <button class="btn btn-primary" data-action="new-section">
+              Add Section
+            </button>
           </div>
           
           <div class="table-container">
@@ -896,6 +881,7 @@
                 <tr>
                   <th>Key</th>
                   <th>Title</th>
+                  <th>Order</th>
                   <th>Image</th>
                   <th>Updated</th>
                   <th>Actions</th>
@@ -903,7 +889,7 @@
               </thead>
               <tbody id="sectionsTableBody">
                 <tr>
-                  <td colspan="5" class="text-center">Loading sections...</td>
+                  <td colspan="6" class="text-center">Loading sections...</td>
                 </tr>
               </tbody>
             </table>
@@ -931,6 +917,11 @@
               <div class="form-group">
                 <label for="sectionTitleAr">Title (Arabic)</label>
                 <input type="text" id="sectionTitleAr" name="title_ar">
+              </div>
+              
+              <div class="form-group">
+                <label for="sectionSortOrder">Sort Order</label>
+                <input type="number" id="sectionSortOrder" name="sort_order" min="0" placeholder="0" title="Lower numbers appear first">
               </div>
               
               <div class="form-group full-width">
