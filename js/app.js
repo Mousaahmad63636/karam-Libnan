@@ -316,6 +316,13 @@ searchInput?.addEventListener('input', () => {
   renderProducts();
 });
 
+// Search form submission
+const searchForm = document.querySelector('.search');
+searchForm?.addEventListener('submit', (e) => {
+  e.preventDefault(); // Prevent form submission
+  searchInput?.focus(); // Keep focus on search field
+});
+
 // (Legacy filtering removed - now handled by subcategory buttons)
 
 // Form validation (client-side only demo)

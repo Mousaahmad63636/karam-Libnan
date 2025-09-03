@@ -78,10 +78,100 @@ a:hover, a:focus { color: var(--color-secondary); }
 
 /* Header actions */
 .header-actions { display:flex; align-items:center; gap:1rem; }
-.search-wrapper { position:relative; }
-#productSearch { padding:.55rem .9rem .55rem 2.2rem; border:1px solid var(--color-border); border-radius: var(--radius-full); font-size:.85rem; background:#fff; width:180px; transition:width .35s ease; }
-#productSearch:focus { outline:2px solid var(--color-secondary); width:230px; }
-.search-icon { position:absolute; left:.75rem; top:50%; transform:translateY(-50%); font-size:.85rem; pointer-events:none; }
+
+/* Animated Search Bar */
+.search {
+  position: relative;
+}
+
+.search * {
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search__wrapper {
+  position: relative;
+}
+
+.search__field {
+  width: 50px;
+  height: 50px;
+  color: transparent;
+  font-family: 'Source Sans 3', Lato, sans-serif;
+  font-size: 1.1em;
+  padding: 0.35em 50px 0.35em 0;
+  border: 1px solid transparent;
+  border-radius: 25px;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.3s ease-in-out;
+}
+
+.search__field:focus {
+  border-bottom-color: var(--color-border);
+  border-color: var(--color-secondary);
+  width: 300px;
+  color: #2b2b2b;
+  cursor: default;
+  padding-left: 1rem;
+}
+
+.search__field:focus ~ .search__icon {
+  background-color: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  color: var(--color-secondary);
+}
+
+.search__icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #e9f1f4;
+  width: 50px;
+  height: 50px;
+  font-size: 1.1em;
+  color: #666;
+  text-align: center;
+  border: none;
+  border-radius: 50%;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.search__icon:hover {
+  background-color: var(--color-secondary);
+  color: #fff;
+}
+
+/* Placeholder styling */
+.search__field::placeholder {
+  position: relative;
+  top: 0;
+  left: 0;
+  transition-property: top, color, font-size;
+  transition-duration: 0.1s;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .search__field:focus {
+    width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search__field:focus {
+    width: 200px;
+  }
+}
 .lang-toggle { background: var(--color-secondary); color: #fff; border:none; padding:.5rem .9rem; border-radius: var(--radius-full); cursor:pointer; font-weight:600; font-size:.7rem; letter-spacing:.5px; }
 .lang-toggle:hover { background: var(--color-accent); }
 
