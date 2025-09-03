@@ -316,11 +316,22 @@ searchInput?.addEventListener('input', () => {
   renderProducts();
 });
 
-// Search form submission
-const searchForm = document.querySelector('.search');
+// Search form and reset functionality
+const searchForm = document.querySelector('.search-box');
+const resetButton = searchForm?.querySelector('button[type="reset"]');
+
 searchForm?.addEventListener('submit', (e) => {
   e.preventDefault(); // Prevent form submission
-  searchInput?.focus(); // Keep focus on search field
+});
+
+resetButton?.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.blur(); // Remove focus to collapse the search box
+    document.body.classList.remove('searching');
+    renderProducts(); // Update products display
+  }
 });
 
 // (Legacy filtering removed - now handled by subcategory buttons)
