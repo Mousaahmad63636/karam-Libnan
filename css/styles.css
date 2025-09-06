@@ -51,6 +51,7 @@ a:hover, a:focus { color: var(--color-secondary); }
 .two-col { grid-template-columns: 1fr; }
 .cards-3 { grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); }
 .section-padding { padding: 4.5rem 0; }
+.featured { margin-top: 20vh; }
 .section-alt { background: var(--color-bg-alt); }
 .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem,4vw,2.6rem); margin: 0 0 1.2rem; line-height: 1.15; position: relative; }
 .section-title::after { content: ''; width: 70px; height: 4px; background: var(--color-secondary); display: block; margin-top: .6rem; border-radius: 2px; }
