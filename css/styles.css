@@ -27,11 +27,10 @@
 }
 
 /* Resets */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  padding: 0;
   font-family: 'Source Sans 3', system-ui, Arial, sans-serif;
   color: var(--color-text);
   background: var(--color-bg);
@@ -146,9 +145,9 @@ body.searching .product-grid { opacity:.4; }
 .float-whatsapp:hover { transform:translateY(-4px); box-shadow:0 6px 18px rgba(0,0,0,.3); }
 
 /* Hero */
-.hero { position: relative; min-height: 100vh; margin-top: 0; padding-top: 0; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero), url('../images/hero.png') center/cover no-repeat; color: var(--color-white); }
+.hero { position: relative; min-height: 70vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero), url('../images/hero.png') center/cover no-repeat; color: var(--color-white); }
 .hero-overlay { position: absolute; inset: 0; background: var(--gradient-hero); }
-.hero-content { position: relative; z-index: 2; padding-top: 80px; }
+.hero-content { position: relative; z-index: 2; }
 .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem,6vw,3.4rem); margin: 0 0 1rem; }
 .hero p { font-size: 1.1rem; max-width: 700px; margin: 0 auto 1.6rem; }
 .hero .lead { font-size:1.15rem; opacity:.95; }
