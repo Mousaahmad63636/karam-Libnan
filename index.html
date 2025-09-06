@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Karam Libnan | Authentic Homemade & Canned Lebanese Products</title>
-  <meta name="description" content="Karam Libnan offers premium homemade and canned Lebanese products. Discover authentic flavors and traditions through our catalog." />
-  <meta name="keywords" content="Karam Libnan, Lebanese homemade products, Lebanese canned goods, traditional Lebanese food, organic Lebanon products, Lebanese catalog" />
+  <meta name="description"
+    content="Karam Libnan offers premium homemade and canned Lebanese products. Discover authentic flavors and traditions through our catalog." />
+  <meta name="keywords"
+    content="Karam Libnan, Lebanese homemade products, Lebanese canned goods, traditional Lebanese food, organic Lebanon products, Lebanese catalog" />
   <meta name="author" content="Karam Libnan" />
   <!-- Supabase Configuration Meta (anon key is safe to expose) -->
   <meta name="supabase-url" content="https://xbznaxiummganlidnmdd.supabase.co" />
-  <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs" />
+  <meta name="supabase-anon-key"
+    content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs" />
   <!-- Open Graph -->
   <meta property="og:title" content="Karam Libnan | Authentic Homemade & Canned Lebanese Products" />
-  <meta property="og:description" content="Discover authentic Lebanese flavors through our premium homemade and canned goods." />
-  <meta property="og:image" content="https://images.unsplash.com/photo-1604908176985-dcb7e7f3a0bf?auto=format&fit=crop&w=1200&q=80" />
+  <meta property="og:description"
+    content="Discover authentic Lebanese flavors through our premium homemade and canned goods." />
+  <meta property="og:image"
+    content="https://images.unsplash.com/photo-1604908176985-dcb7e7f3a0bf?auto=format&fit=crop&w=1200&q=80" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.placeholder-karam-libnan.com" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
@@ -21,8 +27,11 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap"
+    rel="stylesheet" />
 </head>
+
 <body>
   <!-- Header / Navigation -->
   <header class="site-header header-transparent" id="top">
@@ -40,15 +49,18 @@
           <li><a href="services.html" data-i18n="nav.services">Services</a></li>
           <li><a href="faq.html" data-i18n="nav.faq">F&Q</a></li>
           <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
-          <li class="lang-switch-item"><button id="langToggle" class="lang-toggle" aria-label="Toggle language">AR</button></li>
+          <li class="lang-switch-item"><button id="langToggle" class="lang-toggle"
+              aria-label="Toggle language">AR</button></li>
         </ul>
       </nav>
       <div class="header-actions">
         <div class="search-wrapper">
-          <input type="text" id="productSearch" placeholder="Search products" aria-label="Search products" />
-          <span class="search-icon" aria-hidden="true">🔍</span>
+          <button id="searchToggle" class="search-icon-btn" aria-label="Open search">🔍</button>
+          <input type="text" id="productSearch" class="search-input collapsed" placeholder="Search products"
+            aria-label="Search products" />
         </div>
       </div>
+
     </div>
   </header>
 
@@ -110,8 +122,11 @@
     <div class="container grid two-col">
       <div>
         <h2 id="aboutHeading" class="section-title">Our Story</h2>
-        <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p>
-        <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p>
+        <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We
+          specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed
+          orchards, and mountain herbs.</p>
+        <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted
+          product represents heritage, care, and authenticity.</p>
         <ul class="values-list">
           <li>Authentic Recipes</li>
           <li>Natural Ingredients</li>
@@ -120,7 +135,7 @@
         </ul>
       </div>
       <div class="about-image-wrapper">
-  <img src="images/ourstory.png" alt="Our story - Lebanese heritage" class="responsive about-image" />
+        <img src="images/ourstory.png" alt="Our story - Lebanese heritage" class="responsive about-image" />
       </div>
     </div>
   </section>
@@ -129,12 +144,15 @@
   <section id="products" class="products section-padding" aria-labelledby="productsHeading">
     <div class="container">
       <h2 id="productsHeading" class="section-title" data-i18n="products.title">Our Products</h2>
-      <p class="section-intro" data-i18n="products.intro">Browse our categories of Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)</p>
+      <p class="section-intro" data-i18n="products.intro">Browse our categories of Lebanese goods. Each item includes a
+        brief description and ingredients. (No prices shown.)</p>
 
       <!-- Main Category Tabs -->
       <div class="main-cat-tabs" role="tablist" aria-label="Main product groups">
-        <button role="tab" aria-selected="true" class="main-cat-tab active" data-main="single" data-i18n="products.singleServe">Single Serve Products</button>
-        <button role="tab" aria-selected="false" class="main-cat-tab" data-main="bulk" data-i18n="products.bulk">Bulk Products</button>
+        <button role="tab" aria-selected="true" class="main-cat-tab active" data-main="single"
+          data-i18n="products.singleServe">Single Serve Products</button>
+        <button role="tab" aria-selected="false" class="main-cat-tab" data-main="bulk" data-i18n="products.bulk">Bulk
+          Products</button>
       </div>
 
       <!-- Subcategory Filters -->
@@ -189,7 +207,10 @@
           </div>
         </div>
         <div class="map-wrapper">
-          <iframe title="Google Maps placeholder" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26269.964643537265!2d35.4851683!3d33.8886289!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151f1721595bd76d%3A0xe20fd75f635d8d71!2sBeirut!5e0!3m2!1sen!2slb!4v0000000000000" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <iframe title="Google Maps placeholder"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26269.964643537265!2d35.4851683!3d33.8886289!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151f1721595bd76d%3A0xe20fd75f635d8d71!2sBeirut!5e0!3m2!1sen!2slb!4v0000000000000"
+            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
       </div>
     </div>
@@ -225,7 +246,8 @@
   </footer>
 
   <!-- Floating WhatsApp -->
-  <a href="https://wa.me/9611234567" class="float-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp Chat">💬</a>
+  <a href="https://wa.me/9611234567" class="float-whatsapp" target="_blank" rel="noopener"
+    aria-label="WhatsApp Chat">💬</a>
 
   <!-- Supabase Initialization -->
   <script type="module">
@@ -233,9 +255,10 @@
     const SUPABASE_URL = document.querySelector('meta[name="supabase-url"]').content;
     const SUPABASE_ANON_KEY = document.querySelector('meta[name="supabase-anon-key"]').content;
     window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY; // for app.js usage
-    window.createSupabaseClient = (url,key)=> createClient(url,key);
+    window.createSupabaseClient = (url, key) => createClient(url, key);
     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <script src="js/app.js" defer></script>
 </body>
+
 </html>
