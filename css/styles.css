@@ -61,12 +61,67 @@ a:hover, a:focus { color: var(--color-secondary); }
 .section-intro { color: var(--color-navy); }
 
 /* Header */
-.site-header { position: fixed; top: 0; left: 0; right: 0; width: 100%; background: rgba(255,255,255,0.6); backdrop-filter: blur(8px); box-shadow: var(--shadow-sm); z-index: 300; transition: background .3s ease, box-shadow .3s ease; padding: 1rem 0; }
-.site-header.header-transparent { background: rgba(255,255,255,0.6); box-shadow: var(--shadow-sm); }
-.scrolled .site-header.header-transparent { background: rgba(255,255,255,0.6); box-shadow: var(--shadow-sm); }
-.logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; letter-spacing: .5px; color: var(--color-primary); display: flex; align-items: center; margin-left: -0.5rem; }
-.logo-image { height: 60px; width: auto; max-width: 200px; object-fit: contain; }
-.logo span { color: var(--color-secondary); }
+.site-header { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  width: 100%; 
+  background: rgba(255,255,255,0.6); 
+  backdrop-filter: blur(8px); 
+  box-shadow: var(--shadow-sm); 
+  z-index: 300; 
+  transition: background .3s ease, box-shadow .3s ease; 
+  padding: 1rem 0; 
+}
+
+/* Ensure all header child elements are fully opaque and visible */
+.site-header * { 
+  opacity: 1 !important; 
+}
+
+.site-header .logo,
+.site-header .logo-image,
+.site-header .search-icon-btn,
+.site-header .nav-toggle,
+.site-header .search-icon,
+.site-header .nav-icon,
+.site-header input {
+  opacity: 1 !important;
+  color: inherit;
+}
+
+.site-header.header-transparent { 
+  background: rgba(255,255,255,0.6); 
+  box-shadow: var(--shadow-sm); 
+}
+
+.scrolled .site-header.header-transparent { 
+  background: rgba(255,255,255,0.6); 
+  box-shadow: var(--shadow-sm); 
+}
+
+.logo { 
+  font-family: 'Playfair Display', serif; 
+  font-size: 1.4rem; 
+  font-weight: 700; 
+  letter-spacing: .5px; 
+  color: var(--color-primary); 
+  display: flex; 
+  align-items: center; 
+  margin-left: -0.5rem; 
+}
+
+.logo-image { 
+  height: 60px; 
+  width: auto; 
+  max-width: 200px; 
+  object-fit: contain; 
+}
+
+.logo span { 
+  color: var(--color-secondary); 
+}
 .main-nav { position: relative; display: flex; align-items: center; gap: 2rem; }
 .nav-controls { display: flex; align-items: center; gap: 0.2rem; }
 .nav-toggle { 
@@ -82,24 +137,28 @@ a:hover, a:focus { color: var(--color-secondary); }
   justify-content: center; 
   border-radius: 50%; 
   transition: all 0.3s ease; 
+  color: var(--color-primary);
+  opacity: 1;
 }
 .nav-toggle:hover { 
   background: rgba(200,16,46,0.1); 
   color: var(--color-secondary);
+  opacity: 1;
 }
 .nav-icon { 
   width: 24px; 
   height: 24px; 
   stroke: currentColor; 
   transition: transform 0.3s ease; 
+  opacity: 1;
 }
 .nav-toggle[aria-expanded="true"] .nav-icon { 
   transform: rotate(90deg); 
 }
 .nav-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.5rem; }
-.nav-list a { font-weight: 600; padding: 1rem .6rem; border-radius: var(--radius-full); position: relative; }
-.nav-list a:hover, .nav-list a:focus { color: var(--color-secondary); }
-.nav-list a.active { color: var(--color-secondary); font-weight:700; }
+.nav-list a { font-weight: 600; padding: 1rem .6rem; border-radius: var(--radius-full); position: relative; color: var(--color-primary); opacity: 1; }
+.nav-list a:hover, .nav-list a:focus { color: var(--color-secondary); opacity: 1; }
+.nav-list a.active { color: var(--color-secondary); font-weight:700; opacity: 1; }
 
 /* Search styling moved to nav-controls */
 .search-wrapper { 
@@ -126,16 +185,19 @@ a:hover, a:focus { color: var(--color-secondary); }
   position: relative;
   outline: none;
   box-shadow: none;
+  opacity: 1;
 }
 .search-icon-btn:hover { 
   color: var(--color-secondary); 
   background: none;
   box-shadow: none;
   outline: none;
+  opacity: 1;
 }
 .search-icon-btn:focus { 
   outline: none;
   box-shadow: none;
+  opacity: 1;
 }
 .search-icon {
   width: 20px;
@@ -143,6 +205,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   stroke: currentColor;
   display: block;
   margin: 0 auto;
+  opacity: 1;
 }
 #productSearch, #productSearchDesktop { 
   padding: 0; 
