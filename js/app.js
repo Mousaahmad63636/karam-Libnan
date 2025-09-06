@@ -316,6 +316,21 @@ searchInput?.addEventListener('input', () => {
   renderProducts();
 });
 
+// Search toggle functionality
+const searchToggle = document.getElementById('searchToggle');
+searchToggle?.addEventListener('click', () => {
+  const isExpanded = searchInput.classList.contains('expanded');
+  if (isExpanded) {
+    searchInput.classList.remove('expanded');
+    searchInput.value = '';
+    document.body.classList.remove('searching');
+    renderProducts();
+  } else {
+    searchInput.classList.add('expanded');
+    setTimeout(() => searchInput.focus(), 350); // Wait for animation
+  }
+});
+
 // (Legacy filtering removed - now handled by subcategory buttons)
 
 // Form validation (client-side only demo)
