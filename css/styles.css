@@ -93,6 +93,9 @@ a:hover, a:focus { color: var(--color-secondary); }
   transition: var(--transition); 
   color: var(--color-primary);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .search-icon-btn:hover { 
   color:var(--color-secondary); 
@@ -102,6 +105,8 @@ a:hover, a:focus { color: var(--color-secondary); }
   width: 20px;
   height: 20px;
   stroke: currentColor;
+  display: block;
+  margin: 0 auto;
 }
 #productSearch, #productSearchDesktop { 
   padding: .55rem .9rem; 
@@ -111,7 +116,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   background: #fff; 
   width: 0; 
   opacity: 0;
-  margin-left: .5rem;
+  margin-left: 0;
   transition: all .35s ease; 
   overflow: hidden;
   flex-shrink: 0;
