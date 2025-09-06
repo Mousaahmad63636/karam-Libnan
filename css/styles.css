@@ -145,7 +145,9 @@ body.searching .product-grid { opacity:.4; }
 .float-whatsapp:hover { transform:translateY(-4px); box-shadow:0 6px 18px rgba(0,0,0,.3); }
 
 /* Hero */
-.hero { position: relative; min-height: 70vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero), url('../images/hero.png') center/cover no-repeat; color: var(--color-white); }
+.hero { position: relative; min-height: 70vh; margin-top: 0; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero), url('../images/hero.png') center/cover no-repeat; color: var(--color-white); }
+/* Ensure no space above hero */
+.hero:first-of-type, section:first-of-type { margin-top: 0 !important; padding-top: 0 !important; }
 .hero-overlay { position: absolute; inset: 0; background: var(--gradient-hero); }
 .hero-content { position: relative; z-index: 2; }
 .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem,6vw,3.4rem); margin: 0 0 1rem; }
