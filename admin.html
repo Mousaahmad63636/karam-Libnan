@@ -564,6 +564,10 @@
           <span class="icon">📦</span>
           Products
         </a>
+        <a href="#" data-section="main-categories">
+          <span class="icon">📋</span>
+          Main Categories
+        </a>
         <a href="#" data-section="subcategories">
           <span class="icon">🏷️</span>
           Categories
@@ -649,6 +653,94 @@
           </div>
         </div>
       </section>
+
+      <!-- Main Categories Section -->
+      <section id="section-main-categories" class="hidden">
+        <div class="panel">
+          <div class="flex justify-between items-center mb-4">
+            <h2>📋 Main Categories <span class="badge" id="mainCategoryCount">0</span></h2>
+            <div class="flex gap-4">
+              <button class="btn btn-outline btn-sm" onclick="adminManager.exportData('main_categories')">
+                Export
+              </button>
+              <button class="btn btn-primary" data-action="new-main-category">
+                Add Main Category
+              </button>
+            </div>
+          </div>
+          
+          <div class="search-bar">
+            <input type="text" placeholder="Search main categories..." data-search="main-categories">
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title (EN)</th>
+                  <th>Title (AR)</th>
+                  <th>Slug</th>
+                  <th>Sort Order</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="mainCategoriesTable">
+                <tr class="loading">
+                  <td colspan="6">Loading main categories...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Main Category Form -->
+        <div id="mainCategoryForm" class="panel hidden">
+          <h3 id="mainCategoryFormTitle">Add New Main Category</h3>
+          <form class="form-grid" data-form="main-category">
+            <input type="hidden" id="mainCategoryId" name="id">
+            
+            <div class="form-group">
+              <label for="mainCategoryTitleEn">Title (English) *</label>
+              <input type="text" id="mainCategoryTitleEn" name="title_en" required placeholder="e.g., Single Serve Products">
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategoryTitleAr">Title (Arabic)</label>
+              <input type="text" id="mainCategoryTitleAr" name="title_ar" placeholder="e.g., منتجات التقديم الفردي">
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategorySlug">Slug *</label>
+              <input type="text" id="mainCategorySlug" name="slug" required placeholder="e.g., single" pattern="[a-z0-9-]+">
+              <small>Only lowercase letters, numbers, and hyphens allowed</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategorySortOrder">Sort Order</label>
+              <input type="number" id="mainCategorySortOrder" name="sort_order" value="0" min="0">
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategoryActive">Status</label>
+              <select id="mainCategoryActive" name="active">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+            
+            <div class="form-group full-width">
+              <div class="flex gap-4">
+                <button type="submit" class="btn btn-primary">
+                  Save Main Category
+                </button>
+                <button type="button" class="btn btn-outline" data-action="cancel-main-category">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
 
       <!-- Products Section -->
       <section id="section-products" class="hidden">

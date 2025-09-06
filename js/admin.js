@@ -210,6 +210,9 @@ class AdminManager {
         await this.loadProducts();
         await this.loadSubcategoriesForDropdown();
         break;
+      case 'main-categories':
+        await this.loadMainCategories();
+        break;
       case 'subcategories':
         await this.loadSubcategories();
         break;
@@ -227,8 +230,9 @@ class AdminManager {
 
   async loadDashboardStats() {
     try {
-      const [products, subcategories, sections] = await Promise.all([
+      const [products, mainCategories, subcategories, sections] = await Promise.all([
         this.supabase.from('products').select('id, active, featured'),
+        this.supabase.from('main_categories').select('slug, active'),
         this.supabase.from('subcategories').select('slug, active'),
         this.supabase.from('sections').select('key')
       ]);
@@ -237,6 +241,7 @@ class AdminManager {
         totalProducts: products.data?.length || 0,
         activeProducts: products.data?.filter(p => p.active).length || 0,
         featuredProducts: products.data?.filter(p => p.featured).length || 0,
+        totalMainCategories: mainCategories.data?.length || 0,
         totalSubcategories: subcategories.data?.length || 0,
         activeSubcategories: subcategories.data?.filter(s => s.active).length || 0,
         totalSections: sections.data?.length || 0
@@ -758,6 +763,189 @@ class AdminManager {
     }
   }
 
+  // ==================== MAIN CATEGORIES MANAGEMENT ====================
+  async loadMainCategories() {
+    try {
+      this.showStatus('Loading main categories...', 'main-categories');
+      
+      const { data, error } = await this.supabase
+        .from('main_categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      
+      this.renderMainCategoriesTable(data);
+      this.updateMainCategoryCount(data.length);
+      this.clearStatus('main-categories');
+      
+    } catch (error) {
+      this.showError('Failed to load main categories: ' + error.message, 'main-categories');
+    }
+  }
+
+  renderMainCategoriesTable(categories) {
+    const tbody = document.getElementById('mainCategoriesTable');
+    if (!tbody) return;
+
+    tbody.innerHTML = categories.map(cat => `
+      <tr data-slug="${cat.slug}">
+        <td>${cat.title_en || '-'}</td>
+        <td>${cat.title_ar || '-'}</td>
+        <td><code>${cat.slug}</code></td>
+        <td>${cat.sort_order}</td>
+        <td>
+          <span class="badge ${cat.active ? 'success' : 'error'}">
+            ${cat.active ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm" data-action="edit-main-category" data-slug="${cat.slug}">
+              Edit
+            </button>
+            <button class="btn btn-outline btn-sm btn-error" data-action="delete-main-category" data-slug="${cat.slug}">
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  updateMainCategoryCount(count) {
+    const countEl = document.getElementById('mainCategoryCount');
+    if (countEl) countEl.textContent = count;
+  }
+
+  async saveMainCategory(formData) {
+    try {
+      this.showStatus('Saving main category...', 'main-categories');
+      
+      const category = this.formDataToObject(formData);
+      
+      // Check if this is an update or insert
+      const isUpdate = !!category.id;
+      
+      if (isUpdate) {
+        // Update existing
+        const { error } = await this.supabase
+          .from('main_categories')
+          .update({
+            title_en: category.title_en,
+            title_ar: category.title_ar || null,
+            sort_order: parseInt(category.sort_order) || 0,
+            active: category.active === 'true'
+          })
+          .eq('slug', category.slug);
+        
+        if (error) throw error;
+        this.showSuccess('Main category updated successfully!', 'main-categories');
+      } else {
+        // Insert new
+        const { error } = await this.supabase
+          .from('main_categories')
+          .insert({
+            slug: category.slug,
+            title_en: category.title_en,
+            title_ar: category.title_ar || null,
+            sort_order: parseInt(category.sort_order) || 0,
+            active: category.active === 'true'
+          });
+        
+        if (error) throw error;
+        this.showSuccess('Main category created successfully!', 'main-categories');
+      }
+      
+      this.hideMainCategoryForm();
+      await this.loadMainCategories();
+      
+    } catch (error) {
+      this.showError('Failed to save main category: ' + error.message, 'main-categories');
+    }
+  }
+
+  async deleteMainCategory(slug) {
+    if (!confirm('Are you sure you want to delete this main category? This action cannot be undone and may affect products and subcategories.')) return;
+    
+    try {
+      this.showStatus('Deleting main category...', 'main-categories');
+      
+      const { error } = await this.supabase
+        .from('main_categories')
+        .delete()
+        .eq('slug', slug);
+      
+      if (error) throw error;
+      
+      this.showSuccess('Main category deleted successfully!', 'main-categories');
+      await this.loadMainCategories();
+      
+    } catch (error) {
+      this.showError('Failed to delete main category: ' + error.message, 'main-categories');
+    }
+  }
+
+  showMainCategoryForm(slug = null) {
+    const form = document.getElementById('mainCategoryForm');
+    const title = document.getElementById('mainCategoryFormTitle');
+    
+    if (!form || !title) return;
+    
+    form.classList.remove('hidden');
+    
+    if (slug) {
+      title.textContent = 'Edit Main Category';
+      this.loadMainCategoryData(slug);
+    } else {
+      title.textContent = 'Add New Main Category';
+      this.clearMainCategoryForm();
+    }
+  }
+
+  hideMainCategoryForm() {
+    const form = document.getElementById('mainCategoryForm');
+    if (form) form.classList.add('hidden');
+  }
+
+  async loadMainCategoryData(slug) {
+    try {
+      const { data, error } = await this.supabase
+        .from('main_categories')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+      
+      if (error) throw error;
+      
+      // Populate form with data
+      document.getElementById('mainCategoryId').value = data.slug;
+      document.getElementById('mainCategoryTitleEn').value = data.title_en || '';
+      document.getElementById('mainCategoryTitleAr').value = data.title_ar || '';
+      document.getElementById('mainCategorySlug').value = data.slug || '';
+      document.getElementById('mainCategorySortOrder').value = data.sort_order || 0;
+      document.getElementById('mainCategoryActive').value = data.active ? 'true' : 'false';
+      
+      // Make slug readonly for editing
+      document.getElementById('mainCategorySlug').readOnly = true;
+      
+    } catch (error) {
+      this.showError('Failed to load main category: ' + error.message, 'main-categories');
+    }
+  }
+
+  clearMainCategoryForm() {
+    document.getElementById('mainCategoryId').value = '';
+    document.getElementById('mainCategoryTitleEn').value = '';
+    document.getElementById('mainCategoryTitleAr').value = '';
+    document.getElementById('mainCategorySlug').value = '';
+    document.getElementById('mainCategorySortOrder').value = '0';
+    document.getElementById('mainCategoryActive').value = 'true';
+    
+    // Make slug editable for new categories
+    document.getElementById('mainCategorySlug').readOnly = false;
+  }
+
   // ==================== SECTIONS MANAGEMENT ====================
   async loadSections() {
     try {
@@ -989,6 +1177,10 @@ class AdminManager {
           await this.saveProduct(formData);
           break;
           
+        case 'main-category':
+          await this.saveMainCategory(formData);
+          break;
+          
         case 'subcategory':
           await this.saveSubcategory(formData);
           break;
@@ -1037,6 +1229,22 @@ class AdminManager {
           
         case 'cancel-product':
           this.hideProductForm();
+          break;
+
+        case 'new-main-category':
+          this.showMainCategoryForm();
+          break;
+          
+        case 'edit-main-category':
+          this.showMainCategoryForm(slug);
+          break;
+          
+        case 'delete-main-category':
+          await this.deleteMainCategory(slug);
+          break;
+          
+        case 'cancel-main-category':
+          this.hideMainCategoryForm();
           break;
 
         case 'new-subcategory':

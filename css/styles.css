@@ -524,7 +524,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     max-width: calc(50% - 0.5rem);
   }
 }
-}
+
 @media (max-width: 480px) {
   .container { padding: 0 0.8rem; }
   .logo-image { height: 50px; max-width: 150px; }

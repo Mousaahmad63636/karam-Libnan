@@ -9,6 +9,12 @@ const FALLBACK_IMAGE = 'https://placehold.co/400x300?text=Image+Unavailable';
 // Extended product dataset with mainType (single/bulk) and subcategory mapping
 const productsData = [];
 
+// Global main categories storage
+let mainCategories = [
+  { slug: 'single', title_en: 'Single Serve Products', sort_order: 1 },
+  { slug: 'bulk', title_en: 'Bulk Products', sort_order: 2 }
+];
+
 // Configurable subcategory lists
 const SUBCATS = {
   single: ['all','fresh veges','fresh pickles','ordinary pickles','olives','olive oil','labne & kishik','pastes','molases','hydrosols','natural syrubs','tahhene','vinegar','herbal','kamar el din','ready to serve'],
@@ -354,7 +360,7 @@ function cardTemplate(item, isFeatured = false) {
 }
 
 // Render all products
-let currentMain = 'single';
+let currentMain = '';  // Will be set dynamically to first available main category
 let currentSub = 'all';
 function renderProducts() {
   const grid = document.getElementById('productGrid');
@@ -378,21 +384,57 @@ function updateBanner() {
 
 function capitalizeWords(str) { return str.replace(/\b\w/g, c => c.toUpperCase()); }
 
+function buildMainTabs() {
+  const mainTabsContainer = document.querySelector('.main-cat-tabs');
+  if (!mainTabsContainer) return;
+  
+  // Set currentMain to first category if not set
+  if (!currentMain && mainCategories.length > 0) {
+    currentMain = mainCategories[0].slug;
+  }
+  
+  // Generate main category tabs dynamically
+  const tabsHTML = mainCategories.map((cat, index) => {
+    const isActive = cat.slug === currentMain;
+    return `<button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${cat.title_en}</button>`;
+  }).join('');
+  
+  mainTabsContainer.innerHTML = tabsHTML;
+}
+
 function buildSubFilters() {
-  const singleWrap = document.getElementById('subFiltersSingle');
-  const bulkWrap = document.getElementById('subFiltersBulk');
-  if (!singleWrap || !bulkWrap) return;
-  singleWrap.innerHTML = SUBCATS.single.map((c,i)=>`<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="single">${capitalizeWords(c)}</button>`).join('');
-  bulkWrap.innerHTML = SUBCATS.bulk.map((c,i)=>`<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="bulk">${capitalizeWords(c)}</button>`).join('');
-  // Attach listeners
-  [singleWrap, bulkWrap].forEach(wrap => wrap.addEventListener('click', e => {
+  // Remove existing subcategory containers
+  const subcategoryWrapper = document.querySelector('.subcategory-wrapper');
+  if (!subcategoryWrapper) return;
+  
+  // Clear existing containers
+  subcategoryWrapper.innerHTML = '';
+  
+  // Create containers for each main category
+  mainCategories.forEach((cat) => {
+    const isVisible = cat.slug === currentMain;
+    const container = document.createElement('div');
+    container.className = `filters sub-filters${isVisible ? '' : ' hidden'}`;
+    container.id = `subFilters${cat.slug.charAt(0).toUpperCase() + cat.slug.slice(1)}`;
+    container.setAttribute('aria-label', `${cat.title_en} Subcategories`);
+    
+    if (SUBCATS[cat.slug]) {
+      container.innerHTML = SUBCATS[cat.slug].map((c,i)=>`<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="${cat.slug}">${capitalizeWords(c)}</button>`).join('');
+    }
+    
+    subcategoryWrapper.appendChild(container);
+  });
+  
+  // Attach listeners to all subcategory containers
+  subcategoryWrapper.addEventListener('click', e => {
     if (e.target.matches('.filter-btn')) {
-      wrap.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      const container = e.target.closest('.sub-filters');
+      container.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
       e.target.classList.add('active');
       currentSub = e.target.dataset.sub;
       renderProducts();
     }
-  }));
+  });
 }
 
 function initMainTabs() {
@@ -404,10 +446,20 @@ function initMainTabs() {
       btn.setAttribute('aria-selected','true');
       currentMain = btn.dataset.main;
       currentSub = 'all';
-      document.getElementById('subFiltersSingle').classList.toggle('hidden', currentMain!=='single');
-      document.getElementById('subFiltersBulk').classList.toggle('hidden', currentMain!=='bulk');
-      // reset active button
-      (currentMain==='single'?document.getElementById('subFiltersSingle'):document.getElementById('subFiltersBulk')).querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
+      
+      // Hide all subcategory containers
+      document.querySelectorAll('.sub-filters').forEach(container => {
+        container.classList.add('hidden');
+      });
+      
+      // Show the container for current main category
+      const activeContainer = document.getElementById(`subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`);
+      if (activeContainer) {
+        activeContainer.classList.remove('hidden');
+        // Reset active button to 'all'
+        activeContainer.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
+      }
+      
       renderProducts();
     });
   });
@@ -511,6 +563,7 @@ window.addEventListener('scroll', () => {
 async function initializeSite(){
   loadOverrides();
   await tryRemoteLoad();
+  buildMainTabs();
   buildSubFilters();
   initMainTabs();
   renderFeatured();
@@ -529,6 +582,16 @@ async function tryRemoteLoad(){
   if(!anonKey || !window.createSupabaseClient) return; // no remote
   try {
     const client = window.createSupabaseClient('https://xbznaxiummganlidnmdd.supabase.co', anonKey);
+    
+    // Load main categories first
+    const { data: mainCats, error: mainCatsErr } = await client.from('main_categories').select('*').eq('active', true).order('sort_order');
+    if (mainCatsErr && /not found/i.test(mainCatsErr.message)) {
+      console.warn('Supabase table main_categories not found. Using default categories.');
+    }
+    if (mainCats?.length) {
+      mainCategories = mainCats;
+    }
+    
     // Load subcategories
     const { data: subs, error: subsErr } = await client.from('subcategories').select('*').eq('active', true).order('sort_order');
     if (subsErr && /not found/i.test(subsErr.message)) {
@@ -536,8 +599,24 @@ async function tryRemoteLoad(){
       return; // abort further remote attempts
     }
     if (subs?.length){
-      SUBCATS.single = subs.filter(s=>s.category_type==='single').map(s=>s.slug.replace(/-/g,' '));
-      SUBCATS.bulk = subs.filter(s=>s.category_type==='bulk').map(s=>s.slug.replace(/-/g,' '));
+      // Reset SUBCATS and rebuild based on available main categories
+      Object.keys(SUBCATS).forEach(key => {
+        if (!mainCategories.some(cat => cat.slug === key)) {
+          delete SUBCATS[key];
+        }
+      });
+      
+      // Build subcategory lists for each main category
+      mainCategories.forEach(mainCat => {
+        if (!SUBCATS[mainCat.slug]) {
+          SUBCATS[mainCat.slug] = ['all'];
+        }
+        const categorySubs = subs.filter(s => s.category_type === mainCat.slug).map(s => s.slug.replace(/-/g,' '));
+        if (categorySubs.length > 0) {
+          SUBCATS[mainCat.slug] = ['all', ...categorySubs];
+        }
+      });
+      
       // banners mapping
       subs.forEach(s=>{ if (s.banner_image_url) BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url; });
     }
