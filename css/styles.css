@@ -614,7 +614,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     transform: scale(1.05);
   }
   
-  /* Overlay */
+  /* Overlay with blur effect for main content only */
   .nav-overlay {
     position: fixed;
     top: 0;
@@ -626,12 +626,21 @@ body.rtl .search-icon { left:auto; right:.75rem; }
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
-    backdrop-filter: blur(2px);
   }
   
   .nav-overlay.show {
     opacity: 1;
     visibility: visible;
+  }
+  
+  /* Blur effect for main content when navigation is open */
+  body.nav-open .main-content {
+    filter: blur(3px);
+    transition: filter 0.3s ease;
+  }
+  
+  body.nav-open .site-header {
+    filter: none; /* Keep header unblurred */
   }
 }
 

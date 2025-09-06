@@ -94,52 +94,110 @@ function applyContentOverrides() {
   }
 }
 
-// Navigation toggle with sidebar and overlay
-const navToggle = document.querySelector('.nav-toggle');
-const navList = document.querySelector('.nav-list');
-const navOverlay = document.getElementById('navOverlay');
+// Navigation initialization function
+function initializeNavigation() {
+  // Navigation toggle with sidebar and overlay
+  const navToggle = document.querySelector('.nav-toggle');
+  const navList = document.querySelector('.nav-list');
+  const navOverlay = document.getElementById('navOverlay');
 
-function toggleNavigation() {
-  const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-  const isOpen = !expanded;
-  
-  navToggle.setAttribute('aria-expanded', String(isOpen));
-  navList.classList.toggle('open', isOpen);
-  navOverlay.classList.toggle('show', isOpen);
-  
-  // Prevent body scroll when sidebar is open
-  document.body.style.overflow = isOpen ? 'hidden' : '';
+  function toggleNavigation() {
+    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+    const isOpen = !expanded;
+    
+    navToggle.setAttribute('aria-expanded', String(isOpen));
+    navList.classList.toggle('open', isOpen);
+    navOverlay.classList.toggle('show', isOpen);
+    
+    // Add/remove nav-open class to body for blur effect
+    document.body.classList.toggle('nav-open', isOpen);
+    
+    // Prevent body scroll when sidebar is open
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  function closeNavigation() {
+    navToggle.setAttribute('aria-expanded', 'false');
+    navList.classList.remove('open');
+    navOverlay.classList.remove('show');
+    document.body.classList.remove('nav-open');
+    document.body.style.overflow = '';
+  }
+
+  navToggle?.addEventListener('click', toggleNavigation);
+
+  // Close nav on overlay click
+  navOverlay?.addEventListener('click', closeNavigation);
+
+  // Close button in sidebar
+  const navClose = document.querySelector('.nav-close');
+  navClose?.addEventListener('click', closeNavigation);
+
+  // Close nav on link click (mobile)
+  navList?.addEventListener('click', e => {
+    if (e.target.matches('a')) {
+      closeNavigation();
+    }
+  });
+
+  // Close nav on escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && navList.classList.contains('open')) {
+      closeNavigation();
+    }
+  });
+
+  // Search functionality (after navigation is loaded)
+  initializeSearch();
 }
 
-function closeNavigation() {
-  navToggle.setAttribute('aria-expanded', 'false');
-  navList.classList.remove('open');
-  navOverlay.classList.remove('show');
-  document.body.style.overflow = '';
+// Search initialization
+function initializeSearch() {
+  const searchInput = document.getElementById('productSearch');
+  const searchInputDesktop = document.getElementById('productSearchDesktop');
+
+  // Handle mobile search
+  searchInput?.addEventListener('input', () => {
+    document.body.classList.toggle('searching', !!searchInput.value.trim());
+    renderProducts();
+  });
+
+  // Handle desktop search
+  searchInputDesktop?.addEventListener('input', () => {
+    document.body.classList.toggle('searching', !!searchInputDesktop.value.trim());
+    renderProducts();
+  });
+
+  // Search toggle functionality for mobile
+  const searchToggle = document.getElementById('searchToggle');
+  searchToggle?.addEventListener('click', () => {
+    const isExpanded = searchInput.classList.contains('expanded');
+    if (isExpanded) {
+      searchInput.classList.remove('expanded');
+      searchInput.value = '';
+      document.body.classList.remove('searching');
+      renderProducts();
+    } else {
+      searchInput.classList.add('expanded');
+      setTimeout(() => searchInput.focus(), 350); // Wait for animation
+    }
+  });
+
+  // Search toggle functionality for desktop
+  const searchToggleDesktop = document.getElementById('searchToggleDesktop');
+  searchToggleDesktop?.addEventListener('click', () => {
+    const isExpanded = searchInputDesktop.classList.contains('expanded');
+    if (isExpanded) {
+      searchInputDesktop.classList.remove('expanded');
+      searchInputDesktop.value = '';
+      document.body.classList.remove('searching');
+      renderProducts();
+    } else {
+      searchInputDesktop.classList.add('expanded');
+      setTimeout(() => searchInputDesktop.focus(), 350); // Wait for animation
+    }
+  });
 }
-
-navToggle?.addEventListener('click', toggleNavigation);
-
-// Close nav on overlay click
-navOverlay?.addEventListener('click', closeNavigation);
-
-// Close button in sidebar
-const navClose = document.querySelector('.nav-close');
-navClose?.addEventListener('click', closeNavigation);
-
-// Close nav on link click (mobile)
-navList?.addEventListener('click', e => {
-  if (e.target.matches('a')) {
-    closeNavigation();
-  }
-});
-
-// Close nav on escape key
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && navList.classList.contains('open')) {
-    closeNavigation();
-  }
-});
 
 // Active link highlighting on scroll
 const sections = document.querySelectorAll('section[id]');
@@ -338,52 +396,6 @@ function initMainTabs() {
     });
   });
 }
-
-// Search
-const searchInput = document.getElementById('productSearch');
-const searchInputDesktop = document.getElementById('productSearchDesktop');
-
-// Handle mobile search
-searchInput?.addEventListener('input', () => {
-  document.body.classList.toggle('searching', !!searchInput.value.trim());
-  renderProducts();
-});
-
-// Handle desktop search
-searchInputDesktop?.addEventListener('input', () => {
-  document.body.classList.toggle('searching', !!searchInputDesktop.value.trim());
-  renderProducts();
-});
-
-// Search toggle functionality for mobile
-const searchToggle = document.getElementById('searchToggle');
-searchToggle?.addEventListener('click', () => {
-  const isExpanded = searchInput.classList.contains('expanded');
-  if (isExpanded) {
-    searchInput.classList.remove('expanded');
-    searchInput.value = '';
-    document.body.classList.remove('searching');
-    renderProducts();
-  } else {
-    searchInput.classList.add('expanded');
-    setTimeout(() => searchInput.focus(), 350); // Wait for animation
-  }
-});
-
-// Search toggle functionality for desktop
-const searchToggleDesktop = document.getElementById('searchToggleDesktop');
-searchToggleDesktop?.addEventListener('click', () => {
-  const isExpanded = searchInputDesktop.classList.contains('expanded');
-  if (isExpanded) {
-    searchInputDesktop.classList.remove('expanded');
-    searchInputDesktop.value = '';
-    document.body.classList.remove('searching');
-    renderProducts();
-  } else {
-    searchInputDesktop.classList.add('expanded');
-    setTimeout(() => searchInputDesktop.focus(), 350); // Wait for animation
-  }
-});
 
 // (Legacy filtering removed - now handled by subcategory buttons)
 
