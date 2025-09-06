@@ -87,6 +87,9 @@ a:hover, a:focus { color: var(--color-secondary); }
   border-radius:50%; 
   transition:var(--transition); 
   color:var(--color-primary);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
 }
 .search-icon-btn:hover { 
   color:var(--color-secondary); 
@@ -105,9 +108,11 @@ a:hover, a:focus { color: var(--color-secondary); }
   background:#fff; 
   width:0; 
   opacity:0;
-  margin-left:.3rem;
+  margin-left:.8rem;
   transition:all .35s ease; 
   overflow:hidden;
+  position: relative;
+  z-index: 5;
 }
 #productSearch.expanded, #productSearchDesktop.expanded { 
   width:160px; 
