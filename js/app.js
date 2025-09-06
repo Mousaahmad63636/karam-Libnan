@@ -94,20 +94,50 @@ function applyContentOverrides() {
   }
 }
 
-// Navigation toggle
+// Navigation toggle with sidebar and overlay
 const navToggle = document.querySelector('.nav-toggle');
 const navList = document.querySelector('.nav-list');
-navToggle?.addEventListener('click', () => {
+const navOverlay = document.getElementById('navOverlay');
+
+function toggleNavigation() {
   const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-  navToggle.setAttribute('aria-expanded', String(!expanded));
-  navList.classList.toggle('open');
-});
+  const isOpen = !expanded;
+  
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+  navList.classList.toggle('open', isOpen);
+  navOverlay.classList.toggle('show', isOpen);
+  
+  // Prevent body scroll when sidebar is open
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+function closeNavigation() {
+  navToggle.setAttribute('aria-expanded', 'false');
+  navList.classList.remove('open');
+  navOverlay.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+navToggle?.addEventListener('click', toggleNavigation);
+
+// Close nav on overlay click
+navOverlay?.addEventListener('click', closeNavigation);
+
+// Close button in sidebar
+const navClose = document.querySelector('.nav-close');
+navClose?.addEventListener('click', closeNavigation);
 
 // Close nav on link click (mobile)
 navList?.addEventListener('click', e => {
   if (e.target.matches('a')) {
-    navList.classList.remove('open');
-    navToggle.setAttribute('aria-expanded', 'false');
+    closeNavigation();
+  }
+});
+
+// Close nav on escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && navList.classList.contains('open')) {
+    closeNavigation();
   }
 });
 

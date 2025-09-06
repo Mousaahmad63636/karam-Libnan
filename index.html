@@ -52,10 +52,18 @@
               aria-label="Search products" />
           </div>
           <button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
-            <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/>
+            </svg>
           </button>
         </div>
         <ul id="navMenu" class="nav-list">
+          <button class="nav-close" aria-label="Close navigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
           <li><a href="#home" class="active" data-i18n="nav.home">Home</a></li>
           <li><a href="#about" data-i18n="nav.about">About</a></li>
           <li><a href="#products" data-i18n="nav.products">Products</a></li>
@@ -82,6 +90,9 @@
 
     </div>
   </header>
+
+  <!-- Mobile Navigation Overlay -->
+  <div class="nav-overlay" id="navOverlay"></div>
 
   <!-- Hero Section -->
   <section id="home" class="hero" role="banner" aria-label="Hero Welcome Section">
