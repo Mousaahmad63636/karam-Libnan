@@ -133,9 +133,17 @@ function initializeNavigation() {
   const navClose = document.querySelector('.nav-close');
   navClose?.addEventListener('click', closeNavigation);
 
-  // Close nav on link click (mobile)
+  // Close nav on link click (mobile) + handle active states
   navList?.addEventListener('click', e => {
     if (e.target.matches('a')) {
+      // Remove active class from all nav links
+      document.querySelectorAll('.nav-list a').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      // Add active class to clicked link
+      e.target.classList.add('active');
+      
       closeNavigation();
     }
   });
@@ -146,6 +154,29 @@ function initializeNavigation() {
       closeNavigation();
     }
   });
+
+  // Active link highlighting for navigation
+  function updateActiveNavigation() {
+    const sections = document.querySelectorAll('section[id]');
+    const allNavLinks = document.querySelectorAll('.nav-list a');
+    
+    function onScroll() {
+      const scrollPos = window.scrollY + 120; // offset for header
+      sections.forEach(sec => {
+        if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
+          allNavLinks.forEach(l => l.classList.remove('active'));
+          const activeLink = document.querySelector(`.nav-list a[href="#${sec.id}"]`);
+          activeLink?.classList.add('active');
+        }
+      });
+    }
+    
+    window.addEventListener('scroll', onScroll);
+    onScroll(); // Call once on load
+  }
+
+  // Initialize active navigation
+  updateActiveNavigation();
 
   // Search functionality (after navigation is loaded)
   initializeSearch();
@@ -198,21 +229,6 @@ function initializeSearch() {
     }
   });
 }
-
-// Active link highlighting on scroll
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-list a');
-function onScroll() {
-  const scrollPos = window.scrollY + 120; // offset for header
-  sections.forEach(sec => {
-    if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
-      navLinks.forEach(l => l.classList.remove('active'));
-      const active = document.querySelector(`.nav-list a[href="#${sec.id}"]`);
-      active?.classList.add('active');
-    }
-  });
-}
-window.addEventListener('scroll', onScroll);
 
 // Inject featured products
 function renderFeatured() {
