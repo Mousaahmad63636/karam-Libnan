@@ -40,7 +40,7 @@
         <img src="images/logo.png" alt="Karam Libnan Logo" class="logo-image" />
       </div>
       <nav class="main-nav" aria-label="Primary Navigation">
-        <div class="nav-controls">
+        <div class="nav-controls mobile-only">
           <div class="search-wrapper">
             <button id="searchToggle" class="search-icon-btn" aria-label="Open search">🔍</button>
             <input type="text" id="productSearch" class="search-input collapsed" placeholder="Search products"
@@ -61,7 +61,14 @@
           <li class="lang-switch-item"><button id="langToggle" class="lang-toggle"
               aria-label="Toggle language">AR</button></li>
         </ul>
-
+      </nav>
+      <div class="header-actions desktop-only">
+        <div class="search-wrapper">
+          <button id="searchToggleDesktop" class="search-icon-btn" aria-label="Open search">🔍</button>
+          <input type="text" id="productSearchDesktop" class="search-input collapsed" placeholder="Search products"
+            aria-label="Search products" />
+        </div>
+      </div>
 
     </div>
   </header>

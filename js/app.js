@@ -234,7 +234,7 @@ function createCustomSection(sectionKey, sectionTitle) {
 
 // Product card template
 function cardTemplate(item, isFeatured = false) {
-  const searchTerm = (document.getElementById('productSearch')?.value || '').trim();
+  const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim();
   const name = highlight(item.name, searchTerm);
   const desc = highlight(item.description, searchTerm);
   return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}">
@@ -255,7 +255,7 @@ let currentSub = 'all';
 function renderProducts() {
   const grid = document.getElementById('productGrid');
   if (!grid) return;
-  const searchTerm = (document.getElementById('productSearch')?.value || '').trim().toLowerCase();
+  const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim().toLowerCase();
   const items = productsData.filter(p => p.mainType === currentMain && (currentSub === 'all' || p.sub === currentSub) && (!searchTerm || p.name.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm)));
   // Optional skeleton effect (quick, not async) for perceived performance
   grid.innerHTML = items.map(()=>'<div class="card skeleton" style="height:260px;border-radius:10px;"></div>').join('');
@@ -311,12 +311,21 @@ function initMainTabs() {
 
 // Search
 const searchInput = document.getElementById('productSearch');
+const searchInputDesktop = document.getElementById('productSearchDesktop');
+
+// Handle mobile search
 searchInput?.addEventListener('input', () => {
   document.body.classList.toggle('searching', !!searchInput.value.trim());
   renderProducts();
 });
 
-// Search toggle functionality
+// Handle desktop search
+searchInputDesktop?.addEventListener('input', () => {
+  document.body.classList.toggle('searching', !!searchInputDesktop.value.trim());
+  renderProducts();
+});
+
+// Search toggle functionality for mobile
 const searchToggle = document.getElementById('searchToggle');
 searchToggle?.addEventListener('click', () => {
   const isExpanded = searchInput.classList.contains('expanded');
@@ -328,6 +337,21 @@ searchToggle?.addEventListener('click', () => {
   } else {
     searchInput.classList.add('expanded');
     setTimeout(() => searchInput.focus(), 350); // Wait for animation
+  }
+});
+
+// Search toggle functionality for desktop
+const searchToggleDesktop = document.getElementById('searchToggleDesktop');
+searchToggleDesktop?.addEventListener('click', () => {
+  const isExpanded = searchInputDesktop.classList.contains('expanded');
+  if (isExpanded) {
+    searchInputDesktop.classList.remove('expanded');
+    searchInputDesktop.value = '';
+    document.body.classList.remove('searching');
+    renderProducts();
+  } else {
+    searchInputDesktop.classList.add('expanded');
+    setTimeout(() => searchInputDesktop.focus(), 350); // Wait for animation
   }
 });
 

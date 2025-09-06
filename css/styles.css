@@ -92,7 +92,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   color:var(--color-secondary); 
   background:rgba(200,16,46,0.1);
 }
-#productSearch { 
+#productSearch, #productSearchDesktop { 
   padding:.55rem .9rem; 
   border:1px solid var(--color-border); 
   border-radius: var(--radius-full); 
@@ -104,14 +104,21 @@ a:hover, a:focus { color: var(--color-secondary); }
   transition:all .35s ease; 
   overflow:hidden;
 }
-#productSearch.expanded { 
+#productSearch.expanded, #productSearchDesktop.expanded { 
   width:160px; 
   opacity:1;
 }
-#productSearch.expanded:focus { 
+#productSearch.expanded:focus, #productSearchDesktop.expanded:focus { 
   outline:2px solid var(--color-secondary); 
   width:180px; 
 }
+
+/* Header actions for desktop */
+.header-actions { display:flex; align-items:center; gap:1rem; }
+
+/* Visibility classes */
+.mobile-only { display: none; }
+.desktop-only { display: flex; }
 .search-icon { 
   position:absolute; 
   left:.75rem; 
@@ -393,9 +400,13 @@ body.rtl .search-icon { left:auto; right:.75rem; }
   #productSearch.expanded:focus { width: 120px; }
 }
 @media (min-width: 821px) {
+  .mobile-only { display: none !important; }
+  .desktop-only { display: flex !important; }
   .nav-list { display: flex !important; position: static !important; opacity: 1 !important; visibility: visible !important; transform: none !important; background: none !important; box-shadow: none !important; padding: 0 !important; min-width: auto !important; }
 }
 @media (max-width: 820px) {
+  .mobile-only { display: flex; }
+  .desktop-only { display: none; }
   .nav-toggle { display: block; }
   .nav-controls { display: flex; }
   .nav-list { position: absolute; top: 100%; right: 0; flex-direction: column; background: var(--color-white); padding: 1rem 1.2rem; box-shadow: var(--shadow-md); border-radius: var(--radius-md); min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(-10px); }
