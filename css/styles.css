@@ -96,6 +96,9 @@ a:hover, a:focus { color: var(--color-secondary); }
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  position: relative;
 }
 .search-icon-btn:hover { 
   color:var(--color-secondary); 
@@ -109,21 +112,29 @@ a:hover, a:focus { color: var(--color-secondary); }
   margin: 0 auto;
 }
 #productSearch, #productSearchDesktop { 
-  padding: .55rem .9rem; 
-  border: 0.5px solid var(--color-border); 
+  padding: 0; 
+  border: none; 
   border-radius: var(--radius-full); 
   font-size: .85rem; 
-  background: #fff; 
+  background: transparent; 
   width: 0; 
   opacity: 0;
   margin-left: 0;
   transition: all .35s ease; 
   overflow: hidden;
   flex-shrink: 0;
+  position: absolute;
+  left: 100%;
 }
 #productSearch.expanded, #productSearchDesktop.expanded { 
   width: 160px; 
   opacity: 1;
+  padding: .55rem .9rem; 
+  border: 0.5px solid var(--color-border); 
+  background: #fff; 
+  position: relative;
+  left: 0;
+  margin-left: .5rem;
 }
 #productSearch.expanded:hover, #productSearchDesktop.expanded:hover { 
   border-color: var(--color-navy);
