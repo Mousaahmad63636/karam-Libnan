@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&family=Raleway:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <!-- Header / Navigation -->
@@ -44,10 +44,10 @@
         </ul>
       </nav>
       <div class="header-actions">
-        <form class="search-box">
-          <input type="text" id="productSearch" placeholder="Search..." aria-label="Search products">
-          <button type="reset" aria-label="Clear search"></button>
-        </form>
+        <div class="search-wrapper">
+          <input type="text" id="productSearch" placeholder="Search products" aria-label="Search products" />
+          <span class="search-icon" aria-hidden="true">🔍</span>
+        </div>
       </div>
     </div>
   </header>

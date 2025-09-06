@@ -316,40 +316,6 @@ searchInput?.addEventListener('input', () => {
   renderProducts();
 });
 
-// Search form and reset functionality
-const searchForm = document.querySelector('.search-box');
-const searchInput = document.getElementById('productSearch');
-const resetButton = searchForm?.querySelector('button[type="reset"]');
-
-searchForm?.addEventListener('submit', (e) => {
-  e.preventDefault(); // Prevent form submission
-});
-
-// Handle both reset button click and search icon click to focus input
-resetButton?.addEventListener('click', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  
-  if (searchInput && searchInput.value.trim()) {
-    // If there's text, clear it
-    searchInput.value = '';
-    searchInput.blur(); // Remove focus to collapse the search box
-    document.body.classList.remove('searching');
-    renderProducts(); // Update products display
-  } else {
-    // If no text, focus the input to open search
-    searchInput?.focus();
-  }
-});
-
-// Also allow clicking the icon when collapsed to focus
-resetButton?.addEventListener('mousedown', (e) => {
-  if (searchInput && !searchInput.value.trim() && document.activeElement !== searchInput) {
-    e.preventDefault();
-    searchInput.focus();
-  }
-});
-
 // (Legacy filtering removed - now handled by subcategory buttons)
 
 // Form validation (client-side only demo)
