@@ -99,10 +99,18 @@ a:hover, a:focus { color: var(--color-secondary); }
   width: 40px;
   height: 40px;
   position: relative;
+  outline: none;
+  box-shadow: none;
 }
 .search-icon-btn:hover { 
-  color:var(--color-secondary); 
-  background:rgba(200,16,46,0.1);
+  color: var(--color-secondary); 
+  background: none;
+  box-shadow: none;
+  outline: none;
+}
+.search-icon-btn:focus { 
+  outline: none;
+  box-shadow: none;
 }
 .search-icon {
   width: 20px;
@@ -135,12 +143,17 @@ a:hover, a:focus { color: var(--color-secondary); }
   position: relative;
   left: 0;
   margin-left: .5rem;
+  outline: none;
+  box-shadow: none;
 }
 #productSearch.expanded:hover, #productSearchDesktop.expanded:hover { 
   border-color: var(--color-navy);
+  outline: none;
+  box-shadow: none;
 }
 #productSearch.expanded:focus, #productSearchDesktop.expanded:focus { 
-  outline: 2px solid var(--color-navy); 
+  outline: none;
+  box-shadow: none;
   border-color: var(--color-navy);
   width: 180px; 
 }
