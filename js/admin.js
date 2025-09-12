@@ -181,7 +181,10 @@ class AdminManager {
     console.log('Found section element:', section);
     if (section) {
       section.classList.remove('hidden');
-      this.loadSectionData(sectionName);
+      // Add small delay to ensure DOM is ready
+      setTimeout(() => {
+        this.loadSectionData(sectionName);
+      }, 100);
     } else {
       console.error(`Section not found: section-${sectionName}`);
     }
@@ -202,11 +205,13 @@ class AdminManager {
 
   // ==================== DATA LOADING ====================
   async loadSectionData(section) {
+    console.log('Loading section data for:', section);
     switch (section) {
       case 'dashboard':
         await this.loadDashboardStats();
         break;
       case 'products':
+        console.log('Loading products section...');
         await this.loadProducts();
         await this.loadSubcategoriesForDropdown();
         break;
@@ -214,6 +219,7 @@ class AdminManager {
         await this.loadMainCategories();
         break;
       case 'subcategories':
+        console.log('Loading subcategories section...');
         await this.loadSubcategories();
         break;
       case 'sections':
@@ -309,6 +315,7 @@ class AdminManager {
   // ==================== PRODUCTS MANAGEMENT ====================
   async loadProducts(search = '') {
     try {
+      console.log('Starting loadProducts with search:', search);
       this.showStatus('Loading products...', 'products');
       
       let query = this.supabase.from('products').select(`
@@ -324,17 +331,24 @@ class AdminManager {
       
       if (error) throw error;
       
+      console.log('Products loaded successfully:', data?.length, 'items');
       this.renderProductsTable(data);
       this.clearStatus('products');
       
     } catch (error) {
+      console.error('Failed to load products:', error);
       this.showError('Failed to load products: ' + error.message, 'products');
     }
   }
 
   renderProductsTable(products) {
+    console.log('Rendering products table with data:', products?.length, 'items');
     const tbody = document.getElementById('productsTableBody');
-    if (!tbody) return;
+    console.log('Table body element found:', !!tbody);
+    if (!tbody) {
+      console.error('Products table body not found!');
+      return;
+    }
 
     tbody.innerHTML = products.map(product => `
       <tr>
@@ -597,6 +611,7 @@ class AdminManager {
   // ==================== SUBCATEGORIES MANAGEMENT ====================
   async loadSubcategories() {
     try {
+      console.log('Starting loadSubcategories...');
       this.showStatus('Loading subcategories...', 'subcategories');
       
       const { data, error } = await this.supabase
@@ -606,17 +621,24 @@ class AdminManager {
       
       if (error) throw error;
       
+      console.log('Subcategories loaded successfully:', data?.length, 'items');
       this.renderSubcategoriesTable(data);
       this.clearStatus('subcategories');
       
     } catch (error) {
+      console.error('Failed to load subcategories:', error);
       this.showError('Failed to load subcategories: ' + error.message, 'subcategories');
     }
   }
 
   renderSubcategoriesTable(subcategories) {
+    console.log('Rendering subcategories table with data:', subcategories?.length, 'items');
     const tbody = document.getElementById('subcategoriesTableBody');
-    if (!tbody) return;
+    console.log('Subcategories table body element found:', !!tbody);
+    if (!tbody) {
+      console.error('Subcategories table body not found!');
+      return;
+    }
 
     tbody.innerHTML = subcategories.map(subcat => `
       <tr>
