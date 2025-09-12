@@ -671,6 +671,7 @@ class AdminManager {
         </td>
       </tr>
     `).join('');
+    console.log('Subcategories table HTML rendered, innerHTML length:', tbody.innerHTML.length);
 
     document.getElementById('subcategoryCount').textContent = subcategories.length;
   }
@@ -833,6 +834,7 @@ class AdminManager {
         </td>
       </tr>
     `).join('');
+    console.log('Products table HTML rendered, innerHTML length:', tbody.innerHTML.length);
   }
 
   updateMainCategoryCount(count) {
