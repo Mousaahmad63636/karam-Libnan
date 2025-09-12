@@ -350,6 +350,10 @@ class AdminManager {
       return;
     }
 
+    // Simple test
+    tbody.innerHTML = '<tr><td colspan="7">TEST: Loading ' + products.length + ' products...</td></tr>';
+    console.log('Test message inserted');
+
     tbody.innerHTML = products.map(product => `
       <tr>
         <td>
