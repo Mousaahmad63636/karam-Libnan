@@ -385,7 +385,7 @@
                     </div>
                 </div>
                 <div id="main-categories-table" class="table-container">
-                    <div class="loading">Click refresh to load main categories...</div>
+                    <div class="loading">Loading main categories...</div>
                 </div>
             </section>
 
@@ -399,7 +399,7 @@
                     </div>
                 </div>
                 <div id="subcategories-table" class="table-container">
-                    <div class="loading">Click refresh to load subcategories...</div>
+                    <div class="loading">Loading subcategories...</div>
                 </div>
             </section>
 
@@ -413,7 +413,7 @@
                     </div>
                 </div>
                 <div id="products-table" class="table-container">
-                    <div class="loading">Click refresh to load products...</div>
+                    <div class="loading">Loading products...</div>
                 </div>
             </section>
 
@@ -427,7 +427,7 @@
                     </div>
                 </div>
                 <div id="sections-table" class="table-container">
-                    <div class="loading">Click refresh to load sections...</div>
+                    <div class="loading">Loading sections...</div>
                 </div>
             </section>
 
@@ -440,7 +440,7 @@
                     </div>
                 </div>
                 <div id="media-table" class="table-container">
-                    <div class="loading">Click refresh to load media...</div>
+                    <div class="loading">Loading media...</div>
                 </div>
             </section>
         </main>
@@ -474,7 +474,16 @@
                 console.log('🚀 Initializing Full CRUD Admin Panel...');
                 this.setupEventListeners();
                 this.testConnection();
+                
+                // Auto-load dashboard immediately
                 this.loadDashboard();
+                
+                // Optional: Auto-refresh dashboard every 30 seconds
+                setInterval(() => {
+                    if (this.currentSection === 'dashboard') {
+                        this.loadDashboard();
+                    }
+                }, 30000);
             }
 
             setupEventListeners() {
@@ -509,6 +518,38 @@
 
                 this.currentSection = section;
                 console.log(`📄 Switched to ${section} section`);
+
+                // Auto-load data when switching sections
+                this.autoLoadSectionData(section);
+            }
+
+            autoLoadSectionData(section) {
+                switch (section) {
+                    case 'dashboard':
+                        this.loadDashboard();
+                        break;
+                    case 'main-categories':
+                        this.loadMainCategories();
+                        break;
+                    case 'subcategories':
+                        this.loadSubcategories();
+                        break;
+                    case 'products':
+                        this.loadProducts();
+                        break;
+                    case 'sections':
+                        this.loadSections();
+                        break;
+                    case 'media':
+                        this.loadMedia();
+                        break;
+                }
+            }
+
+            // Auto-refresh current section and dashboard after any data change
+            refreshCurrentData() {
+                this.loadDashboard(); // Always refresh dashboard stats
+                this.autoLoadSectionData(this.currentSection); // Refresh current section
             }
 
             async testConnection() {
@@ -740,8 +781,11 @@
                     }
 
                     this.closeModal();
+                    
+                    // Auto-refresh data after successful operation
                     this.loadMainCategories();
-                    this.loadDashboard();
+                    this.loadDashboard(); // Update dashboard stats too
+                    
                 } catch (error) {
                     this.showMessage('❌ Error saving main category: ' + error.message, 'error');
                 }
