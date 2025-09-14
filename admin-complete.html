@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karam Libnan - Full CRUD Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 15px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #34495e;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success { background: #27ae60; }
+        .btn-success:hover { background: #219a52; }
+
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { background: #c0392b; }
+
+        .btn-warning { background: #f39c12; }
+        .btn-warning:hover { background: #e67e22; }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+            width: 120px;
+        }
+
+        .actions-cell .btn {
+            margin-right: 4px;
+            padding: 2px 6px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .status-message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+
+        .loading, .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-single {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-bulk {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-active {
+            color: #27ae60;
+        }
+
+        .status-inactive {
+            color: #e74c3c;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h1>🍯 Karam Libnan<br>Full CRUD Admin</h1>
+            <button class="nav-item active" data-section="dashboard">📊 Dashboard</button>
+            <button class="nav-item" data-section="main-categories">📂 Main Categories</button>
+            <button class="nav-item" data-section="subcategories">📁 Subcategories</button>
+            <button class="nav-item" data-section="products">🥫 Products</button>
+            <button class="nav-item" data-section="sections">📄 Sections</button>
+            <button class="nav-item" data-section="media">🖼️ Media</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="status-message" class="status-message"></div>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h2>📊 Dashboard</h2>
+                    <button class="btn" onclick="loadDashboard()">🔄 Refresh</button>
+                </div>
+                <div id="dashboard-stats" class="stats-grid">
+                    <div class="loading">Loading dashboard stats...</div>
+                </div>
+            </section>
+
+            <!-- Main Categories Section -->
+            <section id="main-categories" class="section">
+                <div class="section-header">
+                    <h2>📂 Main Categories</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddMainCategoryModal()">➕ Add</button>
+                        <button class="btn" onclick="loadMainCategories()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="main-categories-table" class="table-container">
+                    <div class="loading">Click refresh to load main categories...</div>
+                </div>
+            </section>
+
+            <!-- Subcategories Section -->
+            <section id="subcategories" class="section">
+                <div class="section-header">
+                    <h2>📁 Subcategories</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddSubcategoryModal()">➕ Add</button>
+                        <button class="btn" onclick="loadSubcategories()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="subcategories-table" class="table-container">
+                    <div class="loading">Click refresh to load subcategories...</div>
+                </div>
+            </section>
+
+            <!-- Products Section -->
+            <section id="products" class="section">
+                <div class="section-header">
+                    <h2>🥫 Products</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddProductModal()">➕ Add</button>
+                        <button class="btn" onclick="loadProducts()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="products-table" class="table-container">
+                    <div class="loading">Click refresh to load products...</div>
+                </div>
+            </section>
+
+            <!-- Sections Section -->
+            <section id="sections" class="section">
+                <div class="section-header">
+                    <h2>📄 Website Sections</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddSectionModal()">➕ Add</button>
+                        <button class="btn" onclick="loadSections()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="sections-table" class="table-container">
+                    <div class="loading">Click refresh to load sections...</div>
+                </div>
+            </section>
+
+            <!-- Media Section -->
+            <section id="media" class="section">
+                <div class="section-header">
+                    <h2>🖼️ Media Files</h2>
+                    <div class="section-actions">
+                        <button class="btn" onclick="loadMedia()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="media-table" class="table-container">
+                    <div class="loading">Click refresh to load media...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal Title</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modal-body">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/supabaseClient.js';
+        
+        // Admin Panel Manager with Full CRUD
+        class FullCrudAdmin {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.editingItem = null;
+                this.init();
+            }
+
+            init() {
+                console.log('🚀 Initializing Full CRUD Admin Panel...');
+                this.setupEventListeners();
+                this.testConnection();
+                this.loadDashboard();
+            }
+
+            setupEventListeners() {
+                // Navigation clicks
+                document.querySelectorAll('[data-section]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const section = e.target.dataset.section;
+                        this.showSection(section);
+                    });
+                });
+
+                // Modal close on background click
+                document.getElementById('modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'modal') {
+                        this.closeModal();
+                    }
+                });
+            }
+
+            showSection(section) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                document.getElementById(section).classList.add('active');
+
+                this.currentSection = section;
+                console.log(`📄 Switched to ${section} section`);
+            }
+
+            async testConnection() {
+                try {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('id')
+                        .limit(1);
+                    
+                    if (error) {
+                        this.showMessage('❌ Connection failed: ' + error.message, 'error');
+                        return false;
+                    }
+                    
+                    this.showMessage('✅ Database connection successful', 'success');
+                    return true;
+                } catch (err) {
+                    this.showMessage('❌ Connection error: ' + err.message, 'error');
+                    return false;
+                }
+            }
+
+            showMessage(message, type = 'success', duration = 4000) {
+                const statusEl = document.getElementById('status-message');
+                statusEl.textContent = message;
+                statusEl.className = `status-message status-${type}`;
+                statusEl.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, duration);
+            }
+
+            openModal(title, content) {
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-body').innerHTML = content;
+                document.getElementById('modal').classList.add('show');
+            }
+
+            closeModal() {
+                document.getElementById('modal').classList.remove('show');
+                this.editingItem = null;
+            }
+
+            // DASHBOARD
+            async loadDashboard() {
+                const container = document.getElementById('dashboard-stats');
+                container.innerHTML = '<div class="loading">Loading stats...</div>';
+
+                try {
+                    const [productsData, subcategoriesData, mainCategoriesData, sectionsData] = await Promise.all([
+                        supabase.from('products').select('id, active, featured'),
+                        supabase.from('subcategories').select('slug, active'),
+                        supabase.from('main_categories').select('slug, active'),
+                        supabase.from('sections').select('key')
+                    ]);
+
+                    const stats = {
+                        products: productsData.data?.length || 0,
+                        activeProducts: productsData.data?.filter(p => p.active).length || 0,
+                        featuredProducts: productsData.data?.filter(p => p.featured).length || 0,
+                        subcategories: subcategoriesData.data?.length || 0,
+                        mainCategories: mainCategoriesData.data?.length || 0,
+                        sections: sectionsData.data?.length || 0
+                    };
+
+                    container.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.products}</div>
+                            <div class="stat-label">Total Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.activeProducts}</div>
+                            <div class="stat-label">Active Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.featuredProducts}</div>
+                            <div class="stat-label">Featured Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.subcategories}</div>
+                            <div class="stat-label">Subcategories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.mainCategories}</div>
+                            <div class="stat-label">Main Categories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.sections}</div>
+                            <div class="stat-label">Website Sections</div>
+                        </div>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading dashboard</div>';
+                    this.showMessage('Dashboard error: ' + error.message, 'error');
+                }
+            }
+
+            // MAIN CATEGORIES CRUD
+            async loadMainCategories() {
+                const container = document.getElementById('main-categories-table');
+                container.innerHTML = '<div class="loading">Loading main categories...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('main_categories')
+                        .select('*')
+                        .order('sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No main categories found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Slug</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Sort</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(cat => `
+                                    <tr>
+                                        <td><code>${cat.slug}</code></td>
+                                        <td>${cat.title_en || ''}</td>
+                                        <td>${cat.title_ar || ''}</td>
+                                        <td>${cat.sort_order}</td>
+                                        <td class="status-${cat.active ? 'active' : 'inactive'}">
+                                            ${cat.active ? '✅ Active' : '❌ Inactive'}
+                                        </td>
+                                        <td>${new Date(cat.created_at).toLocaleDateString()}</td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editMainCategory('${cat.slug}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMainCategory('${cat.slug}')">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading main categories</div>';
+                    this.showMessage('Main categories error: ' + error.message, 'error');
+                }
+            }
+
+            showAddMainCategoryModal() {
+                const content = `
+                    <form id="main-category-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="slug">Slug*</label>
+                                <input type="text" id="slug" name="slug" required placeholder="e.g., premium">
+                            </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_en">Title (English)*</label>
+                                <input type="text" id="title_en" name="title_en" required placeholder="Premium Products">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_ar">Title (Arabic)</label>
+                                <input type="text" id="title_ar" name="title_ar" placeholder="منتجات مميزة">
+                            </div>
+                            <div class="form-group">
+                                <label for="active">Status</label>
+                                <select id="active" name="active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Category</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Main Category', content);
+                
+                document.getElementById('main-category-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveMainCategory();
+                };
+            }
+
+            async saveMainCategory() {
+                const form = document.getElementById('main-category-form');
+                const formData = new FormData(form);
+                
+                const data = {
+                    slug: formData.get('slug'),
+                    title_en: formData.get('title_en'),
+                    title_ar: formData.get('title_ar') || null,
+                    sort_order: parseInt(formData.get('sort_order')) || 0,
+                    active: formData.get('active') === 'true'
+                };
+
+                try {
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('main_categories')
+                            .update(data)
+                            .eq('slug', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Main category updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('main_categories')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Main category created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadMainCategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving main category: ' + error.message, 'error');
+                }
+            }
+
+            async editMainCategory(slug) {
+                try {
+                    const { data, error } = await supabase
+                        .from('main_categories')
+                        .select('*')
+                        .eq('slug', slug)
+                        .single();
+
+                    if (error) throw error;
+
+                    this.editingItem = slug;
+                    
+                    const content = `
+                        <form id="main-category-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="slug">Slug*</label>
+                                    <input type="text" id="slug" name="slug" value="${data.slug}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${data.sort_order || 0}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_en">Title (English)*</label>
+                                    <input type="text" id="title_en" name="title_en" value="${data.title_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_ar">Title (Arabic)</label>
+                                    <input type="text" id="title_ar" name="title_ar" value="${data.title_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="active">Status</label>
+                                    <select id="active" name="active">
+                                        <option value="true" ${data.active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!data.active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Category</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Main Category', content);
+                    
+                    document.getElementById('main-category-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveMainCategory();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading main category: ' + error.message, 'error');
+                }
+            }
+
+            async deleteMainCategory(slug) {
+                if (!confirm(`Are you sure you want to delete the main category "${slug}"?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('main_categories')
+                        .delete()
+                        .eq('slug', slug);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Main category deleted successfully!', 'success');
+                    this.loadMainCategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting main category: ' + error.message, 'error');
+                }
+            }
+
+            // SUBCATEGORIES CRUD
+            async loadSubcategories() {
+                const container = document.getElementById('subcategories-table');
+                container.innerHTML = '<div class="loading">Loading subcategories...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('subcategories')
+                        .select('*')
+                        .order('category_type, sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No subcategories found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Slug</th>
+                                    <th>Type</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Sort</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(sub => `
+                                    <tr>
+                                        <td><code>${sub.slug}</code></td>
+                                        <td><span class="badge badge-${sub.category_type}">${sub.category_type}</span></td>
+                                        <td>${sub.title_en || ''}</td>
+                                        <td>${sub.title_ar || ''}</td>
+                                        <td>${sub.sort_order}</td>
+                                        <td class="status-${sub.active ? 'active' : 'inactive'}">
+                                            ${sub.active ? '✅' : '❌'}
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editSubcategory('${sub.slug}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSubcategory('${sub.slug}')">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading subcategories</div>';
+                    this.showMessage('Subcategories error: ' + error.message, 'error');
+                }
+            }
+
+            showAddSubcategoryModal() {
+                const content = `
+                    <form id="subcategory-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="slug">Slug*</label>
+                                <input type="text" id="slug" name="slug" required placeholder="e.g., premium-olives">
+                            </div>
+                            <div class="form-group">
+                                <label for="category_type">Type*</label>
+                                <select id="category_type" name="category_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="single">Single</option>
+                                    <option value="bulk">Bulk</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="title_en">Title (English)*</label>
+                                <input type="text" id="title_en" name="title_en" required placeholder="Premium Olives">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_ar">Title (Arabic)</label>
+                                <input type="text" id="title_ar" name="title_ar" placeholder="زيتون مميز">
+                            </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="active">Status</label>
+                                <select id="active" name="active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Subcategory</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Subcategory', content);
+                
+                document.getElementById('subcategory-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveSubcategory();
+                };
+            }
+
+            async saveSubcategory() {
+                const form = document.getElementById('subcategory-form');
+                const formData = new FormData(form);
+                
+                const data = {
+                    slug: formData.get('slug'),
+                    category_type: formData.get('category_type'),
+                    title_en: formData.get('title_en'),
+                    title_ar: formData.get('title_ar') || null,
+                    sort_order: parseInt(formData.get('sort_order')) || 0,
+                    active: formData.get('active') === 'true'
+                };
+
+                try {
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('subcategories')
+                            .update(data)
+                            .eq('slug', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Subcategory updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('subcategories')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Subcategory created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadSubcategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving subcategory: ' + error.message, 'error');
+                }
+            }
+
+            async editSubcategory(slug) {
+                try {
+                    const { data, error } = await supabase
+                        .from('subcategories')
+                        .select('*')
+                        .eq('slug', slug)
+                        .single();
+
+                    if (error) throw error;
+
+                    this.editingItem = slug;
+                    
+                    const content = `
+                        <form id="subcategory-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="slug">Slug*</label>
+                                    <input type="text" id="slug" name="slug" value="${data.slug}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="category_type">Type*</label>
+                                    <select id="category_type" name="category_type" required>
+                                        <option value="single" ${data.category_type === 'single' ? 'selected' : ''}>Single</option>
+                                        <option value="bulk" ${data.category_type === 'bulk' ? 'selected' : ''}>Bulk</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_en">Title (English)*</label>
+                                    <input type="text" id="title_en" name="title_en" value="${data.title_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_ar">Title (Arabic)</label>
+                                    <input type="text" id="title_ar" name="title_ar" value="${data.title_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${data.sort_order || 0}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="active">Status</label>
+                                    <select id="active" name="active">
+                                        <option value="true" ${data.active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!data.active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Subcategory</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Subcategory', content);
+                    
+                    document.getElementById('subcategory-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveSubcategory();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading subcategory: ' + error.message, 'error');
+                }
+            }
+
+            async deleteSubcategory(slug) {
+                if (!confirm(`Are you sure you want to delete the subcategory "${slug}"?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('subcategories')
+                        .delete()
+                        .eq('slug', slug);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Subcategory deleted successfully!', 'success');
+                    this.loadSubcategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting subcategory: ' + error.message, 'error');
+                }
+            }
+
+            // PRODUCTS CRUD
+            async loadProducts() {
+                const container = document.getElementById('products-table');
+                container.innerHTML = '<div class="loading">Loading products...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('*')
+                        .order('id');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No products found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name (EN)</th>
+                                    <th>Name (AR)</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(product => `
+                                    <tr>
+                                        <td><strong>#${product.id}</strong></td>
+                                        <td>${product.name_en || ''} ${product.featured ? '⭐' : ''}</td>
+                                        <td>${product.name_ar || ''}</td>
+                                        <td><span class="badge badge-${product.main_type}">${product.main_type}</span></td>
+                                        <td><code>${product.sub_slug || '-'}</code></td>
+                                        <td class="status-${product.active ? 'active' : 'inactive'}">
+                                            ${product.active ? '✅' : '❌'}
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editProduct(${product.id})">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading products</div>';
+                    this.showMessage('Products error: ' + error.message, 'error');
+                }
+            }
+
+            async showAddProductModal() {
+                const { data: subcategories } = await supabase
+                    .from('subcategories')
+                    .select('slug, title_en, category_type')
+                    .eq('active', true)
+                    .order('category_type, sort_order');
+
+                const subcategoryOptions = subcategories?.map(sub => 
+                    `<option value="${sub.slug}">${sub.title_en} (${sub.category_type})</option>`
+                ).join('') || '';
+
+                const content = `
+                    <form id="product-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="name_en">Name (English)*</label>
+                                <input type="text" id="name_en" name="name_en" required placeholder="Premium Olive Oil">
+                            </div>
+                            <div class="form-group">
+                                <label for="name_ar">Name (Arabic)</label>
+                                <input type="text" id="name_ar" name="name_ar" placeholder="زيت زيتون مميز">
+                            </div>
+                            <div class="form-group">
+                                <label for="main_type">Type*</label>
+                                <select id="main_type" name="main_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="single">Single</option>
+                                    <option value="bulk">Bulk</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sub_slug">Subcategory</label>
+                                <select id="sub_slug" name="sub_slug">
+                                    <option value="">Select Subcategory</option>
+                                    ${subcategoryOptions}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="image_url">Image URL</label>
+                                <input type="url" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                            </div>
+                            <div class="form-group">
+                                <label for="featured">Featured</label>
+                                <select id="featured" name="featured">
+                                    <option value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="active">Status</label>
+                                <select id="active" name="active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description_en">Description (English)</label>
+                            <textarea id="description_en" name="description_en" placeholder="Product description in English"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="description_ar">Description (Arabic)</label>
+                            <textarea id="description_ar" name="description_ar" placeholder="وصف المنتج بالعربية"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Product</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Product', content);
+                
+                document.getElementById('product-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveProduct();
+                };
+            }
+
+            async saveProduct() {
+                const form = document.getElementById('product-form');
+                const formData = new FormData(form);
+                
+                const data = {
+                    name_en: formData.get('name_en'),
+                    name_ar: formData.get('name_ar') || null,
+                    description_en: formData.get('description_en') || null,
+                    description_ar: formData.get('description_ar') || null,
+                    main_type: formData.get('main_type'),
+                    sub_slug: formData.get('sub_slug') || null,
+                    image_url: formData.get('image_url') || null,
+                    featured: formData.get('featured') === 'true',
+                    active: formData.get('active') === 'true'
+                };
+
+                try {
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('products')
+                            .update(data)
+                            .eq('id', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Product updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('products')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Product created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadProducts();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving product: ' + error.message, 'error');
+                }
+            }
+
+            async editProduct(id) {
+                try {
+                    const [productResult, subcategoriesResult] = await Promise.all([
+                        supabase.from('products').select('*').eq('id', id).single(),
+                        supabase.from('subcategories').select('slug, title_en, category_type').eq('active', true).order('category_type, sort_order')
+                    ]);
+
+                    if (productResult.error) throw productResult.error;
+
+                    const product = productResult.data;
+                    const subcategories = subcategoriesResult.data || [];
+
+                    this.editingItem = id;
+
+                    const subcategoryOptions = subcategories.map(sub => 
+                        `<option value="${sub.slug}" ${product.sub_slug === sub.slug ? 'selected' : ''}>${sub.title_en} (${sub.category_type})</option>`
+                    ).join('');
+                    
+                    const content = `
+                        <form id="product-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="name_en">Name (English)*</label>
+                                    <input type="text" id="name_en" name="name_en" value="${product.name_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name_ar">Name (Arabic)</label>
+                                    <input type="text" id="name_ar" name="name_ar" value="${product.name_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="main_type">Type*</label>
+                                    <select id="main_type" name="main_type" required>
+                                        <option value="single" ${product.main_type === 'single' ? 'selected' : ''}>Single</option>
+                                        <option value="bulk" ${product.main_type === 'bulk' ? 'selected' : ''}>Bulk</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sub_slug">Subcategory</label>
+                                    <select id="sub_slug" name="sub_slug">
+                                        <option value="">Select Subcategory</option>
+                                        ${subcategoryOptions}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image_url">Image URL</label>
+                                    <input type="url" id="image_url" name="image_url" value="${product.image_url || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="featured">Featured</label>
+                                    <select id="featured" name="featured">
+                                        <option value="false" ${!product.featured ? 'selected' : ''}>No</option>
+                                        <option value="true" ${product.featured ? 'selected' : ''}>Yes</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="active">Status</label>
+                                    <select id="active" name="active">
+                                        <option value="true" ${product.active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!product.active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description_en">Description (English)</label>
+                                <textarea id="description_en" name="description_en">${product.description_en || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="description_ar">Description (Arabic)</label>
+                                <textarea id="description_ar" name="description_ar">${product.description_ar || ''}</textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Product</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Product', content);
+                    
+                    document.getElementById('product-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveProduct();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading product: ' + error.message, 'error');
+                }
+            }
+
+            async deleteProduct(id) {
+                if (!confirm(`Are you sure you want to delete product #${id}?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('products')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Product deleted successfully!', 'success');
+                    this.loadProducts();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting product: ' + error.message, 'error');
+                }
+            }
+
+            // SECTIONS CRUD
+            async loadSections() {
+                const container = document.getElementById('sections-table');
+                container.innerHTML = '<div class="loading">Loading sections...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('sections')
+                        .select('*')
+                        .order('sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No sections found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Content Preview</th>
+                                    <th>Sort</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(section => `
+                                    <tr>
+                                        <td><code>${section.key}</code></td>
+                                        <td>${section.title_en || ''}</td>
+                                        <td>${section.title_ar || ''}</td>
+                                        <td title="${section.content_en || ''}">
+                                            ${section.content_en ? section.content_en.substring(0, 30) + '...' : '-'}
+                                        </td>
+                                        <td>${section.sort_order || 0}</td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editSection('${section.key}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSection('${section.key}')">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading sections</div>';
+                    this.showMessage('Sections error: ' + error.message, 'error');
+                }
+            }
+
+            showAddSectionModal() {
+                const content = `
+                    <form id="section-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="key">Key*</label>
+                                <input type="text" id="key" name="key" required placeholder="e.g., about-us">
+                            </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_en">Title (English)*</label>
+                                <input type="text" id="title_en" name="title_en" required placeholder="About Us">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_ar">Title (Arabic)</label>
+                                <input type="text" id="title_ar" name="title_ar" placeholder="عنا">
+                            </div>
+                            <div class="form-group">
+                                <label for="image_url">Image URL</label>
+                                <input type="url" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="content_en">Content (English)</label>
+                            <textarea id="content_en" name="content_en" placeholder="Section content in English"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="content_ar">Content (Arabic)</label>
+                            <textarea id="content_ar" name="content_ar" placeholder="محتوى القسم بالعربية"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Section</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Section', content);
+                
+                document.getElementById('section-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveSection();
+                };
+            }
+
+            async saveSection() {
+                const form = document.getElementById('section-form');
+                const formData = new FormData(form);
+                
+                const data = {
+                    key: formData.get('key'),
+                    title_en: formData.get('title_en'),
+                    title_ar: formData.get('title_ar') || null,
+                    content_en: formData.get('content_en') || null,
+                    content_ar: formData.get('content_ar') || null,
+                    image_url: formData.get('image_url') || null,
+                    sort_order: parseInt(formData.get('sort_order')) || 0
+                };
+
+                try {
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('sections')
+                            .update(data)
+                            .eq('key', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Section updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('sections')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Section created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadSections();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving section: ' + error.message, 'error');
+                }
+            }
+
+            async editSection(key) {
+                try {
+                    const { data, error } = await supabase
+                        .from('sections')
+                        .select('*')
+                        .eq('key', key)
+                        .single();
+
+                    if (error) throw error;
+
+                    this.editingItem = key;
+                    
+                    const content = `
+                        <form id="section-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="key">Key*</label>
+                                    <input type="text" id="key" name="key" value="${data.key}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${data.sort_order || 0}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_en">Title (English)*</label>
+                                    <input type="text" id="title_en" name="title_en" value="${data.title_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_ar">Title (Arabic)</label>
+                                    <input type="text" id="title_ar" name="title_ar" value="${data.title_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="image_url">Image URL</label>
+                                    <input type="url" id="image_url" name="image_url" value="${data.image_url || ''}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="content_en">Content (English)</label>
+                                <textarea id="content_en" name="content_en">${data.content_en || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="content_ar">Content (Arabic)</label>
+                                <textarea id="content_ar" name="content_ar">${data.content_ar || ''}</textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Section</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Section', content);
+                    
+                    document.getElementById('section-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveSection();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading section: ' + error.message, 'error');
+                }
+            }
+
+            async deleteSection(key) {
+                if (!confirm(`Are you sure you want to delete the section "${key}"?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('sections')
+                        .delete()
+                        .eq('key', key);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Section deleted successfully!', 'success');
+                    this.loadSections();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting section: ' + error.message, 'error');
+                }
+            }
+
+            // MEDIA (read only for now)
+            async loadMedia() {
+                const container = document.getElementById('media-table');
+                container.innerHTML = '<div class="loading">Loading media files...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('media')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No media files found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>File Name</th>
+                                    <th>Path</th>
+                                    <th>Size</th>
+                                    <th>Type</th>
+                                    <th>Uploaded</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(media => `
+                                    <tr>
+                                        <td><code>${media.id.substring(0, 8)}...</code></td>
+                                        <td>${media.file_name || '-'}</td>
+                                        <td><code>${media.file_path || '-'}</code></td>
+                                        <td>${media.file_size ? (media.file_size / 1024).toFixed(1) + ' KB' : '-'}</td>
+                                        <td><span class="badge">${media.mime_type || '-'}</span></td>
+                                        <td>${new Date(media.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading media</div>';
+                    this.showMessage('Media error: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Global functions for button clicks
+        window.loadDashboard = () => admin.loadDashboard();
+        window.loadMainCategories = () => admin.loadMainCategories();
+        window.loadSubcategories = () => admin.loadSubcategories();
+        window.loadProducts = () => admin.loadProducts();
+        window.loadSections = () => admin.loadSections();
+        window.loadMedia = () => admin.loadMedia();
+        window.closeModal = () => admin.closeModal();
+
+        // Main Categories CRUD
+        window.showAddMainCategoryModal = () => admin.showAddMainCategoryModal();
+        window.editMainCategory = (slug) => admin.editMainCategory(slug);
+        window.deleteMainCategory = (slug) => admin.deleteMainCategory(slug);
+
+        // Subcategories CRUD  
+        window.showAddSubcategoryModal = () => admin.showAddSubcategoryModal();
+        window.editSubcategory = (slug) => admin.editSubcategory(slug);
+        window.deleteSubcategory = (slug) => admin.deleteSubcategory(slug);
+
+        // Products CRUD
+        window.showAddProductModal = () => admin.showAddProductModal();
+        window.editProduct = (id) => admin.editProduct(id);
+        window.deleteProduct = (id) => admin.deleteProduct(id);
+
+        // Sections CRUD
+        window.showAddSectionModal = () => admin.showAddSectionModal();
+        window.editSection = (key) => admin.editSection(key);
+        window.deleteSection = (key) => admin.deleteSection(key);
+
+        // Initialize admin panel
+        const admin = new FullCrudAdmin();
+        
+        console.log('✅ Full CRUD Admin Panel Ready!');
+    </script>
+</body>
+</html>
