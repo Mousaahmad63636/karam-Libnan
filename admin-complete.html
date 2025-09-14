@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karam Libnan - Full CRUD Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Karam Libnan - Mobile-Friendly Admin Panel</title>
     <style>
         * {
             margin: 0;
@@ -14,6 +14,28 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f5f5;
+            overflow-x: hidden;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .mobile-menu-btn:hover {
+            background: #34495e;
         }
 
         .admin-container {
@@ -29,6 +51,8 @@
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
 
         .sidebar h1 {
@@ -61,6 +85,7 @@
             flex: 1;
             margin-left: 250px;
             padding: 20px;
+            transition: margin-left 0.3s ease;
         }
 
         .section {
@@ -234,10 +259,11 @@
         .form-group select, 
         .form-group textarea {
             width: 100%;
-            padding: 8px 12px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 16px;
+            min-height: 44px;
         }
 
         .form-group textarea {
@@ -345,19 +371,221 @@
             border-radius: 3px;
             font-size: 12px;
         }
+
+        /* ================================
+           MOBILE RESPONSIVE STYLES
+           ================================ */
+        
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 15px 20px 15px;
+            }
+
+            .section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .section-header h2 {
+                font-size: 18px;
+            }
+
+            .section-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                padding: 12px 16px;
+                font-size: 14px;
+                min-height: 44px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px 10px;
+            }
+
+            .stat-number {
+                font-size: 20px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .table-container {
+                margin-top: 15px;
+                border-radius: 6px;
+                border: 1px solid #eee;
+            }
+
+            table {
+                min-width: 700px;
+            }
+
+            th, td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+
+            .actions-cell .btn {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+
+            .modal {
+                padding: 10px;
+            }
+
+            .modal-content {
+                margin: 10px;
+                padding: 15px;
+                max-height: calc(100vh - 20px);
+                width: calc(100% - 20px);
+            }
+
+            .modal-header h3 {
+                font-size: 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                padding: 12px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-item {
+                padding: 15px 20px;
+                font-size: 16px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 15px 10px;
+            }
+
+            .section {
+                padding: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-actions {
+                flex-direction: column;
+            }
+
+            .section-actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            th, td {
+                padding: 6px 4px;
+                font-size: 11px;
+            }
+
+            .actions-cell {
+                width: 80px;
+            }
+
+            .actions-cell .btn {
+                padding: 2px 4px;
+                font-size: 10px;
+                margin-right: 2px;
+            }
+
+            .stat-number {
+                font-size: 18px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .modal-content {
+                margin: 5px;
+                padding: 10px;
+            }
+        }
+
+        /* Landscape tablet */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+
     <div class="admin-container">
         <!-- Sidebar Navigation -->
-        <nav class="sidebar">
-            <h1>🍯 Karam Libnan<br>Full CRUD Admin</h1>
-            <button class="nav-item active" data-section="dashboard">📊 Dashboard</button>
-            <button class="nav-item" data-section="main-categories">📂 Main Categories</button>
-            <button class="nav-item" data-section="subcategories">📁 Subcategories</button>
-            <button class="nav-item" data-section="products">🥫 Products</button>
-            <button class="nav-item" data-section="sections">📄 Sections</button>
-            <button class="nav-item" data-section="media">🖼️ Media</button>
+        <nav class="sidebar" id="sidebar">
+            <h1>🍯 Karam Libnan<br>Mobile Admin</h1>
+            <button class="nav-item active" data-section="dashboard" onclick="closeMobileMenu()">📊 Dashboard</button>
+            <button class="nav-item" data-section="main-categories" onclick="closeMobileMenu()">📂 Main Categories</button>
+            <button class="nav-item" data-section="subcategories" onclick="closeMobileMenu()">📁 Subcategories</button>
+            <button class="nav-item" data-section="products" onclick="closeMobileMenu()">🥫 Products</button>
+            <button class="nav-item" data-section="sections" onclick="closeMobileMenu()">📄 Sections</button>
+            <button class="nav-item" data-section="media" onclick="closeMobileMenu()">🖼️ Media</button>
         </nav>
 
         <!-- Main Content -->
@@ -462,7 +690,31 @@
     <script type="module">
         import { supabase } from './js/supabaseClient.js';
         
-        // Admin Panel Manager with Full CRUD
+        // Mobile Navigation Functions
+        window.toggleMobileMenu = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        window.closeMobileMenu = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('open');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !menuBtn.contains(e.target) && 
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Admin Panel Manager with Full CRUD + Mobile Support
         class FullCrudAdmin {
             constructor() {
                 this.currentSection = 'dashboard';
@@ -501,6 +753,22 @@
                         this.closeModal();
                     }
                 });
+
+                // Handle orientation change
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        if (window.innerWidth > 768) {
+                            document.getElementById('sidebar').classList.remove('open');
+                        }
+                    }, 100);
+                });
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 768) {
+                        document.getElementById('sidebar').classList.remove('open');
+                    }
+                });
             }
 
             showSection(section) {
@@ -521,6 +789,13 @@
 
                 // Auto-load data when switching sections
                 this.autoLoadSectionData(section);
+
+                // Close mobile menu after selection
+                if (window.innerWidth <= 768) {
+                    setTimeout(() => {
+                        document.getElementById('sidebar').classList.remove('open');
+                    }, 300);
+                }
             }
 
             autoLoadSectionData(section) {
@@ -587,11 +862,17 @@
                 document.getElementById('modal-title').textContent = title;
                 document.getElementById('modal-body').innerHTML = content;
                 document.getElementById('modal').classList.add('show');
+                
+                // Prevent body scrolling when modal is open
+                document.body.style.overflow = 'hidden';
             }
 
             closeModal() {
                 document.getElementById('modal').classList.remove('show');
                 this.editingItem = null;
+                
+                // Re-enable body scrolling
+                document.body.style.overflow = '';
             }
 
             // DASHBOARD
