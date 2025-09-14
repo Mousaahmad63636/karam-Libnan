@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karam Libnan - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+        }
+
+        .sidebar h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 20px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 15px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #34495e;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success { background: #27ae60; }
+        .btn-success:hover { background: #219a52; }
+
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { background: #c0392b; }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h1>🍯 Karam Libnan<br>Admin</h1>
+            <button class="nav-item active" data-section="dashboard">📊 Dashboard</button>
+            <button class="nav-item" data-section="main-categories">📂 Main Categories</button>
+            <button class="nav-item" data-section="subcategories">📁 Subcategories</button>
+            <button class="nav-item" data-section="products">🥫 Products</button>
+            <button class="nav-item" data-section="sections">📄 Sections</button>
+            <button class="nav-item" data-section="media">🖼️ Media</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="status-message" class="status-message"></div>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h2>📊 Dashboard</h2>
+                    <button class="btn" onclick="loadDashboard()">🔄 Refresh</button>
+                </div>
+                <div id="dashboard-stats" class="stats-grid">
+                    <div class="loading">Loading dashboard stats...</div>
+                </div>
+            </section>
+
+            <!-- Main Categories Section -->
+            <section id="main-categories" class="section">
+                <div class="section-header">
+                    <h2>📂 Main Categories</h2>
+                    <button class="btn" onclick="loadMainCategories()">🔄 Refresh</button>
+                </div>
+                <div id="main-categories-table" class="table-container">
+                    <div class="loading">Click refresh to load main categories...</div>
+                </div>
+            </section>
+
+            <!-- Subcategories Section -->
+            <section id="subcategories" class="section">
+                <div class="section-header">
+                    <h2>📁 Subcategories</h2>
+                    <button class="btn" onclick="loadSubcategories()">🔄 Refresh</button>
+                </div>
+                <div id="subcategories-table" class="table-container">
+                    <div class="loading">Click refresh to load subcategories...</div>
+                </div>
+            </section>
+
+            <!-- Products Section -->
+            <section id="products" class="section">
+                <div class="section-header">
+                    <h2>🥫 Products</h2>
+                    <button class="btn" onclick="loadProducts()">🔄 Refresh</button>
+                </div>
+                <div id="products-table" class="table-container">
+                    <div class="loading">Click refresh to load products...</div>
+                </div>
+            </section>
+
+            <!-- Sections Section -->
+            <section id="sections" class="section">
+                <div class="section-header">
+                    <h2>📄 Website Sections</h2>
+                    <button class="btn" onclick="loadSections()">🔄 Refresh</button>
+                </div>
+                <div id="sections-table" class="table-container">
+                    <div class="loading">Click refresh to load sections...</div>
+                </div>
+            </section>
+
+            <!-- Media Section -->
+            <section id="media" class="section">
+                <div class="section-header">
+                    <h2>🖼️ Media Files</h2>
+                    <button class="btn" onclick="loadMedia()">🔄 Refresh</button>
+                </div>
+                <div id="media-table" class="table-container">
+                    <div class="loading">Click refresh to load media...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/supabaseClient.js';
+        
+        // Make supabase globally available
+        window.supabase = supabase;
+
+        // Admin Panel Manager
+        class AdminPanel {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.init();
+            }
+
+            init() {
+                console.log('🚀 Initializing Karam Libnan Admin Panel...');
+                this.setupEventListeners();
+                this.testConnection();
+                this.loadDashboard();
+            }
+
+            setupEventListeners() {
+                // Navigation clicks
+                document.querySelectorAll('[data-section]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const section = e.target.dataset.section;
+                        this.showSection(section);
+                    });
+                });
+            }
+
+            showSection(section) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                document.getElementById(section).classList.add('active');
+
+                this.currentSection = section;
+                console.log(`📄 Switched to ${section} section`);
+            }
+
+            async testConnection() {
+                try {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('id')
+                        .limit(1);
+                    
+                    if (error) {
+                        this.showMessage('Connection failed: ' + error.message, 'error');
+                        return false;
+                    }
+                    
+                    this.showMessage('✅ Database connection successful', 'success');
+                    return true;
+                } catch (err) {
+                    this.showMessage('Connection error: ' + err.message, 'error');
+                    return false;
+                }
+            }
+
+            showMessage(message, type = 'success') {
+                const statusEl = document.getElementById('status-message');
+                statusEl.textContent = message;
+                statusEl.className = `status-message status-${type}`;
+                statusEl.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 5000);
+            }
+
+            async loadDashboard() {
+                const container = document.getElementById('dashboard-stats');
+                container.innerHTML = '<div class="loading">Loading stats...</div>';
+
+                try {
+                    const [productsData, subcategoriesData, mainCategoriesData, sectionsData] = await Promise.all([
+                        supabase.from('products').select('id, active, featured'),
+                        supabase.from('subcategories').select('slug, active'),
+                        supabase.from('main_categories').select('slug, active'),
+                        supabase.from('sections').select('key')
+                    ]);
+
+                    const stats = {
+                        products: productsData.data?.length || 0,
+                        activeProducts: productsData.data?.filter(p => p.active).length || 0,
+                        featuredProducts: productsData.data?.filter(p => p.featured).length || 0,
+                        subcategories: subcategoriesData.data?.length || 0,
+                        activeSubcategories: subcategoriesData.data?.filter(s => s.active).length || 0,
+                        mainCategories: mainCategoriesData.data?.length || 0,
+                        sections: sectionsData.data?.length || 0
+                    };
+
+                    container.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.products}</div>
+                            <div class="stat-label">Total Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.activeProducts}</div>
+                            <div class="stat-label">Active Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.featuredProducts}</div>
+                            <div class="stat-label">Featured Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.subcategories}</div>
+                            <div class="stat-label">Subcategories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.mainCategories}</div>
+                            <div class="stat-label">Main Categories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.sections}</div>
+                            <div class="stat-label">Website Sections</div>
+                        </div>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="loading">Error loading dashboard</div>';
+                    this.showMessage('Dashboard error: ' + error.message, 'error');
+                }
+            }
+
+            async loadMainCategories() {
+                const container = document.getElementById('main-categories-table');
+                container.innerHTML = '<div class="loading">Loading main categories...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('main_categories')
+                        .select('*')
+                        .order('sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="loading">No main categories found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Slug</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Sort Order</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(cat => `
+                                    <tr>
+                                        <td>${cat.slug}</td>
+                                        <td>${cat.title_en || ''}</td>
+                                        <td>${cat.title_ar || ''}</td>
+                                        <td>${cat.sort_order}</td>
+                                        <td>${cat.active ? '✅ Active' : '❌ Inactive'}</td>
+                                        <td>${new Date(cat.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="loading">Error loading main categories</div>';
+                    this.showMessage('Main categories error: ' + error.message, 'error');
+                }
+            }
+
+            async loadSubcategories() {
+                const container = document.getElementById('subcategories-table');
+                container.innerHTML = '<div class="loading">Loading subcategories...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('subcategories')
+                        .select('*')
+                        .order('category_type, sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="loading">No subcategories found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Slug</th>
+                                    <th>Type</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Sort Order</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(sub => `
+                                    <tr>
+                                        <td>${sub.slug}</td>
+                                        <td><span style="background: ${sub.category_type === 'single' ? '#3498db' : '#27ae60'}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${sub.category_type}</span></td>
+                                        <td>${sub.title_en || ''}</td>
+                                        <td>${sub.title_ar || ''}</td>
+                                        <td>${sub.sort_order}</td>
+                                        <td>${sub.active ? '✅ Active' : '❌ Inactive'}</td>
+                                        <td>${new Date(sub.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="loading">Error loading subcategories</div>';
+                    this.showMessage('Subcategories error: ' + error.message, 'error');
+                }
+            }
+
+            async loadProducts() {
+                const container = document.getElementById('products-table');
+                container.innerHTML = '<div class="loading">Loading products...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('*')
+                        .order('id');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="loading">No products found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name (EN)</th>
+                                    <th>Name (AR)</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Featured</th>
+                                    <th>Status</th>
+                                    <th>Image</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(product => `
+                                    <tr>
+                                        <td>${product.id}</td>
+                                        <td>${product.name_en || ''}</td>
+                                        <td>${product.name_ar || ''}</td>
+                                        <td><span style="background: ${product.main_type === 'single' ? '#3498db' : '#27ae60'}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${product.main_type}</span></td>
+                                        <td>${product.sub_slug || ''}</td>
+                                        <td>${product.featured ? '⭐ Yes' : ''}</td>
+                                        <td>${product.active ? '✅ Active' : '❌ Inactive'}</td>
+                                        <td>${product.image_url ? '🖼️ Yes' : ''}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="loading">Error loading products</div>';
+                    this.showMessage('Products error: ' + error.message, 'error');
+                }
+            }
+
+            async loadSections() {
+                const container = document.getElementById('sections-table');
+                container.innerHTML = '<div class="loading">Loading sections...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('sections')
+                        .select('*')
+                        .order('sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="loading">No sections found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Content (EN)</th>
+                                    <th>Sort Order</th>
+                                    <th>Image</th>
+                                    <th>Modified</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(section => `
+                                    <tr>
+                                        <td><code>${section.key}</code></td>
+                                        <td>${section.title_en || ''}</td>
+                                        <td>${section.title_ar || ''}</td>
+                                        <td>${section.content_en ? section.content_en.substring(0, 50) + '...' : ''}</td>
+                                        <td>${section.sort_order || 0}</td>
+                                        <td>${section.image_url ? '🖼️ Yes' : ''}</td>
+                                        <td>${new Date(section.updated_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="loading">Error loading sections</div>';
+                    this.showMessage('Sections error: ' + error.message, 'error');
+                }
+            }
+
+            async loadMedia() {
+                const container = document.getElementById('media-table');
+                container.innerHTML = '<div class="loading">Loading media files...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('media')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="loading">No media files found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>File Name</th>
+                                    <th>File Path</th>
+                                    <th>Size</th>
+                                    <th>Type</th>
+                                    <th>Linked To</th>
+                                    <th>Uploaded</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(media => `
+                                    <tr>
+                                        <td><code>${media.id}</code></td>
+                                        <td>${media.file_name || ''}</td>
+                                        <td>${media.file_path || ''}</td>
+                                        <td>${media.file_size ? (media.file_size / 1024).toFixed(1) + ' KB' : ''}</td>
+                                        <td>${media.mime_type || ''}</td>
+                                        <td>${media.linked_type ? `${media.linked_type}:${media.linked_id}` : ''}</td>
+                                        <td>${new Date(media.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="loading">Error loading media</div>';
+                    this.showMessage('Media error: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Global functions for buttons
+        window.loadDashboard = () => admin.loadDashboard();
+        window.loadMainCategories = () => admin.loadMainCategories();
+        window.loadSubcategories = () => admin.loadSubcategories();
+        window.loadProducts = () => admin.loadProducts();
+        window.loadSections = () => admin.loadSections();
+        window.loadMedia = () => admin.loadMedia();
+
+        // Initialize admin panel
+        const admin = new AdminPanel();
+        
+        console.log('✅ Karam Libnan Admin Panel Ready!');
+    </script>
+</body>
+</html>
