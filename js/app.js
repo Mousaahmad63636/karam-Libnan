@@ -347,6 +347,12 @@ function cardTemplate(item, isFeatured = false) {
   const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim();
   const name = highlight(item.name, searchTerm);
   const desc = highlight(item.description, searchTerm);
+  
+  // Generate tags HTML if tags exist
+  const tagsHTML = item.tags && item.tags.length > 0 
+    ? `<div class="product-tags">${item.tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}</div>`
+    : '';
+  
   return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}">
     ${isFeatured ? '<span class="badge">Featured</span>' : ''}
     <img src="${item.image}" alt="${item.name} image" loading="lazy" data-original="${item.image}" />
@@ -354,6 +360,7 @@ function cardTemplate(item, isFeatured = false) {
       <h3 class="card-title">${name}</h3>
       <p class="desc">${desc}</p>
       <div class="ingredients"><strong>Ingredients:</strong> ${item.ingredients.join(', ')}</div>
+      ${tagsHTML}
       <span class="category-tag">${item.sub}</span>
     </div>
   </article>`;
@@ -644,7 +651,8 @@ async function tryRemoteLoad(){
           sections: sections, // Add sections array for filtering
           image: p.image_url || FALLBACK_IMAGE,
           description: p.description_en || '',
-          ingredients: Array.isArray(p.ingredients)? p.ingredients : []
+          ingredients: Array.isArray(p.ingredients)? p.ingredients : [],
+          tags: Array.isArray(p.tags) ? p.tags : [] // Add tags field
         });
       });
     }
