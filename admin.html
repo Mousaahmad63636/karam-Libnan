@@ -1213,6 +1213,36 @@
     window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
     window.createSupabaseClient = (url,key) => createClient(url,key);
     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Add form submission handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      // Product form submission
+      const productForm = document.getElementById('productForm')
+      if (productForm) {
+        productForm.addEventListener('submit', (e) => {
+          e.preventDefault()
+          window.adminManager.saveItem('products')
+        })
+      }
+      
+      // New product button
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('[data-action="new-product"]')) {
+          e.preventDefault()
+          document.getElementById('productFormPanel').classList.remove('hidden')
+          document.getElementById('productFormTitle').textContent = 'New Product'
+          document.getElementById('productForm').reset()
+          window.adminManager.editingItem = null
+        }
+        
+        if (e.target.matches('[data-action="cancel-product"]')) {
+          e.preventDefault()
+          document.getElementById('productFormPanel').classList.add('hidden')
+          document.getElementById('productForm').reset()
+          window.adminManager.editingItem = null
+        }
+      })
+    })
   </script>
   
   <script src="js/admin.js" defer></script>

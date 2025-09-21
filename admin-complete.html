@@ -362,6 +362,20 @@
             color: white;
         }
 
+        /* Dynamic badge colors for any main category */
+        .badge {
+            background: #6c757d;
+            color: white;
+        }
+
+        .badge[class*="badge-"] {
+            background: #6c757d;
+        }
+
+        /* Specific colors for known categories */
+        .badge-single { background: #3498db !important; }
+        .badge-bulk { background: #27ae60 !important; }
+
         .status-active {
             color: #27ae60;
         }
@@ -1372,7 +1386,7 @@
                             <thead>
                                 <tr>
                                     <th>Slug</th>
-                                    <th>Type</th>
+                                    <th>Main Category</th>
                                     <th>Title (EN)</th>
                                     <th>Title (AR)</th>
                                     <th>Sort</th>
@@ -1407,7 +1421,18 @@
                 }
             }
 
-            showAddSubcategoryModal() {
+            async showAddSubcategoryModal() {
+                // First load main categories for the dropdown
+                const { data: mainCategories } = await supabase
+                    .from('main_categories')
+                    .select('slug, title_en')
+                    .eq('active', true)
+                    .order('sort_order');
+
+                const categoryOptions = mainCategories?.map(cat => 
+                    `<option value="${cat.slug}">${cat.title_en} (${cat.slug})</option>`
+                ).join('') || '';
+
                 const content = `
                     <form id="subcategory-form">
                         <div class="form-grid">
@@ -1416,11 +1441,10 @@
                                 <input type="text" id="slug" name="slug" required placeholder="e.g., premium-olives">
                             </div>
                             <div class="form-group">
-                                <label for="category_type">Type*</label>
+                                <label for="category_type">Main Category*</label>
                                 <select id="category_type" name="category_type" required>
-                                    <option value="">Select Type</option>
-                                    <option value="single">Single</option>
-                                    <option value="bulk">Bulk</option>
+                                    <option value="">Select Main Category</option>
+                                    ${categoryOptions}
                                 </select>
                             </div>
                             <div class="form-group">
@@ -1499,47 +1523,53 @@
 
             async editSubcategory(slug) {
                 try {
-                    const { data, error } = await supabase
-                        .from('subcategories')
-                        .select('*')
-                        .eq('slug', slug)
-                        .single();
+                    const [subcategoryResult, mainCategoriesResult] = await Promise.all([
+                        supabase.from('subcategories').select('*').eq('slug', slug).single(),
+                        supabase.from('main_categories').select('slug, title_en').eq('active', true).order('sort_order')
+                    ]);
 
-                    if (error) throw error;
+                    if (subcategoryResult.error) throw subcategoryResult.error;
+
+                    const subcategory = subcategoryResult.data;
+                    const mainCategories = mainCategoriesResult.data || [];
 
                     this.editingItem = slug;
+
+                    const categoryOptions = mainCategories.map(cat => 
+                        `<option value="${cat.slug}" ${subcategory.category_type === cat.slug ? 'selected' : ''}>${cat.title_en} (${cat.slug})</option>`
+                    ).join('');
                     
                     const content = `
                         <form id="subcategory-form">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="slug">Slug*</label>
-                                    <input type="text" id="slug" name="slug" value="${data.slug}" required>
+                                    <input type="text" id="slug" name="slug" value="${subcategory.slug}" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="category_type">Type*</label>
+                                    <label for="category_type">Main Category*</label>
                                     <select id="category_type" name="category_type" required>
-                                        <option value="single" ${data.category_type === 'single' ? 'selected' : ''}>Single</option>
-                                        <option value="bulk" ${data.category_type === 'bulk' ? 'selected' : ''}>Bulk</option>
+                                        <option value="">Select Main Category</option>
+                                        ${categoryOptions}
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="title_en">Title (English)*</label>
-                                    <input type="text" id="title_en" name="title_en" value="${data.title_en || ''}" required>
+                                    <input type="text" id="title_en" name="title_en" value="${subcategory.title_en || ''}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="title_ar">Title (Arabic)</label>
-                                    <input type="text" id="title_ar" name="title_ar" value="${data.title_ar || ''}">
+                                    <input type="text" id="title_ar" name="title_ar" value="${subcategory.title_ar || ''}">
                                 </div>
                                 <div class="form-group">
                                     <label for="sort_order">Sort Order</label>
-                                    <input type="number" id="sort_order" name="sort_order" value="${data.sort_order || 0}">
+                                    <input type="number" id="sort_order" name="sort_order" value="${subcategory.sort_order || 0}">
                                 </div>
                                 <div class="form-group">
                                     <label for="active">Status</label>
                                     <select id="active" name="active">
-                                        <option value="true" ${data.active ? 'selected' : ''}>Active</option>
-                                        <option value="false" ${!data.active ? 'selected' : ''}>Inactive</option>
+                                        <option value="true" ${subcategory.active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!subcategory.active ? 'selected' : ''}>Inactive</option>
                                     </select>
                                 </div>
                             </div>
@@ -1608,8 +1638,8 @@
                                     <th>ID</th>
                                     <th>Name (EN)</th>
                                     <th>Name (AR)</th>
-                                    <th>Type</th>
-                                    <th>Category</th>
+                                    <th>Main Category</th>
+                                    <th>Subcategory</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -1642,14 +1672,18 @@
             }
 
             async showAddProductModal() {
-                const { data: subcategories } = await supabase
-                    .from('subcategories')
-                    .select('slug, title_en, category_type')
-                    .eq('active', true)
-                    .order('category_type, sort_order');
+                // Load both subcategories and main categories for the dropdowns
+                const [subcategoriesResult, mainCategoriesResult] = await Promise.all([
+                    supabase.from('subcategories').select('slug, title_en, category_type').eq('active', true).order('category_type, sort_order'),
+                    supabase.from('main_categories').select('slug, title_en').eq('active', true).order('sort_order')
+                ]);
 
-                const subcategoryOptions = subcategories?.map(sub => 
-                    `<option value="${sub.slug}">${sub.title_en} (${sub.category_type})</option>`
+                const subcategoryOptions = subcategoriesResult.data?.map(sub => 
+                    `<option value="${sub.slug}">${sub.title_en} [${sub.category_type}]</option>`
+                ).join('') || '';
+
+                const mainCategoryOptions = mainCategoriesResult.data?.map(cat => 
+                    `<option value="${cat.slug}">${cat.title_en}</option>`
                 ).join('') || '';
 
                 const content = `
@@ -1664,11 +1698,10 @@
                                 <input type="text" id="name_ar" name="name_ar" placeholder="زيت زيتون مميز">
                             </div>
                             <div class="form-group">
-                                <label for="main_type">Type*</label>
+                                <label for="main_type">Main Category*</label>
                                 <select id="main_type" name="main_type" required>
-                                    <option value="">Select Type</option>
-                                    <option value="single">Single</option>
-                                    <option value="bulk">Bulk</option>
+                                    <option value="">Select Main Category</option>
+                                    ${mainCategoryOptions}
                                 </select>
                             </div>
                             <div class="form-group">
@@ -1679,8 +1712,10 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="image_url">Image URL</label>
-                                <input type="url" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                                <label for="image_file">Product Image</label>
+                                <input type="file" id="image_file" name="image_file" accept="image/*" onchange="previewImage(this)">
+                                <small>Choose image file (JPEG, PNG, WebP, GIF - max 5MB)</small>
+                                <img id="image_preview" style="max-width: 200px; max-height: 150px; margin-top: 10px; display: none;" alt="Preview">
                             </div>
                             <div class="form-group">
                                 <label for="featured">Featured</label>
@@ -1720,23 +1755,62 @@
                 };
             }
 
+            async uploadImageToStorage(file) {
+                try {
+                    // Generate unique filename
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+                    const filePath = `products/${fileName}`;
+                    
+                    // Upload to Supabase Storage
+                    const { data, error } = await supabase.storage
+                        .from('images')
+                        .upload(filePath, file);
+                        
+                    if (error) throw error;
+                    
+                    // Get public URL
+                    const { data: urlData } = supabase.storage
+                        .from('images')
+                        .getPublicUrl(filePath);
+                        
+                    return urlData.publicUrl;
+                    
+                } catch (error) {
+                    console.error('Image upload error:', error);
+                    throw new Error(`Image upload failed: ${error.message}`);
+                }
+            }
+
             async saveProduct() {
                 const form = document.getElementById('product-form');
                 const formData = new FormData(form);
                 
-                const data = {
-                    name_en: formData.get('name_en'),
-                    name_ar: formData.get('name_ar') || null,
-                    description_en: formData.get('description_en') || null,
-                    description_ar: formData.get('description_ar') || null,
-                    main_type: formData.get('main_type'),
-                    sub_slug: formData.get('sub_slug') || null,
-                    image_url: formData.get('image_url') || null,
-                    featured: formData.get('featured') === 'true',
-                    active: formData.get('active') === 'true'
-                };
-
                 try {
+                    // Handle image upload first if file selected
+                    let imageUrl = null;
+                    const imageFile = formData.get('image_file');
+                    if (imageFile && imageFile.size > 0) {
+                        this.showMessage('📤 Uploading image...', 'info');
+                        imageUrl = await this.uploadImageToStorage(imageFile);
+                    }
+                    
+                    const data = {
+                        name_en: formData.get('name_en'),
+                        name_ar: formData.get('name_ar') || null,
+                        description_en: formData.get('description_en') || null,
+                        description_ar: formData.get('description_ar') || null,
+                        main_type: formData.get('main_type'),
+                        sub_slug: formData.get('sub_slug') || null,
+                        featured: formData.get('featured') === 'true',
+                        active: formData.get('active') === 'true'
+                    };
+                    
+                    // Add image URL if uploaded (for new products or when replacing existing image)
+                    if (imageUrl) {
+                        data.image_url = imageUrl;
+                    }
+
                     if (this.editingItem) {
                         const { error } = await supabase
                             .from('products')
@@ -1764,15 +1838,17 @@
 
             async editProduct(id) {
                 try {
-                    const [productResult, subcategoriesResult] = await Promise.all([
+                    const [productResult, subcategoriesResult, mainCategoriesResult] = await Promise.all([
                         supabase.from('products').select('*').eq('id', id).single(),
-                        supabase.from('subcategories').select('slug, title_en, category_type').eq('active', true).order('category_type, sort_order')
+                        supabase.from('subcategories').select('slug, title_en, category_type').eq('active', true).order('category_type, sort_order'),
+                        supabase.from('main_categories').select('slug, title_en').eq('active', true).order('sort_order')
                     ]);
 
                     if (productResult.error) throw productResult.error;
 
                     const product = productResult.data;
                     const subcategories = subcategoriesResult.data || [];
+                    const mainCategories = mainCategoriesResult.data || [];
 
                     this.editingItem = id;
 
@@ -1780,6 +1856,10 @@
                         `<option value="${sub.slug}" ${product.sub_slug === sub.slug ? 'selected' : ''}>${sub.title_en} (${sub.category_type})</option>`
                     ).join('');
                     
+                    const mainCategoryOptions = mainCategories.map(cat => 
+                        `<option value="${cat.slug}" ${product.main_type === cat.slug ? 'selected' : ''}>${cat.title_en}</option>`
+                    ).join('');
+
                     const content = `
                         <form id="product-form">
                             <div class="form-grid">
@@ -1792,10 +1872,10 @@
                                     <input type="text" id="name_ar" name="name_ar" value="${product.name_ar || ''}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="main_type">Type*</label>
+                                    <label for="main_type">Main Category*</label>
                                     <select id="main_type" name="main_type" required>
-                                        <option value="single" ${product.main_type === 'single' ? 'selected' : ''}>Single</option>
-                                        <option value="bulk" ${product.main_type === 'bulk' ? 'selected' : ''}>Bulk</option>
+                                        <option value="">Select Main Category</option>
+                                        ${mainCategoryOptions}
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -1806,8 +1886,11 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="image_url">Image URL</label>
-                                    <input type="url" id="image_url" name="image_url" value="${product.image_url || ''}">
+                                    <label for="image_file">Product Image</label>
+                                    <input type="file" id="image_file" name="image_file" accept="image/*" onchange="previewImage(this)">
+                                    <small>Choose new image file (optional - leave empty to keep current image)</small>
+                                    ${product.image_url ? `<div style="margin-top: 10px;"><strong>Current image:</strong><br><img src="${product.image_url}" style="max-width: 200px; max-height: 150px;" alt="Current image"></div>` : ''}
+                                    <img id="image_preview" style="max-width: 200px; max-height: 150px; margin-top: 10px; display: none;" alt="Preview">
                                 </div>
                                 <div class="form-group">
                                     <label for="featured">Featured</label>
@@ -2150,6 +2233,21 @@
                     container.innerHTML = '<div class="empty-state">Error loading media</div>';
                     this.showMessage('Media error: ' + error.message, 'error');
                 }
+            }
+        }
+
+        // Image preview function
+        function previewImage(input) {
+            const preview = document.getElementById('image_preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
             }
         }
 

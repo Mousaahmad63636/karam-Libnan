@@ -306,8 +306,50 @@ class AdminManager {
   
   async editItem(table, id) {
     console.log(`Editing ${table} item:`, id)
-    // TODO: Implement edit functionality
-    this.showInfo(`Edit ${table} functionality coming soon`)
+    
+    if (table === 'products') {
+      await this.editProduct(id)
+    } else {
+      this.showInfo(`Edit ${table} functionality coming soon`)
+    }
+  }
+
+  async editProduct(id) {
+    try {
+      // Fetch product data
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single()
+        
+      if (error) throw error
+      
+      // Store editing item
+      this.editingItem = data
+      
+      // Fill form with data
+      const form = document.getElementById('productForm')
+      form.elements['name_en'].value = data.name_en || ''
+      form.elements['name_ar'].value = data.name_ar || ''
+      form.elements['description_en'].value = data.description_en || ''
+      form.elements['description_ar'].value = data.description_ar || ''
+      form.elements['main_type'].value = data.main_type || 'single'
+      form.elements['sub_slug'].value = data.sub_slug || ''
+      form.elements['ingredients'].value = JSON.stringify(data.ingredients || [])
+      form.elements['featured'].checked = data.featured || false
+      form.elements['active'].checked = data.active !== false
+      
+      // Show form panel
+      document.getElementById('productFormPanel').classList.remove('hidden')
+      document.getElementById('productFormTitle').textContent = 'Edit Product'
+      
+      this.showSuccess('Product loaded for editing')
+      
+    } catch (error) {
+      console.error('Edit product error:', error)
+      this.showError(`Failed to load product: ${error.message}`)
+    }
   }
 
   async deleteItem(table, id) {
@@ -331,8 +373,111 @@ class AdminManager {
 
   async saveItem(table) {
     console.log(`Saving ${table} item`)
-    // TODO: Implement save functionality
-    this.showInfo(`Save ${table} functionality coming soon`)
+    
+    if (table === 'products') {
+      await this.saveProduct()
+    } else {
+      this.showInfo(`Save ${table} functionality coming soon`)
+    }
+  }
+
+  async saveProduct() {
+    try {
+      const form = document.getElementById('productForm')
+      const formData = new FormData(form)
+      
+      // Handle image upload first if file selected
+      let imageUrl = null
+      const imageFile = formData.get('image_file')
+      if (imageFile && imageFile.size > 0) {
+        imageUrl = await this.uploadImageToStorage(imageFile)
+      }
+      
+      // Prepare product data
+      const productData = {
+        name_en: formData.get('name_en'),
+        name_ar: formData.get('name_ar'),
+        description_en: formData.get('description_en'), 
+        description_ar: formData.get('description_ar'),
+        main_type: formData.get('main_type'),
+        sub_slug: formData.get('sub_slug') || null,
+        ingredients: this.parseIngredients(formData.get('ingredients')),
+        featured: formData.has('featured'),
+        active: formData.has('active')
+      }
+      
+      // Add image URL if uploaded
+      if (imageUrl) {
+        productData.image_url = imageUrl
+      }
+      
+      let result
+      if (this.editingItem) {
+        // Update existing product
+        result = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', this.editingItem.id)
+          .select()
+      } else {
+        // Create new product
+        result = await supabase
+          .from('products')
+          .insert([productData])
+          .select()
+      }
+      
+      if (result.error) throw result.error
+      
+      this.showSuccess(`Product ${this.editingItem ? 'updated' : 'created'} successfully`)
+      
+      // Reset form and reload data
+      form.reset()
+      document.getElementById('productFormPanel').classList.add('hidden')
+      this.editingItem = null
+      this.loadProducts()
+      
+    } catch (error) {
+      console.error('Save product error:', error)
+      this.showError(`Failed to save product: ${error.message}`)
+    }
+  }
+
+  async uploadImageToStorage(file) {
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = `products/${fileName}`
+      
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file)
+        
+      if (error) throw error
+      
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath)
+        
+      return urlData.publicUrl
+      
+    } catch (error) {
+      console.error('Image upload error:', error)
+      throw new Error(`Image upload failed: ${error.message}`)
+    }
+  }
+
+  parseIngredients(ingredientsStr) {
+    try {
+      if (!ingredientsStr || ingredientsStr.trim() === '') return []
+      return JSON.parse(ingredientsStr)
+    } catch (error) {
+      // If not valid JSON, split by comma
+      return ingredientsStr.split(',').map(s => s.trim()).filter(s => s)
+    }
   }
   // ==================== UTILITIES ====================
   
