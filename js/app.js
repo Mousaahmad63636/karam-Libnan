@@ -726,6 +726,11 @@ function updateSectionContent(sectionKey, sectionData) {
     if (leadElement && sectionData.body_en) {
       leadElement.innerHTML = sectionData.body_en;
     }
+    
+    // Update hero background image if provided
+    if (sectionData.image_url) {
+      section.style.backgroundImage = `var(--gradient-hero), url('${sectionData.image_url}')`;
+    }
   } else if (sectionKey === 'contact') {
     // For contact section, update the contact-info content
     const contactInfo = section.querySelector('.contact-info');
