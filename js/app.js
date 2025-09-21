@@ -348,6 +348,11 @@ function cardTemplate(item, isFeatured = false) {
   const name = highlight(item.name, searchTerm);
   const desc = highlight(item.description, searchTerm);
   
+  // Generate variants HTML if variants exist
+  const variantsHTML = item.variants && item.variants.length > 0 
+    ? `<div class="product-variants"><strong>Variants:</strong> ${item.variants.join(', ')}</div>`
+    : '';
+  
   // Generate tags HTML if tags exist
   const tagsHTML = item.tags && item.tags.length > 0 
     ? `<div class="product-tags">${item.tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}</div>`
@@ -360,6 +365,7 @@ function cardTemplate(item, isFeatured = false) {
       <h3 class="card-title">${name}</h3>
       <p class="desc">${desc}</p>
       <div class="ingredients"><strong>Ingredients:</strong> ${item.ingredients.join(', ')}</div>
+      ${variantsHTML}
       ${tagsHTML}
     </div>
   </article>`;
@@ -651,6 +657,7 @@ async function tryRemoteLoad(){
           image: p.image_url || FALLBACK_IMAGE,
           description: p.description_en || '',
           ingredients: Array.isArray(p.ingredients)? p.ingredients : [],
+          variants: Array.isArray(p.variants) ? p.variants : [], // Add variants field
           tags: Array.isArray(p.tags) ? p.tags : [] // Add tags field
         });
       });

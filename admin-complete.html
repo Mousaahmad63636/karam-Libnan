@@ -1653,6 +1653,7 @@
                                     <th>Name (AR)</th>
                                     <th>Main Category</th>
                                     <th>Subcategory</th>
+                                    <th>Variants</th>
                                     <th>Tags</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -1666,6 +1667,7 @@
                                         <td>${product.name_ar || ''}</td>
                                         <td><span class="badge badge-${product.main_type}">${product.main_type}</span></td>
                                         <td><code>${product.sub_slug || '-'}</code></td>
+                                        <td>${product.variants && product.variants.length > 0 ? product.variants.join(', ') : '-'}</td>
                                         <td>${product.tags && product.tags.length > 0 ? product.tags.map(tag => `<span class="tag">${tag}</span>`).join(' ') : '-'}</td>
                                         <td class="status-${product.active ? 'active' : 'inactive'}">
                                             ${product.active ? '✅' : '❌'}
@@ -1761,6 +1763,11 @@
                             <small>Enter ingredients separated by commas (e.g., cucumber, vinegar, salt)</small>
                         </div>
                         <div class="form-group">
+                            <label for="variants">Variants</label>
+                            <input type="text" id="variants" name="variants" placeholder="large, small, 500ml, 1L (separate by commas)">
+                            <small>Enter product variants separated by commas (e.g., large, small, 500ml)</small>
+                        </div>
+                        <div class="form-group">
                             <label for="tags">Special Tags</label>
                             <input type="text" id="tags" name="tags" placeholder="organic, fresh, premium, halal (separate by commas)">
                             <small>Enter special tags separated by commas (e.g., organic, fresh, premium)</small>
@@ -1837,6 +1844,7 @@
                         main_type: formData.get('main_type'),
                         sub_slug: formData.get('sub_slug') || null,
                         ingredients: this.parseTags(formData.get('ingredients')),
+                        variants: this.parseTags(formData.get('variants')),
                         featured: formData.get('featured') === 'true',
                         active: formData.get('active') === 'true',
                         tags: this.parseTags(formData.get('tags'))
@@ -1955,6 +1963,11 @@
                                 <label for="ingredients">Ingredients</label>
                                 <input type="text" id="ingredients" name="ingredients" value="${product.ingredients ? (Array.isArray(product.ingredients) ? product.ingredients.join(', ') : product.ingredients) : ''}" placeholder="cucumber, vinegar, salt, turmeric (separate by commas)">
                                 <small>Enter ingredients separated by commas (e.g., cucumber, vinegar, salt)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="variants">Variants</label>
+                                <input type="text" id="variants" name="variants" value="${product.variants ? (Array.isArray(product.variants) ? product.variants.join(', ') : product.variants) : ''}" placeholder="large, small, 500ml, 1L (separate by commas)">
+                                <small>Enter product variants separated by commas (e.g., large, small, 500ml)</small>
                             </div>
                             <div class="form-group">
                                 <label for="tags">Special Tags</label>
