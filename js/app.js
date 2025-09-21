@@ -361,7 +361,6 @@ function cardTemplate(item, isFeatured = false) {
       <p class="desc">${desc}</p>
       <div class="ingredients"><strong>Ingredients:</strong> ${item.ingredients.join(', ')}</div>
       ${tagsHTML}
-      <span class="category-tag">${item.sub}</span>
     </div>
   </article>`;
 }
