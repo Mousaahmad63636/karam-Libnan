@@ -317,7 +317,7 @@ body.searching .product-grid { opacity:.4; }
   position: relative; 
   transition: var(--transition); 
   border: 1px solid var(--color-border);
-  aspect-ratio: 1 / 2; /* Card is twice as tall as wide: one square for image, one for content */
+  aspect-ratio: 1 / 1.6; /* Reduced height by 20% (was 1/2, now 1/1.6) */
 }
 .card:hover { box-shadow: var(--shadow-md); transform: translateY(-6px); }
 .card::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,0) 50%,rgba(0,0,0,0.03)); opacity:0; transition:var(--transition); pointer-events:none; }
