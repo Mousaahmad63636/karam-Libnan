@@ -10,6 +10,11 @@
   <meta name="keywords"
     content="Karam Libnan, Lebanese homemade products, Lebanese canned goods, traditional Lebanese food, organic Lebanon products, Lebanese catalog" />
   <meta name="author" content="Karam Libnan" />
+  
+  <!-- Cache Control -->
+  <meta http-equiv="Cache-Control" content="public, max-age=31536000" />
+  <meta http-equiv="Expires" content="31536000" />
+  
   <!-- Supabase Configuration Meta (anon key is safe to expose) -->
   <meta name="supabase-url" content="https://xbznaxiummganlidnmdd.supabase.co" />
   <meta name="supabase-anon-key"
@@ -31,6 +36,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.placeholder-karam-libnan.com" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preload" href="css/styles.css" as="style" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -254,6 +260,35 @@
     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <script src="js/app.js" defer></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    // Register Service Worker for caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('✅ Service Worker registered successfully:', registration.scope);
+            console.log('🚀 Hero image and static assets will be cached for faster loading');
+            
+            // Listen for updates
+            registration.addEventListener('updatefound', () => {
+              console.log('🔄 Service Worker update found, new version installing...');
+            });
+          })
+          .catch((error) => {
+            console.log('❌ Service Worker registration failed:', error);
+          });
+          
+        // Check if page was loaded from cache
+        navigator.serviceWorker.ready.then(() => {
+          console.log('⚡ Service Worker ready - assets will load from cache on next visit');
+        });
+      });
+    } else {
+      console.log('ℹ️ Service Worker not supported in this browser');
+    }
+  </script>
 </body>
 
 </html>

@@ -1,0 +1,19 @@
+{
+  "name": "Karam Libnan",
+  "short_name": "Karam Libnan",
+  "description": "Authentic Lebanese Products",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f3ee",
+  "theme_color": "#5e6b3d",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["food", "shopping", "lifestyle"],
+  "lang": "en",
+  "scope": "/"
+}
