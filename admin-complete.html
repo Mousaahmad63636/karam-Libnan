@@ -1756,6 +1756,11 @@
                             <textarea id="description_ar" name="description_ar" placeholder="وصف المنتج بالعربية"></textarea>
                         </div>
                         <div class="form-group">
+                            <label for="ingredients">Ingredients</label>
+                            <input type="text" id="ingredients" name="ingredients" placeholder="cucumber, vinegar, salt, turmeric (separate by commas)">
+                            <small>Enter ingredients separated by commas (e.g., cucumber, vinegar, salt)</small>
+                        </div>
+                        <div class="form-group">
                             <label for="tags">Special Tags</label>
                             <input type="text" id="tags" name="tags" placeholder="organic, fresh, premium, halal (separate by commas)">
                             <small>Enter special tags separated by commas (e.g., organic, fresh, premium)</small>
@@ -1831,6 +1836,7 @@
                         description_ar: formData.get('description_ar') || null,
                         main_type: formData.get('main_type'),
                         sub_slug: formData.get('sub_slug') || null,
+                        ingredients: this.parseTags(formData.get('ingredients')),
                         featured: formData.get('featured') === 'true',
                         active: formData.get('active') === 'true',
                         tags: this.parseTags(formData.get('tags'))
@@ -1944,6 +1950,11 @@
                             <div class="form-group">
                                 <label for="description_ar">Description (Arabic)</label>
                                 <textarea id="description_ar" name="description_ar">${product.description_ar || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="ingredients">Ingredients</label>
+                                <input type="text" id="ingredients" name="ingredients" value="${product.ingredients ? (Array.isArray(product.ingredients) ? product.ingredients.join(', ') : product.ingredients) : ''}" placeholder="cucumber, vinegar, salt, turmeric (separate by commas)">
+                                <small>Enter ingredients separated by commas (e.g., cucumber, vinegar, salt)</small>
                             </div>
                             <div class="form-group">
                                 <label for="tags">Special Tags</label>
