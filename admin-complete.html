@@ -372,6 +372,19 @@
             background: #6c757d;
         }
 
+        /* Tag styling */
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 1px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
         /* Specific colors for known categories */
         .badge-single { background: #3498db !important; }
         .badge-bulk { background: #27ae60 !important; }
@@ -1640,6 +1653,7 @@
                                     <th>Name (AR)</th>
                                     <th>Main Category</th>
                                     <th>Subcategory</th>
+                                    <th>Tags</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -1652,6 +1666,7 @@
                                         <td>${product.name_ar || ''}</td>
                                         <td><span class="badge badge-${product.main_type}">${product.main_type}</span></td>
                                         <td><code>${product.sub_slug || '-'}</code></td>
+                                        <td>${product.tags && product.tags.length > 0 ? product.tags.map(tag => `<span class="tag">${tag}</span>`).join(' ') : '-'}</td>
                                         <td class="status-${product.active ? 'active' : 'inactive'}">
                                             ${product.active ? '✅' : '❌'}
                                         </td>
@@ -1740,6 +1755,11 @@
                             <label for="description_ar">Description (Arabic)</label>
                             <textarea id="description_ar" name="description_ar" placeholder="وصف المنتج بالعربية"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="tags">Special Tags</label>
+                            <input type="text" id="tags" name="tags" placeholder="organic, fresh, premium, halal (separate by commas)">
+                            <small>Enter special tags separated by commas (e.g., organic, fresh, premium)</small>
+                        </div>
                         <div class="form-actions">
                             <button type="button" class="btn" onclick="closeModal()">Cancel</button>
                             <button type="submit" class="btn btn-success">Save Product</button>
@@ -1782,6 +1802,15 @@
                 }
             }
 
+            parseTags(tagsString) {
+                if (!tagsString || tagsString.trim() === '') return [];
+                // Split by comma, trim whitespace, filter empty strings, convert to lowercase for consistency
+                return tagsString.split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0)
+                    .map(tag => tag.toLowerCase());
+            }
+
             async saveProduct() {
                 const form = document.getElementById('product-form');
                 const formData = new FormData(form);
@@ -1803,7 +1832,8 @@
                         main_type: formData.get('main_type'),
                         sub_slug: formData.get('sub_slug') || null,
                         featured: formData.get('featured') === 'true',
-                        active: formData.get('active') === 'true'
+                        active: formData.get('active') === 'true',
+                        tags: this.parseTags(formData.get('tags'))
                     };
                     
                     // Add image URL if uploaded (for new products or when replacing existing image)
@@ -1914,6 +1944,11 @@
                             <div class="form-group">
                                 <label for="description_ar">Description (Arabic)</label>
                                 <textarea id="description_ar" name="description_ar">${product.description_ar || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="tags">Special Tags</label>
+                                <input type="text" id="tags" name="tags" value="${product.tags ? (Array.isArray(product.tags) ? product.tags.join(', ') : product.tags) : ''}" placeholder="organic, fresh, premium, halal (separate by commas)">
+                                <small>Enter special tags separated by commas (e.g., organic, fresh, premium)</small>
                             </div>
                             <div class="form-actions">
                                 <button type="button" class="btn" onclick="closeModal()">Cancel</button>
