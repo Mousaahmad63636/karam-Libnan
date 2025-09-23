@@ -337,6 +337,11 @@ class AdminManager {
       form.elements['main_type'].value = data.main_type || 'single'
       form.elements['sub_slug'].value = data.sub_slug || ''
       form.elements['ingredients'].value = JSON.stringify(data.ingredients || [])
+      form.elements['ingredients_ar'].value = JSON.stringify(data.ingredients_ar || [])
+      form.elements['variants'].value = JSON.stringify(data.variants || [])
+      form.elements['variants_ar'].value = JSON.stringify(data.variants_ar || [])
+      form.elements['tags'].value = JSON.stringify(data.tags || [])
+      form.elements['tags_ar'].value = JSON.stringify(data.tags_ar || [])
       form.elements['featured'].checked = data.featured || false
       form.elements['active'].checked = data.active !== false
       
@@ -401,7 +406,12 @@ class AdminManager {
         description_ar: formData.get('description_ar'),
         main_type: formData.get('main_type'),
         sub_slug: formData.get('sub_slug') || null,
-        ingredients: this.parseIngredients(formData.get('ingredients')),
+        ingredients: this.parseArrayField(formData.get('ingredients')),
+        ingredients_ar: this.parseArrayField(formData.get('ingredients_ar')),
+        variants: this.parseArrayField(formData.get('variants')),
+        variants_ar: this.parseArrayField(formData.get('variants_ar')),
+        tags: this.parseArrayField(formData.get('tags')),
+        tags_ar: this.parseArrayField(formData.get('tags_ar')),
         featured: formData.has('featured'),
         active: formData.has('active')
       }
@@ -470,13 +480,13 @@ class AdminManager {
     }
   }
 
-  parseIngredients(ingredientsStr) {
+  parseArrayField(arrayStr) {
     try {
-      if (!ingredientsStr || ingredientsStr.trim() === '') return []
-      return JSON.parse(ingredientsStr)
+      if (!arrayStr || arrayStr.trim() === '') return []
+      return JSON.parse(arrayStr)
     } catch (error) {
       // If not valid JSON, split by comma
-      return ingredientsStr.split(',').map(s => s.trim()).filter(s => s)
+      return arrayStr.split(',').map(s => s.trim()).filter(s => s)
     }
   }
   // ==================== UTILITIES ====================
