@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Karam Libnan</title>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Supabase Configuration -->
+  <meta name="supabase-url" content="https://xbznaxiummganlidnmdd.supabase.co">
+  <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs">
+  
+  <style>
+    /* Admin-specific styles */
+    body { 
+      background: #f8f9fa; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .admin-layout { 
+      display: grid; 
+      grid-template-columns: 260px 1fr; 
+      min-height: 100vh; 
+    }
+    
+    /* Sidebar */
+    .sidebar { 
+      background: linear-gradient(180deg, #1a1d21 0%, #252a30 100%);
+      color: #fff; 
+      padding: 1.5rem 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      position: relative;
+      overflow-y: auto;
+    }
+    
+    .sidebar .logo { 
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      letter-spacing: 0.5px;
+      color: #c8102e;
+      padding: 0 1.5rem 2rem;
+      border-bottom: 1px solid #33383f;
+      margin-bottom: 1.5rem;
+    }
+    
+    .sidebar .logo span {
+      color: #fff;
+    }
+    
+    .sidebar nav { 
+      padding: 0 1rem; 
+    }
+    
+    .sidebar nav a { 
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem; 
+      margin-bottom: 0.5rem; 
+      border-radius: 8px; 
+      color: #d1d5db; 
+      font-weight: 500; 
+      font-size: 0.875rem; 
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    
+    .sidebar nav a:hover, 
+    .sidebar nav a:focus { 
+      background: rgba(255,255,255,0.1); 
+      color: #fff; 
+      border-color: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar nav a.active { 
+      background: #c8102e; 
+      color: #fff; 
+      border-color: #c8102e;
+      box-shadow: 0 2px 8px rgba(200, 16, 46, 0.3);
+    }
+    
+    .sidebar nav a .icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.8;
+    }
+    
+    /* Topbar */
+    .topbar { 
+      background: #fff; 
+      border-bottom: 1px solid #e5e7eb; 
+      height: 64px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 0 2rem; 
+      position: sticky; 
+      top: 0; 
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .topbar h1 { 
+      font-size: 1.25rem; 
+      font-weight: 600; 
+      margin: 0; 
+      color: #1f2937;
+    }
+    
+    .topbar .user-info { 
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.875rem; 
+      color: #6b7280; 
+    }
+    
+    .topbar .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #c8102e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    
+    /* Main content */
+    .main { 
+      padding: 2rem; 
+      overflow-y: auto;
+      max-height: calc(100vh - 64px);
+    }
+    
+    /* Panels */
+    .panel { 
+      background: #fff; 
+      padding: 1.5rem; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 12px; 
+      margin-bottom: 2rem; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .panel h2 { 
+      margin: 0 0 1.5rem; 
+      font-size: 1.25rem; 
+      font-weight: 600;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    /* Stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #c8102e 0%, #e53342 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(200, 16, 46, 0.2);
+    }
+    
+    .stat-card.secondary {
+      background: linear-gradient(135deg, #5e6b3d 0%, #7c8b4d 100%);
+      box-shadow: 0 4px 12px rgba(94, 107, 61, 0.2);
+    }
+    
+    .stat-card h3 {
+      margin: 0;
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0.5rem 0 0;
+    }
+    
+    /* Forms */
+    .form-grid { 
+      display: grid; 
+      gap: 1rem; 
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    label { 
+      font-weight: 500; 
+      font-size: 0.875rem; 
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
+    
+    input, select, textarea { 
+      font-size: 0.875rem; 
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      transition: border-color 0.2s ease;
+      font-family: inherit;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #c8102e;
+      box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    /* Buttons */
+    .btn { 
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-weight: 500; 
+      font-size: 0.875rem; 
+      text-decoration: none;
+      transition: all 0.2s ease;
+      justify-content: center;
+    }
+    
+    .btn-primary { 
+      background: #c8102e; 
+      color: #fff; 
+    }
+    
+    .btn-primary:hover { 
+      background: #a50d26;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(200, 16, 46, 0.3);
+    }
+    
+    .btn-secondary {
+      background: #6b7280;
+      color: #fff;
+    }
+    
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+    
+    .btn-danger { 
+      background: #dc2626; 
+      color: #fff; 
+    }
+    
+    .btn-danger:hover { 
+      background: #b91c1c; 
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #d1d5db;
+      color: #374151;
+    }
+    
+    .btn-outline:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+    
+    .btn-sm { 
+      padding: 0.5rem 1rem; 
+      font-size: 0.75rem; 
+    }
+    
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 0.875rem;
+      background: white;
+    }
+    
+    thead {
+      background: #f9fafb;
+    }
+    
+    th, td { 
+      padding: 0.75rem; 
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    th {
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    tbody tr:hover { 
+      background: #f9fafb; 
+    }
+    
+    .table-thumb {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .table-title {
+      font-weight: 500;
+      color: #1f2937;
+    }
+    
+    .table-subtitle {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+    
+    /* Badges and status */
+    .badge { 
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem; 
+      border-radius: 9999px; 
+      font-size: 0.75rem; 
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .badge-single { 
+      background: #dbeafe; 
+      color: #1e40af; 
+    }
+    
+    .badge-bulk { 
+      background: #ecfdf5; 
+      color: #065f46; 
+    }
+    
+    .status-indicator {
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .status-indicator.active {
+      color: #059669;
+    }
+    
+    .status-indicator.inactive {
+      color: #6b7280;
+    }
+    
+    .featured-star {
+      color: #f59e0b;
+      font-size: 1.125rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    /* File upload */
+    .file-upload {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: border-color 0.2s ease;
+    }
+    
+    .file-upload:hover {
+      border-color: #c8102e;
+    }
+    
+    .file-upload input[type="file"] {
+      margin-bottom: 1rem;
+    }
+    
+    .image-preview {
+      max-width: 120px;
+      max-height: 120px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      margin-top: 1rem;
+      display: none;
+    }
+    
+    /* Status messages */
+    .status-message {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .status-info {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+    
+    .status-success {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    
+    .status-error {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    
+    /* Search */
+    .search-bar {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    
+    .search-bar input {
+      width: 100%;
+      padding-left: 2.5rem;
+    }
+    
+    .search-bar::before {
+      content: "🔍";
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.875rem;
+      opacity: 0.5;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 1024px) {
+      .admin-layout { 
+        grid-template-columns: 1fr; 
+      }
+      
+      .sidebar { 
+        display: none;
+      }
+      
+      .main {
+        padding: 1rem;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Utility classes */
+    .hidden { 
+      display: none !important; 
+    }
+    
+    .flex { 
+      display: flex; 
+    }
+    
+    .items-center { 
+      align-items: center; 
+    }
+    
+    .justify-between { 
+      justify-content: space-between; 
+    }
+    
+    .gap-4 { 
+      gap: 1rem; 
+    }
+    
+    .mb-4 { 
+      margin-bottom: 1rem; 
+    }
+    
+    .text-center { 
+      text-align: center; 
+    }
+  </style>
+</head>
+<body>
+  <!-- Authentication Panel -->
+  <div id="authPanel" class="panel" style="max-width: 400px; margin: 10vh auto; background: white;">>
+    <h2 style="text-align: center; margin-bottom: 2rem;">
+      <span style="color: #c8102e;">Karam</span> <span style="color: #5e6b3d;">Libnan</span>
+      <br><small style="font-size: 0.875rem; font-weight: normal; color: #6b7280;">Admin Dashboard</small>
+    </h2>
+    
+    <form id="loginForm" data-form="login">
+      <div class="form-group">
+        <label for="loginEmail">Email Address</label>
+        <input type="email" id="loginEmail" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" required>
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+        Sign In
+      </button>
+    </form>
+    
+    <div id="loginStatus" class="status-message"></div>
+  </div>
+
+  <!-- Main Admin Layout -->
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar hidden">>
+      <div class="logo">Karam <span>Libnan</span></div>
+      <nav>
+        <a href="#" data-section="dashboard" class="active">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="#" data-section="products">
+          <span class="icon">📦</span>
+          Products
+        </a>
+        <a href="#" data-section="main-categories">
+          <span class="icon">📋</span>
+          Main Categories
+        </a>
+        <a href="#" data-section="subcategories">
+          <span class="icon">🏷️</span>
+          Categories
+        </a>
+        <a href="#" data-section="sections">
+          <span class="icon">📄</span>
+          Sections
+        </a>
+        <a href="#" data-section="colors">
+          <span class="icon">🎨</span>
+          Color Settings
+        </a>
+        <a href="#" data-section="media">
+          <span class="icon">🖼️</span>
+          Media
+        </a>
+        <a href="#" data-action="logout" style="margin-top: auto; border-top: 1px solid #33383f; padding-top: 1rem;">
+          <span class="icon">🚪</span>
+          Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Topbar -->
+      <div id="topbar" class="topbar hidden">>
+        <h1>Dashboard</h1>
+        <div class="user-info">
+          <span id="userEmail">admin@example.com</span>
+          <div class="user-avatar">A</div>
+        </div>
+      </div>
+
+      <!-- Dashboard Section -->
+      <section id="section-dashboard" class="hidden">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Total Products</h3>
+            <div class="value" id="totalProducts">0</div>
+          </div>
+          <div class="stat-card secondary">
+            <h3>Active Products</h3>
+            <div class="value" id="activeProducts">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Featured Products</h3>
+            <div class="value" id="featuredProducts">0</div>
+          </div>
+          <div class="stat-card secondary">
+            <h3>Categories</h3>
+            <div class="value" id="totalSubcategories">0</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>📊 Overview</h2>
+          <p>Welcome to the Karam Libnan admin dashboard. Use the sidebar to navigate between different sections and manage your website content.</p>
+          
+          <div class="flex gap-4" style="margin-top: 1.5rem;">
+            <button class="btn btn-primary" data-section="products">
+              Manage Products
+            </button>
+            <button class="btn btn-outline" data-section="subcategories">
+              Manage Categories
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>🔧 System Status</h2>
+          <div id="systemStatus">
+            <p>Checking database connection...</p>
+          </div>
+          
+          <div class="flex gap-4" style="margin-top: 1rem;">
+            <button class="btn btn-outline btn-sm" onclick="adminManager.checkSystemStatus()">
+              Refresh Status
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="adminManager.initializeDefaultSections()">
+              Initialize Sections
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Categories Section -->
+      <section id="section-main-categories" class="hidden">
+        <div class="panel">
+          <div class="flex justify-between items-center mb-4">
+            <h2>📋 Main Categories <span class="badge" id="mainCategoryCount">0</span></h2>
+            <div class="flex gap-4">
+              <button class="btn btn-outline btn-sm" onclick="adminManager.exportData('main_categories')">
+                Export
+              </button>
+              <button class="btn btn-primary" data-action="new-main-category">
+                Add Main Category
+              </button>
+            </div>
+          </div>
+          
+          <div class="search-bar">
+            <input type="text" placeholder="Search main categories..." data-search="main-categories">
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title (EN)</th>
+                  <th>Title (AR)</th>
+                  <th>Slug</th>
+                  <th>Sort Order</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="mainCategoriesTable">
+                <tr class="loading">
+                  <td colspan="6">Loading main categories...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Main Category Form -->
+        <div id="mainCategoryForm" class="panel hidden">
+          <h3 id="mainCategoryFormTitle">Add New Main Category</h3>
+          <form class="form-grid" data-form="main-category">
+            <input type="hidden" id="mainCategoryId" name="id">
+            
+            <div class="form-group">
+              <label for="mainCategoryTitleEn">Title (English) *</label>
+              <input type="text" id="mainCategoryTitleEn" name="title_en" required placeholder="e.g., Single Serve Products">
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategoryTitleAr">Title (Arabic)</label>
+              <input type="text" id="mainCategoryTitleAr" name="title_ar" placeholder="e.g., منتجات التقديم الفردي">
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategorySlug">Slug *</label>
+              <input type="text" id="mainCategorySlug" name="slug" required placeholder="e.g., single" pattern="[a-z0-9-]+">
+              <small>Only lowercase letters, numbers, and hyphens allowed</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategorySortOrder">Sort Order</label>
+              <input type="number" id="mainCategorySortOrder" name="sort_order" value="0" min="0">
+            </div>
+            
+            <div class="form-group">
+              <label for="mainCategoryActive">Status</label>
+              <select id="mainCategoryActive" name="active">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+            
+            <div class="form-group full-width">
+              <div class="flex gap-4">
+                <button type="submit" class="btn btn-primary">
+                  Save Main Category
+                </button>
+                <button type="button" class="btn btn-outline" data-action="cancel-main-category">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+      <!-- Products Section -->
+      <section id="section-products" class="hidden">
+        <div class="panel">
+          <div class="flex justify-between items-center mb-4">
+            <h2>📦 Products <span class="badge" id="productCount">0</span></h2>
+            <div class="flex gap-4">
+              <button class="btn btn-outline btn-sm" onclick="adminManager.exportData('products')">
+                Export
+              </button>
+              <button class="btn btn-primary" data-action="new-product">
+                Add Product
+              </button>
+            </div>
+          </div>
+          
+          <div class="search-bar">
+            <input type="text" placeholder="Search products..." data-search="products">
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Featured</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <tr>
+                  <td colspan="7" class="text-center">Loading products...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div id="productsStatus" class="status-message"></div>
+        </div>
+
+        <!-- Product Form Panel -->
+        <div id="productFormPanel" class="panel hidden">
+          <h2 id="productFormTitle">New Product</h2>
+          
+          <form id="productForm" data-form="product">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="productNameEn">Name (English)</label>
+                <input type="text" id="productNameEn" name="name_en" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="productNameAr">Name (Arabic)</label>
+                <input type="text" id="productNameAr" name="name_ar">
+              </div>
+              
+              <div class="form-group">
+                <label for="productMainType">Main Type</label>
+                <select id="productMainType" name="main_type" required>
+                  <option value="single">Single Serve</option>
+                  <option value="bulk">Bulk</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="productSubcategory">Subcategory</label>
+                <select id="productSubcategory" name="sub_slug">
+                  <option value="">Select subcategory</option>
+                </select>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productDescriptionEn">Description (English)</label>
+                <textarea id="productDescriptionEn" name="description_en"></textarea>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productDescriptionAr">Description (Arabic)</label>
+                <textarea id="productDescriptionAr" name="description_ar"></textarea>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productIngredients">Ingredients (English)</label>
+                <input type="text" id="productIngredients" name="ingredients" placeholder='["ingredient1", "ingredient2"]'>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productIngredientsAr">Ingredients (Arabic)</label>
+                <input type="text" id="productIngredientsAr" name="ingredients_ar" placeholder='["مكون 1", "مكون 2"]'>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productVariants">Variants (English)</label>
+                <input type="text" id="productVariants" name="variants" placeholder='["Small", "Large", "500ml"]'>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productVariantsAr">Variants (Arabic)</label>
+                <input type="text" id="productVariantsAr" name="variants_ar" placeholder='["صغير", "كبير", "500مل"]'>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productTags">Special Tags (English)</label>
+                <input type="text" id="productTags" name="tags" placeholder='["Organic", "Fresh", "Premium"]'>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="productTagsAr">Special Tags (Arabic)</label>
+                <input type="text" id="productTagsAr" name="tags_ar" placeholder='["عضوي", "طازج", "مميز"]'>
+              </div>
+              
+              <div class="form-group full-width">
+                <label>Product Image</label>
+                <div class="file-upload">
+                  <input type="file" name="image_file" accept="image/*" data-preview="productImagePreview">
+                  <div>Choose image file (JPEG, PNG, max 4MB)</div>
+                  <img id="productImagePreview" class="image-preview" alt="Preview">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" name="featured"> Featured Product
+                </label>
+              </div>
+              
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" name="active" checked> Active
+                </label>
+              </div>
+            </div>
+            
+            <div class="flex gap-4" style="margin-top: 1.5rem;">
+              <button type="submit" class="btn btn-primary">Save Product</button>
+              <button type="button" class="btn btn-secondary" data-action="cancel-product">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Subcategories Section -->
+      <section id="section-subcategories" class="hidden">
+        <div class="panel">
+          <div class="flex justify-between items-center mb-4">
+            <h2>🏷️ Subcategories <span class="badge" id="subcategoryCount">0</span></h2>
+            <div class="flex gap-4">
+              <button class="btn btn-outline btn-sm" data-action="import-subcategories">
+                Import from App.js
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.exportData('subcategories')">
+                Export
+              </button>
+              <button class="btn btn-primary" data-action="new-subcategory">
+                Add Category
+              </button>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Banner</th>
+                  <th>Title</th>
+                  <th>Slug</th>
+                  <th>Type</th>
+                  <th>Order</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="subcategoriesTableBody">
+                <tr>
+                  <td colspan="7" class="text-center">Loading subcategories...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div id="subcategoriesStatus" class="status-message"></div>
+        </div>
+
+        <!-- Subcategory Form Panel -->
+        <div id="subcategoryFormPanel" class="panel hidden">
+          <h2 id="subcategoryFormTitle">New Subcategory</h2>
+          
+          <form id="subcategoryForm" data-form="subcategory">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="subcategorySlug">Slug</label>
+                <input type="text" id="subcategorySlug" name="slug" required placeholder="e.g., fresh-veges">
+              </div>
+              
+              <div class="form-group">
+                <label for="subcategoryType">Category Type</label>
+                <select id="subcategoryType" name="category_type" required>
+                  <option value="single">Single Serve</option>
+                  <option value="bulk">Bulk</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="subcategoryTitleEn">Title (English)</label>
+                <input type="text" id="subcategoryTitleEn" name="title_en" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="subcategoryTitleAr">Title (Arabic)</label>
+                <input type="text" id="subcategoryTitleAr" name="title_ar">
+              </div>
+              
+              <div class="form-group">
+                <label for="subcategorySortOrder">Sort Order</label>
+                <input type="number" id="subcategorySortOrder" name="sort_order" value="0">
+              </div>
+              
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" name="active" checked> Active
+                </label>
+              </div>
+              
+              <div class="form-group full-width">
+                <label>Banner Image</label>
+                <div class="file-upload">
+                  <input type="file" name="banner_file" accept="image/*" data-preview="subcategoryBannerPreview">
+                  <div>Choose banner image (JPEG, PNG, max 4MB)</div>
+                  <img id="subcategoryBannerPreview" class="image-preview" alt="Preview">
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex gap-4" style="margin-top: 1.5rem;">
+              <button type="submit" class="btn btn-primary">Save Subcategory</button>
+              <button type="button" class="btn btn-secondary" data-action="cancel-subcategory">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Sections Section -->
+      <section id="section-sections" class="hidden">
+        <div class="panel">
+          <div class="flex justify-between items-center mb-4">
+            <h2>📄 Content Sections <span class="badge" id="sectionCount">0</span></h2>
+            <button class="btn btn-primary" data-action="new-section">
+              Add Section
+            </button>
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Title</th>
+                  <th>Order</th>
+                  <th>Image</th>
+                  <th>Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sectionsTableBody">
+                <tr>
+                  <td colspan="6" class="text-center">Loading sections...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div id="sectionsStatus" class="status-message"></div>
+        </div>
+
+        <!-- Section Form Panel -->
+        <div id="sectionFormPanel" class="panel hidden">
+          <h2 id="sectionFormTitle">New Section</h2>
+          
+          <form id="sectionForm" data-form="section">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="sectionKey">Section Key</label>
+                <input type="text" id="sectionKey" name="key" required placeholder="e.g., hero, about">
+              </div>
+              
+              <div class="form-group">
+                <label for="sectionTitleEn">Title (English)</label>
+                <input type="text" id="sectionTitleEn" name="title_en">
+              </div>
+              
+              <div class="form-group">
+                <label for="sectionTitleAr">Title (Arabic)</label>
+                <input type="text" id="sectionTitleAr" name="title_ar">
+              </div>
+              
+              <div class="form-group">
+                <label for="sectionSortOrder">Sort Order</label>
+                <input type="number" id="sectionSortOrder" name="sort_order" min="0" placeholder="0" title="Lower numbers appear first">
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="sectionContentEn">Content (English)</label>
+                <textarea id="sectionContentEn" name="content_en" rows="4"></textarea>
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="sectionContentAr">Content (Arabic)</label>
+                <textarea id="sectionContentAr" name="content_ar" rows="4"></textarea>
+              </div>
+              
+              <div class="form-group full-width">
+                <label>Section Image</label>
+                <div class="file-upload">
+                  <input type="file" name="image_file" accept="image/*" data-preview="sectionImagePreview">
+                  <div>Choose section image (JPEG, PNG, max 4MB)</div>
+                  <img id="sectionImagePreview" class="image-preview" alt="Preview">
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex gap-4" style="margin-top: 1.5rem;">
+              <button type="submit" class="btn btn-primary">Save Section</button>
+              <button type="button" class="btn btn-secondary" data-action="cancel-section">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Color Settings Section -->
+      <section id="section-colors" class="hidden">
+        <div class="panel">
+          <div class="flex justify-between items-center mb-4">
+            <h2>🎨 Font Color Management</h2>
+            <div class="flex gap-4">
+              <button class="btn btn-outline btn-sm" onclick="adminManager.resetColorsToDefault()">
+                Reset to Default
+              </button>
+              <button class="btn btn-primary" onclick="adminManager.applyColorChanges()">
+                Apply Changes
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+            <!-- Section Headings -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">📝 Section Headings</h3>
+              <div class="form-group">
+                <label for="sectionTitlesColor">Section Titles (Our Story, Products, Contact)</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="sectionTitlesColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="sectionTitlesColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="sectionIntrosColor">Section Introductions</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="sectionIntrosColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="sectionIntrosColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Body Text -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">📄 Body Text</h3>
+              <div class="form-group">
+                <label for="paragraphsColor">Paragraphs & Descriptions</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="paragraphsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="paragraphsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="aboutTextColor">About Section Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="aboutTextColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="aboutTextColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Text -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">🛍️ Product Text</h3>
+              <div class="form-group">
+                <label for="productDescColor">Product Descriptions</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="productDescColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="productDescColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="ingredientsColor">Ingredients Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="ingredientsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="ingredientsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="filterButtonsColor">Filter Buttons Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="filterButtonsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="filterButtonsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="panel" style="margin: 0;">
+              <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">📞 Contact Section</h3>
+              <div class="form-group">
+                <label for="contactLabelsColor">Form Labels</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="contactLabelsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="contactLabelsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="contactInputsColor">Input Text</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="contactInputsColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="contactInputsColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="contactInfoColor">Contact Information</label>
+                <div class="flex gap-2" style="align-items: center;">
+                  <input type="color" id="contactInfoColor" value="#001f3f" style="width: 50px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <input type="text" id="contactInfoColorText" value="#001f3f" style="width: 80px; font-family: monospace; font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel" style="margin-top: 2rem;">
+            <h3 style="margin-top: 0; color: #374151; font-size: 1rem;">🎨 Color Presets</h3>
+            <div class="flex gap-2" style="flex-wrap: wrap; margin-bottom: 1rem;">
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('navy')">Navy (Current)</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('black')">Black</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('darkgray')">Dark Gray</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('olive')">Olive Green</button>
+              <button class="btn btn-outline btn-sm" onclick="adminManager.applyColorPreset('brown')">Brown</button>
+            </div>
+            
+            <div class="status-message" style="margin-top: 1rem;">
+              <strong>Preview:</strong> Changes are applied to the main website immediately. Refresh the main page to see changes.
+            </div>
+          </div>
+          
+          <div id="colorsStatus" class="status-message"></div>
+        </div>
+      </section>
+
+      <!-- Media Section -->
+      <section id="section-media" class="hidden">
+        <div class="panel">
+          <h2>🖼️ Media Management</h2>
+          <p>Manage uploaded images and media files.</p>
+          
+          <div class="flex gap-4 mb-4">
+            <button class="btn btn-primary" onclick="adminManager.showUploadDialog()">
+              Upload New Image
+            </button>
+            <button class="btn btn-outline" onclick="adminManager.refreshMediaLibrary()">
+              Refresh Library
+            </button>
+          </div>
+          
+          <div id="mediaLibrary">
+            <p>Loading media files...</p>
+          </div>
+          
+          <div id="mediaStatus" class="status-message"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Supabase and Admin Scripts -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    const SUPABASE_URL = document.querySelector('meta[name="supabase-url"]').content;
+    const SUPABASE_ANON_KEY = document.querySelector('meta[name="supabase-anon-key"]').content;
+    window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
+    window.createSupabaseClient = (url,key) => createClient(url,key);
+    window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Add form submission handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      // Product form submission
+      const productForm = document.getElementById('productForm')
+      if (productForm) {
+        productForm.addEventListener('submit', (e) => {
+          e.preventDefault()
+          window.adminManager.saveItem('products')
+        })
+      }
+      
+      // New product button
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('[data-action="new-product"]')) {
+          e.preventDefault()
+          document.getElementById('productFormPanel').classList.remove('hidden')
+          document.getElementById('productFormTitle').textContent = 'New Product'
+          document.getElementById('productForm').reset()
+          window.adminManager.editingItem = null
+        }
+        
+        if (e.target.matches('[data-action="cancel-product"]')) {
+          e.preventDefault()
+          document.getElementById('productFormPanel').classList.add('hidden')
+          document.getElementById('productForm').reset()
+          window.adminManager.editingItem = null
+        }
+      })
+    })
+  </script>
+  
+  <script src="js/admin.js" defer></script>
+</body>
+</html>
