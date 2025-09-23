@@ -345,26 +345,31 @@ function createCustomSection(sectionKey, sectionTitle) {
 // Product card template
 function cardTemplate(item, isFeatured = false) {
   const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim();
-  const name = highlight(item.name, searchTerm);
-  const desc = highlight(item.description, searchTerm);
+  const name = highlight(getLocalizedText(item, 'name'), searchTerm);
+  const desc = highlight(getLocalizedText(item, 'description'), searchTerm);
+  
+  // Get localized arrays
+  const ingredients = getLocalizedArray(item, 'ingredients');
+  const variants = getLocalizedArray(item, 'variants');
+  const tags = getLocalizedArray(item, 'tags');
   
   // Generate variants HTML if variants exist
-  const variantsHTML = item.variants && item.variants.length > 0 
-    ? `<div class="product-variants"><strong>Variants:</strong> ${item.variants.join(', ')}</div>`
+  const variantsHTML = variants.length > 0 
+    ? `<div class="product-variants"><strong>${currentLang === 'ar' ? 'الأحجام:' : 'Variants:'}</strong> ${variants.join(', ')}</div>`
     : '';
   
   // Generate tags HTML if tags exist
-  const tagsHTML = item.tags && item.tags.length > 0 
-    ? `<div class="product-tags">${item.tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}</div>`
+  const tagsHTML = tags.length > 0 
+    ? `<div class="product-tags">${tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}</div>`
     : '';
   
   return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}">
     ${isFeatured ? '<span class="badge">Featured</span>' : ''}
-    <img src="${item.image}" alt="${item.name} image" loading="lazy" data-original="${item.image}" />
+    <img src="${item.image}" alt="${getLocalizedText(item, 'name')} image" loading="lazy" data-original="${item.image}" />
     <div class="card-body">
       <h3 class="card-title">${name}</h3>
       <p class="desc">${desc}</p>
-      <div class="ingredients"><strong>Ingredients:</strong> ${item.ingredients.join(', ')}</div>
+      <div class="ingredients"><strong>${currentLang === 'ar' ? 'المكونات:' : 'Ingredients:'}</strong> ${ingredients.join(', ')}</div>
       ${variantsHTML}
       ${tagsHTML}
     </div>
@@ -378,7 +383,20 @@ function renderProducts() {
   const grid = document.getElementById('productGrid');
   if (!grid) return;
   const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim().toLowerCase();
-  const items = productsData.filter(p => p.mainType === currentMain && (currentSub === 'all' || p.sub === currentSub) && (!searchTerm || p.name.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm)));
+  const items = productsData.filter(p => {
+    // Check main type and sub category
+    const mainMatch = p.mainType === currentMain;
+    const subMatch = currentSub === 'all' || p.sub === currentSub;
+    
+    // Check search term in localized content
+    if (!searchTerm) return mainMatch && subMatch;
+    
+    const name = getLocalizedText(p, 'name').toLowerCase();
+    const description = getLocalizedText(p, 'description').toLowerCase();
+    const searchMatch = name.includes(searchTerm) || description.includes(searchTerm);
+    
+    return mainMatch && subMatch && searchMatch;
+  });
   // Optional skeleton effect (quick, not async) for perceived performance
   grid.innerHTML = items.map(()=>'<div class="card skeleton" style="height:260px;border-radius:10px;"></div>').join('');
   setTimeout(()=>{ grid.innerHTML = items.map(p => cardTemplate(p)).join(''); attachImageFallbacks(); observeFadeIns(); }, 80);
@@ -539,6 +557,22 @@ const translations = {
   }
 };
 let currentLang = 'en';
+
+// Helper functions for localized content
+function getLocalizedText(item, field) {
+  if (currentLang === 'ar' && item[`${field}_ar`]) {
+    return item[`${field}_ar`];
+  }
+  return item[`${field}_en`] || item[field] || '';
+}
+
+function getLocalizedArray(item, field) {
+  if (currentLang === 'ar' && item[`${field}_ar`] && item[`${field}_ar`].length > 0) {
+    return item[`${field}_ar`];
+  }
+  return item[field] || [];
+}
+
 const langBtn = document.getElementById('langToggle');
 langBtn?.addEventListener('click', () => {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
@@ -546,6 +580,13 @@ langBtn?.addEventListener('click', () => {
   applyTranslations();
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   document.body.classList.toggle('rtl', currentLang==='ar');
+  
+  // Re-render all product sections with new language
+  renderProducts();
+  renderFeatured();
+  renderBestsellers(); 
+  renderNewArrivals();
+  renderSeasonal();
 });
 
 function applyTranslations() {
@@ -648,17 +689,22 @@ async function tryRemoteLoad(){
         
         productsData.push({
           id: p.id,
-          name: p.name_en || 'Unnamed',
+          name_en: p.name_en || 'Unnamed',
+          name_ar: p.name_ar || p.name_en || 'Unnamed',
           category: p.sub_slug || 'general',
           mainType: p.main_type,
           sub: (p.sub_slug || '').replace(/-/g,' '),
           featured: !!p.featured, // Use database featured field
           sections: sections, // Add sections array for filtering
           image: p.image_url || FALLBACK_IMAGE,
-          description: p.description_en || '',
+          description_en: p.description_en || '',
+          description_ar: p.description_ar || p.description_en || '',
           ingredients: Array.isArray(p.ingredients)? p.ingredients : [],
+          ingredients_ar: Array.isArray(p.ingredients_ar) ? p.ingredients_ar : (Array.isArray(p.ingredients) ? p.ingredients : []),
           variants: Array.isArray(p.variants) ? p.variants : [], // Add variants field
-          tags: Array.isArray(p.tags) ? p.tags : [] // Add tags field
+          variants_ar: Array.isArray(p.variants_ar) ? p.variants_ar : (Array.isArray(p.variants) ? p.variants : []),
+          tags: Array.isArray(p.tags) ? p.tags : [], // Add tags field
+          tags_ar: Array.isArray(p.tags_ar) ? p.tags_ar : (Array.isArray(p.tags) ? p.tags : [])
         });
       });
     }
