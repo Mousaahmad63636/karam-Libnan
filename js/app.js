@@ -240,7 +240,11 @@ function initializeSearch() {
 function renderFeatured() {
   const container = document.getElementById('featuredProducts');
   if (!container) return;
-  const featured = productsData.filter(p => p.featured);
+  const featured = productsData.filter(p => p.featured).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   container.innerHTML = featured.map(p => cardTemplate(p, true)).join('');
 }
 
@@ -248,7 +252,11 @@ function renderFeatured() {
 function renderBestsellers() {
   const container = document.getElementById('bestsellersProducts');
   if (!container) return;
-  const bestsellers = productsData.filter(p => p.sections?.includes('bestsellers'));
+  const bestsellers = productsData.filter(p => p.sections?.includes('bestsellers')).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   if (bestsellers.length > 0) {
     container.innerHTML = bestsellers.map(p => cardTemplate(p)).join('');
     document.querySelector('.bestsellers').style.display = 'block';
@@ -259,7 +267,11 @@ function renderBestsellers() {
 function renderNewArrivals() {
   const container = document.getElementById('newArrivalsProducts');
   if (!container) return;
-  const newArrivals = productsData.filter(p => p.sections?.includes('new-arrivals'));
+  const newArrivals = productsData.filter(p => p.sections?.includes('new-arrivals')).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   if (newArrivals.length > 0) {
     container.innerHTML = newArrivals.map(p => cardTemplate(p)).join('');
     document.querySelector('.new-arrivals').style.display = 'block';
@@ -270,7 +282,11 @@ function renderNewArrivals() {
 function renderSeasonal() {
   const container = document.getElementById('seasonalProducts');
   if (!container) return;
-  const seasonal = productsData.filter(p => p.sections?.includes('seasonal'));
+  const seasonal = productsData.filter(p => p.sections?.includes('seasonal')).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   if (seasonal.length > 0) {
     container.innerHTML = seasonal.map(p => cardTemplate(p)).join('');
     document.querySelector('.seasonal').style.display = 'block';
@@ -288,7 +304,11 @@ function renderCustomSections() {
   )];
 
   customSections.forEach(sectionKey => {
-    const products = productsData.filter(p => p.sections?.includes(sectionKey));
+    const products = productsData.filter(p => p.sections?.includes(sectionKey)).sort((a, b) => {
+      const orderA = a.sort_order ?? 999;
+      const orderB = b.sort_order ?? 999;
+      return orderA - orderB;
+    });
     if (products.length === 0) return;
 
     // Look up section title from database sections
@@ -396,6 +416,11 @@ function renderProducts() {
     const searchMatch = name.includes(searchTerm) || description.includes(searchTerm);
     
     return mainMatch && subMatch && searchMatch;
+  }).sort((a, b) => {
+    // Sort by sort_order ascending (lower numbers first)
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
   });
   // Optional skeleton effect (quick, not async) for perceived performance
   grid.innerHTML = items.map(()=>'<div class="card skeleton" style="height:260px;border-radius:10px;"></div>').join('');
@@ -704,7 +729,8 @@ async function tryRemoteLoad(){
           variants: Array.isArray(p.variants) ? p.variants : [], // Add variants field
           variants_ar: Array.isArray(p.variants_ar) ? p.variants_ar : (Array.isArray(p.variants) ? p.variants : []),
           tags: Array.isArray(p.tags) ? p.tags : [], // Add tags field
-          tags_ar: Array.isArray(p.tags_ar) ? p.tags_ar : (Array.isArray(p.tags) ? p.tags : [])
+          tags_ar: Array.isArray(p.tags_ar) ? p.tags_ar : (Array.isArray(p.tags) ? p.tags : []),
+          sort_order: p.sort_order ?? 999 // Add sort_order field with fallback
         });
       });
     }
