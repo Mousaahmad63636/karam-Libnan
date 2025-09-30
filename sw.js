@@ -1,5 +1,5 @@
 // Service Worker for Karam Libnan - Cache static assets
-const CACHE_NAME = 'karam-libnan-v1.2';
+const CACHE_NAME = 'karam-libnan-v2.0'; // Updated version to force cache refresh
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -63,7 +63,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Cache strategy for static assets
+  // Always fetch fresh for critical app files (CSS, JS, HTML)
+  if (url.pathname.includes('/js/app.js') || 
+      url.pathname.includes('/css/styles.css') ||
+      url.pathname.includes('/admin.html') ||
+      url.pathname.includes('/index.html') ||
+      url.pathname.includes('components/navigation.html')) {
+    event.respondWith(networkFirstStrategy(request));
+    return;
+  }
+  
+  // Cache strategy for static assets (images only)
   if (isStaticAsset(request.url)) {
     event.respondWith(cacheFirstStrategy(request));
   } else {
