@@ -1748,6 +1748,11 @@
                                     <option value="false">Inactive</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="999" min="1">
+                                <small>Lower numbers appear first (default: 999)</small>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="description_en">Description (English)</label>
@@ -1865,7 +1870,8 @@
                         featured: formData.get('featured') === 'true',
                         active: formData.get('active') === 'true',
                         tags: this.parseTags(formData.get('tags')),
-                        tags_ar: this.parseTags(formData.get('tags_ar'))
+                        tags_ar: this.parseTags(formData.get('tags_ar')),
+                        sort_order: parseInt(formData.get('sort_order')) || 999
                     };
                     
                     // Add image URL if uploaded (for new products or when replacing existing image)
@@ -1967,6 +1973,11 @@
                                         <option value="true" ${product.active ? 'selected' : ''}>Active</option>
                                         <option value="false" ${!product.active ? 'selected' : ''}>Inactive</option>
                                     </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${product.sort_order ?? 999}" min="1">
+                                    <small>Lower numbers appear first (default: 999)</small>
                                 </div>
                             </div>
                             <div class="form-group">
