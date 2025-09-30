@@ -7,13 +7,13 @@
     <nav class="main-nav" aria-label="Primary Navigation">
       <div class="nav-controls mobile-only">
         <div class="search-wrapper">
-          <button id="searchToggle" class="search-icon-btn" aria-label="Open search">
+          <button id="searchToggle" class="search-icon-btn" aria-label="Open search" data-i18n-aria="search.open">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="11" cy="11" r="8"/>
               <path d="M21 21l-4.35-4.35"/>
             </svg>
           </button>
-          <input type="text" id="productSearch" class="search-input collapsed" placeholder="Search products"
+          <input type="text" id="productSearch" class="search-input collapsed" data-i18n="search.placeholder" placeholder="Search products"
             aria-label="Search products" />
         </div>
         <button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
@@ -31,7 +31,7 @@
         </button>
         <div class="nav-header">
           <img src="images/logo.png" alt="Karam Libnan" class="nav-logo" />
-          <h3>Navigation</h3>
+          <h3 data-i18n="nav.navigation">Navigation</h3>
         </div>
         <li><a href="#home" class="active" data-i18n="nav.home">Home</a></li>
         <li><a href="#about" data-i18n="nav.about">About</a></li>
@@ -47,13 +47,13 @@
     </nav>
     <div class="header-actions desktop-only">
       <div class="search-wrapper">
-        <button id="searchToggleDesktop" class="search-icon-btn" aria-label="Open search">
+        <button id="searchToggleDesktop" class="search-icon-btn" aria-label="Open search" data-i18n-aria="search.open">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="11" cy="11" r="8"/>
             <path d="M21 21l-4.35-4.35"/>
           </svg>
         </button>
-        <input type="text" id="productSearchDesktop" class="search-input collapsed" placeholder="Search products"
+        <input type="text" id="productSearchDesktop" class="search-input collapsed" data-i18n="search.placeholder" placeholder="Search products"
           aria-label="Search products" />
       </div>
     </div>

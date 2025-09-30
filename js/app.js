@@ -373,9 +373,15 @@ function cardTemplate(item, isFeatured = false) {
   const variants = getLocalizedArray(item, 'variants');
   const tags = getLocalizedArray(item, 'tags');
   
+  // Get translations
+  const map = translations[currentLang];
+  const ingredientsLabel = map && map['products.ingredients'] ? map['products.ingredients'] : 'Ingredients:';
+  const variantsLabel = map && map['products.variants'] ? map['products.variants'] : 'Variants:';
+  const featuredLabel = map && map['featured.badge'] ? map['featured.badge'] : 'Featured';
+  
   // Generate variants HTML if variants exist
   const variantsHTML = variants.length > 0 
-    ? `<div class="product-variants"><strong>${currentLang === 'ar' ? 'الأحجام:' : 'Variants:'}</strong> ${variants.join(', ')}</div>`
+    ? `<div class="product-variants"><strong>${variantsLabel}</strong> ${variants.join(', ')}</div>`
     : '';
   
   // Generate tags HTML if tags exist
@@ -384,12 +390,12 @@ function cardTemplate(item, isFeatured = false) {
     : '';
   
   return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}" data-product-id="${item.id}" style="cursor: pointer;">
-    ${isFeatured ? '<span class="badge">Featured</span>' : ''}
+    ${isFeatured ? `<span class="badge">${featuredLabel}</span>` : ''}
     <img src="${item.image}" alt="${getLocalizedText(item, 'name')} image" loading="lazy" data-original="${item.image}" />
     <div class="card-body">
       <h3 class="card-title">${name}</h3>
       <p class="desc">${desc}</p>
-      <div class="ingredients"><strong>${currentLang === 'ar' ? 'المكونات:' : 'Ingredients:'}</strong> ${ingredients.join(', ')}</div>
+      <div class="ingredients"><strong>${ingredientsLabel}</strong> ${ingredients.join(', ')}</div>
       ${variantsHTML}
       ${tagsHTML}
     </div>
@@ -433,7 +439,15 @@ function updateBanner() {
   if (!banner) return;
   const key = currentSub === 'all' ? 'default' : currentSub;
   banner.style.backgroundImage = `url('${BANNERS[key] || BANNERS.default}')`;
-  banner.innerHTML = `<span>${capitalizeWords(currentSub === 'all' ? currentMain + ' products' : currentSub)}</span>`;
+  
+  // Use translated subcategory name for banner text
+  const bannerText = currentSub === 'all' 
+    ? (currentLang === 'ar' 
+        ? (mainCategories.find(c => c.slug === currentMain)?.title_ar || mainCategories.find(c => c.slug === currentMain)?.title_en || currentMain) + ' منتجات'
+        : (mainCategories.find(c => c.slug === currentMain)?.title_en || currentMain) + ' products')
+    : translateSubcategory(currentSub);
+  
+  banner.innerHTML = `<span>${bannerText}</span>`;
   banner.setAttribute('aria-hidden','false');
 }
 
@@ -448,10 +462,11 @@ function buildMainTabs() {
     currentMain = mainCategories[0].slug;
   }
   
-  // Generate main category tabs dynamically
+  // Generate main category tabs dynamically with localized titles
   const tabsHTML = mainCategories.map((cat, index) => {
     const isActive = cat.slug === currentMain;
-    return `<button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${cat.title_en}</button>`;
+    const title = currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en;
+    return `<button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${title}</button>`;
   }).join('');
   
   mainTabsContainer.innerHTML = tabsHTML;
@@ -471,10 +486,13 @@ function buildSubFilters() {
     const container = document.createElement('div');
     container.className = `filters sub-filters${isVisible ? '' : ' hidden'}`;
     container.id = `subFilters${cat.slug.charAt(0).toUpperCase() + cat.slug.slice(1)}`;
-    container.setAttribute('aria-label', `${cat.title_en} Subcategories`);
+    container.setAttribute('aria-label', `${currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en} Subcategories`);
     
     if (SUBCATS[cat.slug]) {
-      container.innerHTML = SUBCATS[cat.slug].map((c,i)=>`<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="${cat.slug}">${capitalizeWords(c)}</button>`).join('');
+      container.innerHTML = SUBCATS[cat.slug].map((c,i)=>{
+        const translatedText = translateSubcategory(c);
+        return `<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="${cat.slug}">${translatedText}</button>`;
+      }).join('');
     }
     
     subcategoryWrapper.appendChild(container);
@@ -490,6 +508,14 @@ function buildSubFilters() {
       renderProducts();
     }
   });
+}
+
+// Helper function to translate subcategory names
+function translateSubcategory(subcat) {
+  if (currentLang === 'en') return capitalizeWords(subcat);
+  const key = `subcat.${subcat}`;
+  const map = translations[currentLang];
+  return map && map[key] ? map[key] : capitalizeWords(subcat);
 }
 
 function initMainTabs() {
@@ -531,22 +557,26 @@ form?.addEventListener('submit', e => {
   ['name','email','message'].forEach(field => {
     const input = form.querySelector(`[name="${field}"]`);
     const errorEl = form.querySelector(`[data-error-for="${field}"]`);
+    const map = translations[currentLang];
+    
     if (!input.value.trim()) {
       valid = false;
-      errorEl.textContent = 'Required';
+      errorEl.textContent = map && map['contact.required'] ? map['contact.required'] : 'Required';
     } else if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
       valid = false;
-      errorEl.textContent = 'Invalid email';
+      errorEl.textContent = map && map['contact.invalidEmail'] ? map['contact.invalidEmail'] : 'Invalid email';
     } else {
       errorEl.textContent = '';
     }
   });
   if (valid) {
-    status.textContent = 'Message sent (demo). We will reply soon!';
+    const map = translations[currentLang];
+    status.textContent = map && map['contact.success'] ? map['contact.success'] : 'Message sent (demo). We will reply soon!';
     form.reset();
     setTimeout(() => (status.textContent = ''), 4000);
   } else {
-    status.textContent = 'Please correct errors above.';
+    const map = translations[currentLang];
+    status.textContent = map && map['contact.error'] ? map['contact.error'] : 'Please correct errors above.';
   }
 });
 
@@ -573,12 +603,103 @@ function observeFadeIns() {
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-// Language toggle (rudimentary, two-language support placeholder)
+// Comprehensive translations object
 const translations = {
   ar: {
-    'nav.home':'الرئيسية','nav.about':'من نحن','nav.products':'المنتجات','nav.events':'الفعاليات','nav.services':'الخدمات','nav.faq':'الأسئلة','nav.contact':'اتصل بنا',
-    'products.title':'منتجاتنا','products.intro':'تصفح فئات منتجاتنا اللبنانية. كل صنف يتضمن وصفاً ومكونات.',
-    'products.singleServe':'منتجات فردية','products.bulk':'منتجات بالجملة'
+    // Navigation
+    'nav.home':'الرئيسية','nav.about':'من نحن','nav.products':'المنتجات','nav.events':'الفعاليات',
+    'nav.services':'الخدمات','nav.faq':'الأسئلة','nav.contact':'اتصل بنا','nav.navigation':'القائمة',
+    
+    // Hero Section
+    'hero.explore':'استكشف الكتالوج',
+    
+    // Sections
+    'featured.title':'المنتجات المميزة','featured.badge':'مميز',
+    'bestsellers.title':'الأكثر مبيعاً',
+    'newArrivals.title':'وصل حديثاً',
+    'seasonal.title':'عروض موسمية',
+    
+    // About Section
+    'about.title':'قصتنا',
+    'about.authentic':'وصفات أصيلة',
+    'about.natural':'مكونات طبيعية',
+    'about.handcrafted':'جودة يدوية الصنع',
+    'about.sustainable':'مصادر مستدامة',
+    
+    // Products Section
+    'products.title':'منتجاتنا',
+    'products.intro':'تصفح فئات منتجاتنا اللبنانية. كل صنف يتضمن وصفاً ومكونات (بدون أسعار)',
+    'products.all':'الكل',
+    'products.ingredients':'المكونات:',
+    'products.variants':'الأحجام:',
+    'products.tags':'الوسوم',
+    
+    // Contact Section
+    'contact.title':'اتصل بنا',
+    'contact.name':'الاسم',
+    'contact.email':'البريد الإلكتروني',
+    'contact.message':'الرسالة',
+    'contact.send':'إرسال الرسالة',
+    'contact.info':'معلومات الشركة',
+    'contact.namePlaceholder':'اسمك',
+    'contact.emailPlaceholder':'you@example.com',
+    'contact.messagePlaceholder':'اكتب رسالتك...',
+    'contact.email.label':'البريد:',
+    'contact.phone.label':'الهاتف:',
+    'contact.location.label':'الموقع:',
+    'contact.social':'تابعنا على وسائل التواصل:',
+    'contact.facebook':'فيسبوك',
+    'contact.instagram':'إنستغرام',
+    'contact.twitter':'تويتر',
+    'contact.required':'مطلوب',
+    'contact.invalidEmail':'بريد إلكتروني غير صالح',
+    'contact.success':'تم إرسال الرسالة (تجريبي). سنرد قريباً!',
+    'contact.error':'يرجى تصحيح الأخطاء أعلاه.',
+    
+    // Footer
+    'footer.tagline':'منتجات لبنانية أصيلة مصنوعة يدوياً ومعلبة. تقليد محفوظ في كل برطمان.',
+    'footer.home':'الرئيسية',
+    'footer.about':'من نحن',
+    'footer.products':'المنتجات',
+    'footer.events':'الفعاليات',
+    'footer.services':'الخدمات',
+    'footer.faq':'الأسئلة',
+    'footer.contact':'اتصل بنا',
+    'footer.email':'البريد:',
+    'footer.phone':'الهاتف:',
+    'footer.rights':'كرم لبنان. جميع الحقوق محفوظة.',
+    'footer.backToTop':'العودة للأعلى',
+    
+    // Search
+    'search.placeholder':'ابحث عن منتجات',
+    'search.open':'فتح البحث',
+    'search.close':'إغلاق البحث',
+    
+    // Modal
+    'modal.close':'إغلاق',
+    'modal.ingredients':'المكونات',
+    'modal.variants':'الأحجام',
+    'modal.tags':'الوسوم',
+    
+    // Subcategories (common ones)
+    'subcat.all':'الكل',
+    'subcat.fresh veges':'خضار طازجة',
+    'subcat.fresh pickles':'مخللات طازجة',
+    'subcat.ordinary pickles':'مخللات عادية',
+    'subcat.olives':'زيتون',
+    'subcat.olive oil':'زيت زيتون',
+    'subcat.sunflower oil':'زيت دوار الشمس',
+    'subcat.labne & kishik':'لبنة وكشك',
+    'subcat.kishik':'كشك',
+    'subcat.pastes':'معجون',
+    'subcat.molases':'دبس',
+    'subcat.hydrosols':'ماء الورد والزهر',
+    'subcat.natural syrubs':'شراب طبيعي',
+    'subcat.tahhene':'طحينة',
+    'subcat.vinegar':'خل',
+    'subcat.herbal':'أعشاب',
+    'subcat.kamar el din':'قمر الدين',
+    'subcat.ready to serve':'جاهز للتقديم'
   }
 };
 let currentLang = 'en';
@@ -602,9 +723,14 @@ const langBtn = document.getElementById('langToggle');
 langBtn?.addEventListener('click', () => {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
-  applyTranslations();
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = currentLang;
   document.body.classList.toggle('rtl', currentLang==='ar');
+  
+  applyTranslations();
+  buildMainTabs();
+  buildSubFilters();
+  initMainTabs();
   
   // Re-render all product sections with new language
   renderProducts();
@@ -612,14 +738,30 @@ langBtn?.addEventListener('click', () => {
   renderBestsellers(); 
   renderNewArrivals();
   renderSeasonal();
+  renderCustomSections();
 });
 
 function applyTranslations() {
-  if (currentLang === 'en') return; // only override for Arabic for now
   const map = translations[currentLang];
+  if (!map) return; // English is default, no translations needed
+  
+  // Translate all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (map[key]) el.textContent = map[key];
+    if (map[key]) {
+      // Handle different element types
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        if (el.placeholder) el.placeholder = map[key];
+      } else {
+        el.textContent = map[key];
+      }
+    }
+  });
+  
+  // Special handling for aria-labels
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (map[key]) el.setAttribute('aria-label', map[key]);
   });
 }
 
@@ -925,6 +1067,11 @@ function openProductModal(item) {
   const variantsSection = modal.querySelector('#modalVariants');
   const tagsSection = modal.querySelector('#modalTags');
   
+  const map = translations[currentLang];
+  const ingredientsLabel = map && map['modal.ingredients'] ? map['modal.ingredients'] : 'Ingredients';
+  const variantsLabel = map && map['modal.variants'] ? map['modal.variants'] : 'Variants';
+  const tagsLabel = map && map['modal.tags'] ? map['modal.tags'] : 'Tags';
+  
   if (modalImage) modalImage.src = item.image;
   if (modalTitle) modalTitle.textContent = name;
   if (modalDescription) modalDescription.textContent = description;
@@ -933,7 +1080,7 @@ function openProductModal(item) {
   if (ingredientsSection) {
     if (ingredients.length > 0) {
       ingredientsSection.innerHTML = `
-        <div class="modal-section-title">${currentLang === 'ar' ? 'المكونات' : 'Ingredients'}</div>
+        <div class="modal-section-title">${ingredientsLabel}</div>
         <div class="modal-list">${ingredients.join(', ')}</div>
       `;
       ingredientsSection.style.display = 'block';
@@ -946,7 +1093,7 @@ function openProductModal(item) {
   if (variantsSection) {
     if (variants.length > 0) {
       variantsSection.innerHTML = `
-        <div class="modal-section-title">${currentLang === 'ar' ? 'الأحجام' : 'Variants'}</div>
+        <div class="modal-section-title">${variantsLabel}</div>
         <div class="modal-list">${variants.join(', ')}</div>
       `;
       variantsSection.style.display = 'block';
@@ -959,7 +1106,7 @@ function openProductModal(item) {
   if (tagsSection) {
     if (tags.length > 0) {
       tagsSection.innerHTML = `
-        <div class="modal-section-title">${currentLang === 'ar' ? 'الوسوم' : 'Tags'}</div>
+        <div class="modal-section-title">${tagsLabel}</div>
         <div class="modal-tags">${tags.map(tag => `<span class="modal-tag">${tag}</span>`).join('')}</div>
       `;
       tagsSection.style.display = 'block';
