@@ -487,12 +487,12 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 #contact input, #contact textarea { color: var(--color-navy); }
 
 /* Footer */
-.site-footer { background: #312a23; color: var(--color-bg); margin-top: 3rem; font-size: .9rem; }
+.site-footer { background: #001f3f; color: var(--color-bg); margin-top: 3rem; font-size: .9rem; }
 .site-footer a { color: #d9d0c4; }
 .footer-grid { display: grid; gap: 2rem; padding: 3rem 1.2rem; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); }
 .footer-brand .logo { color: var(--color-bg); }
 .footer-brand .logo-image { height: 50px; filter: brightness(0) invert(1); }
-.sub-footer { background: #251f19; padding: .9rem 1.2rem; display: flex; justify-content: center; gap: 1rem; align-items: center; }
+.sub-footer { background: #001430; padding: .9rem 1.2rem; display: flex; justify-content: center; gap: 1rem; align-items: center; }
 .back-to-top { color: var(--color-secondary); font-weight: 700; }
 .back-to-top:hover { color: var(--color-accent); }
 .footer-nav { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; }
