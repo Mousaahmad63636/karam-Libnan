@@ -363,7 +363,7 @@ function cardTemplate(item, isFeatured = false) {
     ? `<div class="product-tags">${tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}</div>`
     : '';
   
-  return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}">
+  return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}" data-product-id="${item.id}" style="cursor: pointer;">
     ${isFeatured ? '<span class="badge">Featured</span>' : ''}
     <img src="${item.image}" alt="${getLocalizedText(item, 'name')} image" loading="lazy" data-original="${item.image}" />
     <div class="card-body">
@@ -851,6 +851,18 @@ function createNewSection(sectionKey, sectionData) {
   return newSection;
 }
 
+// Product card click handler (event delegation)
+document.addEventListener('click', (e) => {
+  const card = e.target.closest('.card[data-product-id]');
+  if (card) {
+    const productId = parseInt(card.dataset.productId);
+    const product = productsData.find(p => p.id === productId);
+    if (product) {
+      openProductModal(product);
+    }
+  }
+});
+
 initializeSite();
 
 // Attach fallback handlers to images (run after each render)
@@ -866,6 +878,106 @@ function attachImageFallbacks() {
     }
   });
 }
+
+// Product Detail Modal Functions
+function openProductModal(item) {
+  const modal = document.getElementById('productModal');
+  if (!modal) return;
+  
+  // Get localized data
+  const name = getLocalizedText(item, 'name');
+  const description = getLocalizedText(item, 'description');
+  const ingredients = getLocalizedArray(item, 'ingredients');
+  const variants = getLocalizedArray(item, 'variants');
+  const tags = getLocalizedArray(item, 'tags');
+  
+  // Build modal content
+  const modalImage = modal.querySelector('.modal-image img');
+  const modalTitle = modal.querySelector('.modal-title');
+  const modalDescription = modal.querySelector('.modal-description');
+  const ingredientsSection = modal.querySelector('#modalIngredients');
+  const variantsSection = modal.querySelector('#modalVariants');
+  const tagsSection = modal.querySelector('#modalTags');
+  
+  if (modalImage) modalImage.src = item.image;
+  if (modalTitle) modalTitle.textContent = name;
+  if (modalDescription) modalDescription.textContent = description;
+  
+  // Ingredients
+  if (ingredientsSection) {
+    if (ingredients.length > 0) {
+      ingredientsSection.innerHTML = `
+        <div class="modal-section-title">${currentLang === 'ar' ? 'المكونات' : 'Ingredients'}</div>
+        <div class="modal-list">${ingredients.join(', ')}</div>
+      `;
+      ingredientsSection.style.display = 'block';
+    } else {
+      ingredientsSection.style.display = 'none';
+    }
+  }
+  
+  // Variants
+  if (variantsSection) {
+    if (variants.length > 0) {
+      variantsSection.innerHTML = `
+        <div class="modal-section-title">${currentLang === 'ar' ? 'الأحجام' : 'Variants'}</div>
+        <div class="modal-list">${variants.join(', ')}</div>
+      `;
+      variantsSection.style.display = 'block';
+    } else {
+      variantsSection.style.display = 'none';
+    }
+  }
+  
+  // Tags
+  if (tagsSection) {
+    if (tags.length > 0) {
+      tagsSection.innerHTML = `
+        <div class="modal-section-title">${currentLang === 'ar' ? 'الوسوم' : 'Tags'}</div>
+        <div class="modal-tags">${tags.map(tag => `<span class="modal-tag">${tag}</span>`).join('')}</div>
+      `;
+      tagsSection.style.display = 'block';
+    } else {
+      tagsSection.style.display = 'none';
+    }
+  }
+  
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProductModal() {
+  const modal = document.getElementById('productModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+// Close modal on close button click
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-close') || e.target.closest('.modal-close')) {
+    closeProductModal();
+  }
+});
+
+// Close modal on background click
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('productModal');
+  if (modal && e.target === modal) {
+    closeProductModal();
+  }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('productModal');
+    if (modal && modal.classList.contains('active')) {
+      closeProductModal();
+    }
+  }
+});
 
 // Accessibility: trap focus when menu open (simplified)
 document.addEventListener('keydown', e => {

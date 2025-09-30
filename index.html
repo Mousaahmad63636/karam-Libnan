@@ -237,6 +237,37 @@
 
   </div> <!-- End Main Content -->
 
+  <!-- Product Details Modal -->
+  <div id="productModal" class="product-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close modal">&times;</button>
+      
+      <div class="modal-image">
+        <img src="" alt="Product image" />
+      </div>
+      
+      <div class="modal-details">
+        <h2 id="modalTitle" class="modal-title"></h2>
+        <p class="modal-description"></p>
+        
+        <div id="modalIngredients" class="modal-section" style="display: none;">
+          <div class="modal-section-title">Ingredients</div>
+          <div class="modal-list"></div>
+        </div>
+        
+        <div id="modalVariants" class="modal-section" style="display: none;">
+          <div class="modal-section-title">Variants</div>
+          <div class="modal-list"></div>
+        </div>
+        
+        <div id="modalTags" class="modal-section" style="display: none;">
+          <div class="modal-section-title">Tags</div>
+          <div class="modal-tags"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Load Navigation Component -->
   <script>
     // Load navigation component
