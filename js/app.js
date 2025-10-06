@@ -11,8 +11,8 @@ const productsData = [];
 
 // Global main categories storage
 let mainCategories = [
-  { slug: 'single', title_en: 'Single Serve Products', sort_order: 1 },
-  { slug: 'bulk', title_en: 'Bulk Products', sort_order: 2 }
+  { slug: 'single', title_en: 'Lebanese Mouneh', title_ar: 'منتجات لبنانية', description_en: 'Authentic Lebanese homemade products crafted with traditional recipes and the finest natural ingredients.', description_ar: 'منتجات لبنانية أصيلة مصنوعة يدوياً بوصفات تقليدية وأجود المكونات الطبيعية.', sort_order: 1 },
+  { slug: 'bulk', title_en: 'Bulk Products', title_ar: 'منتجات بالجملة', description_en: 'Large quantity products perfect for restaurants, hotels, and wholesale distribution.', description_ar: 'منتجات بكميات كبيرة مثالية للمطاعم والفنادق والتوزيع بالجملة.', sort_order: 2 }
 ];
 
 // Configurable subcategory lists
@@ -507,7 +507,7 @@ function updateMainCategoryDescription() {
     ? currentMainCategory.description_ar 
     : currentMainCategory.description_en || '';
   
-  if (description.trim()) {
+  if (description && description.trim()) {
     descriptionContainer.innerHTML = `<p>${description}</p>`;
     descriptionContainer.classList.add('visible');
   } else {

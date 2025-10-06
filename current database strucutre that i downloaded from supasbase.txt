@@ -20,6 +20,8 @@ CREATE TABLE public.main_categories (
   active boolean DEFAULT true,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  description_en text,
+  description_ar text,
   CONSTRAINT main_categories_pkey PRIMARY KEY (slug)
 );
 CREATE TABLE public.media (
