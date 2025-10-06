@@ -303,24 +303,38 @@ a:hover, a:focus { color: var(--color-secondary); }
 
 /* Main Category Description */
 .main-category-description {
-  margin: 0.5rem 0 1.5rem 0;
+  margin: 0 0 1.5rem 0;
   padding: 1rem 1.5rem;
-  background: var(--gradient-surface);
-  border-radius: var(--radius-md);
-  border-left: 4px solid var(--color-primary);
-  font-size: 1.1rem;
-  line-height: 1.6;
+  background: var(--color-bg-alt);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: var(--color-text-light);
   text-align: center;
   display: none;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .main-category-description.visible {
   display: block;
-  animation: fadeInUp 0.4s ease;
+  animation: slideDown 0.3s ease;
 }
 .main-category-description p {
   margin: 0;
   font-style: italic;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Subcategory filters */
