@@ -1,1001 +1,2421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Karam Libnan</title>
-  <link rel="stylesheet" href="css/styles.css">
-  
-  <!-- Supabase Configuration -->
-  <meta name="supabase-url" content="https://xbznaxiummganlidnmdd.supabase.co">
-  <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs">
-  
-  <style>
-    /* Admin-specific styles */
-    body { 
-      background: #f8f9fa; 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .admin-layout { 
-      display: grid; 
-      grid-template-columns: 260px 1fr; 
-      min-height: 100vh; 
-    }
-    
-    /* Sidebar */
-    .sidebar { 
-      background: linear-gradient(180deg, #1a1d21 0%, #252a30 100%);
-      color: #fff; 
-      padding: 1.5rem 0;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-      position: relative;
-      overflow-y: auto;
-    }
-    
-    .sidebar .logo { 
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem; 
-      font-weight: 700; 
-      letter-spacing: 0.5px;
-      color: #c8102e;
-      padding: 0 1.5rem 2rem;
-      border-bottom: 1px solid #33383f;
-      margin-bottom: 1.5rem;
-    }
-    
-    .sidebar .logo span {
-      color: #fff;
-    }
-    
-    .sidebar nav { 
-      padding: 0 1rem; 
-    }
-    
-    .sidebar nav a { 
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.875rem 1rem; 
-      margin-bottom: 0.5rem; 
-      border-radius: 8px; 
-      color: #d1d5db; 
-      font-weight: 500; 
-      font-size: 0.875rem; 
-      text-decoration: none;
-      transition: all 0.2s ease;
-      border: 1px solid transparent;
-    }
-    
-    .sidebar nav a:hover, 
-    .sidebar nav a:focus { 
-      background: rgba(255,255,255,0.1); 
-      color: #fff; 
-      border-color: rgba(255,255,255,0.1);
-    }
-    
-    .sidebar nav a.active { 
-      background: #c8102e; 
-      color: #fff; 
-      border-color: #c8102e;
-      box-shadow: 0 2px 8px rgba(200, 16, 46, 0.3);
-    }
-    
-    .sidebar nav a .icon {
-      width: 18px;
-      height: 18px;
-      opacity: 0.8;
-    }
-    
-    /* Topbar */
-    .topbar { 
-      background: #fff; 
-      border-bottom: 1px solid #e5e7eb; 
-      height: 64px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      padding: 0 2rem; 
-      position: sticky; 
-      top: 0; 
-      z-index: 50;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .topbar h1 { 
-      font-size: 1.25rem; 
-      font-weight: 600; 
-      margin: 0; 
-      color: #1f2937;
-    }
-    
-    .topbar .user-info { 
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      font-size: 0.875rem; 
-      color: #6b7280; 
-    }
-    
-    .topbar .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #c8102e;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      font-size: 0.75rem;
-    }
-    
-    /* Main content */
-    .main { 
-      padding: 2rem; 
-      overflow-y: auto;
-      max-height: calc(100vh - 64px);
-    }
-    
-    /* Panels */
-    .panel { 
-      background: #fff; 
-      padding: 1.5rem; 
-      border: 1px solid #e5e7eb; 
-      border-radius: 12px; 
-      margin-bottom: 2rem; 
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .panel h2 { 
-      margin: 0 0 1.5rem; 
-      font-size: 1.25rem; 
-      font-weight: 600;
-      color: #1f2937;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    /* Stats cards */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-      background: linear-gradient(135deg, #c8102e 0%, #e53342 100%);
-      color: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(200, 16, 46, 0.2);
-    }
-    
-    .stat-card.secondary {
-      background: linear-gradient(135deg, #5e6b3d 0%, #7c8b4d 100%);
-      box-shadow: 0 4px 12px rgba(94, 107, 61, 0.2);
-    }
-    
-    .stat-card h3 {
-      margin: 0;
-      font-size: 0.875rem;
-      font-weight: 500;
-      opacity: 0.9;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .stat-card .value {
-      font-size: 2rem;
-      font-weight: 700;
-      margin: 0.5rem 0 0;
-    }
-    
-    /* Forms */
-    .form-grid { 
-      display: grid; 
-      gap: 1rem; 
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-    }
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
-    
-    label { 
-      font-weight: 500; 
-      font-size: 0.875rem; 
-      color: #374151;
-      margin-bottom: 0.25rem;
-    }
-    
-    input, select, textarea { 
-      font-size: 0.875rem; 
-      padding: 0.75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      transition: border-color 0.2s ease;
-      font-family: inherit;
-    }
-    
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #c8102e;
-      box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
-    }
-    
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-    
-    /* Buttons */
-    .btn { 
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem; 
-      border: none; 
-      border-radius: 6px; 
-      cursor: pointer; 
-      font-weight: 500; 
-      font-size: 0.875rem; 
-      text-decoration: none;
-      transition: all 0.2s ease;
-      justify-content: center;
-    }
-    
-    .btn-primary { 
-      background: #c8102e; 
-      color: #fff; 
-    }
-    
-    .btn-primary:hover { 
-      background: #a50d26;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(200, 16, 46, 0.3);
-    }
-    
-    .btn-secondary {
-      background: #6b7280;
-      color: #fff;
-    }
-    
-    .btn-secondary:hover {
-      background: #4b5563;
-    }
-    
-    .btn-danger { 
-      background: #dc2626; 
-      color: #fff; 
-    }
-    
-    .btn-danger:hover { 
-      background: #b91c1c; 
-    }
-    
-    .btn-outline {
-      background: transparent;
-      border: 1px solid #d1d5db;
-      color: #374151;
-    }
-    
-    .btn-outline:hover {
-      background: #f9fafb;
-      border-color: #9ca3af;
-    }
-    
-    .btn-sm { 
-      padding: 0.5rem 1rem; 
-      font-size: 0.75rem; 
-    }
-    
-    /* Tables */
-    .table-container {
-      overflow-x: auto;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-    }
-    
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      font-size: 0.875rem;
-      background: white;
-    }
-    
-    thead {
-      background: #f9fafb;
-    }
-    
-    th, td { 
-      padding: 0.75rem; 
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    
-    th {
-      font-weight: 600;
-      color: #374151;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    tbody tr:hover { 
-      background: #f9fafb; 
-    }
-    
-    .table-thumb {
-      width: 40px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .table-title {
-      font-weight: 500;
-      color: #1f2937;
-    }
-    
-    .table-subtitle {
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin-top: 0.25rem;
-    }
-    
-    /* Badges and status */
-    .badge { 
-      display: inline-flex;
-      align-items: center;
-      padding: 0.25rem 0.75rem; 
-      border-radius: 9999px; 
-      font-size: 0.75rem; 
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .badge-single { 
-      background: #dbeafe; 
-      color: #1e40af; 
-    }
-    
-    .badge-bulk { 
-      background: #ecfdf5; 
-      color: #065f46; 
-    }
-    
-    .status-indicator {
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-    
-    .status-indicator.active {
-      color: #059669;
-    }
-    
-    .status-indicator.inactive {
-      color: #6b7280;
-    }
-    
-    .featured-star {
-      color: #f59e0b;
-      font-size: 1.125rem;
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    /* File upload */
-    .file-upload {
-      border: 2px dashed #d1d5db;
-      border-radius: 8px;
-      padding: 1.5rem;
-      text-align: center;
-      transition: border-color 0.2s ease;
-    }
-    
-    .file-upload:hover {
-      border-color: #c8102e;
-    }
-    
-    .file-upload input[type="file"] {
-      margin-bottom: 1rem;
-    }
-    
-    .image-preview {
-      max-width: 120px;
-      max-height: 120px;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      margin-top: 1rem;
-      display: none;
-    }
-    
-    /* Status messages */
-    .status-message {
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
-      margin-top: 1rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-    
-    .status-info {
-      background: #eff6ff;
-      color: #1e40af;
-      border: 1px solid #bfdbfe;
-    }
-    
-    .status-success {
-      background: #ecfdf5;
-      color: #059669;
-      border: 1px solid #a7f3d0;
-    }
-    
-    .status-error {
-      background: #fef2f2;
-      color: #dc2626;
-      border: 1px solid #fecaca;
-    }
-    
-    /* Search */
-    .search-bar {
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-    
-    .search-bar input {
-      width: 100%;
-      padding-left: 2.5rem;
-    }
-    
-    .search-bar::before {
-      content: "🔍";
-      position: absolute;
-      left: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.875rem;
-      opacity: 0.5;
-    }
-    
-    /* Responsive design */
-    @media (max-width: 1024px) {
-      .admin-layout { 
-        grid-template-columns: 1fr; 
-      }
-      
-      .sidebar { 
-        display: none;
-      }
-      
-      .main {
-        padding: 1rem;
-      }
-      
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    
-    /* Utility classes */
-    .hidden { 
-      display: none !important; 
-    }
-    
-    .flex { 
-      display: flex; 
-    }
-    
-    .items-center { 
-      align-items: center; 
-    }
-    
-    .justify-between { 
-      justify-content: space-between; 
-    }
-    
-    .gap-4 { 
-      gap: 1rem; 
-    }
-    
-    .mb-4 { 
-      margin-bottom: 1rem; 
-    }
-    
-    .text-center { 
-      text-align: center; 
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Karam Libnan - Mobile-Friendly Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .mobile-menu-btn:hover {
+            background: #34495e;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 15px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #34495e;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success { background: #27ae60; }
+        .btn-success:hover { background: #219a52; }
+
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { background: #c0392b; }
+
+        .btn-warning { background: #f39c12; }
+        .btn-warning:hover { background: #e67e22; }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+            width: 120px;
+        }
+
+        .actions-cell .btn {
+            margin-right: 4px;
+            padding: 2px 6px;
+        }
+
+        .description-cell {
+            max-width: 200px;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            min-height: 44px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .status-message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+
+        .loading, .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-single {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-bulk {
+            background: #27ae60;
+            color: white;
+        }
+
+        /* Dynamic badge colors for any main category */
+        .badge {
+            background: #6c757d;
+            color: white;
+        }
+
+        .badge[class*="badge-"] {
+            background: #6c757d;
+        }
+
+        /* Tag styling */
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 1px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        /* Specific colors for known categories */
+        .badge-single { background: #3498db !important; }
+        .badge-bulk { background: #27ae60 !important; }
+
+        .status-active {
+            color: #27ae60;
+        }
+
+        .status-inactive {
+            color: #e74c3c;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        /* ================================
+           MOBILE RESPONSIVE STYLES
+           ================================ */
+        
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+                width: 100%;
+                max-width: 100vw;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+                max-width: 80vw;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 10px 20px 10px;
+                width: 100%;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+
+            .section {
+                padding: 12px;
+                margin-bottom: 15px;
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                width: 100%;
+            }
+
+            .section-header h2 {
+                font-size: 16px;
+                word-break: break-word;
+            }
+
+            .section-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 10px 12px;
+                font-size: 13px;
+                min-height: 42px;
+                flex: 1;
+                min-width: 80px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                width: 100%;
+            }
+
+            .stat-card {
+                padding: 12px 8px;
+                min-width: 0;
+            }
+
+            .stat-number {
+                font-size: 18px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+                word-break: break-word;
+            }
+
+            .table-container {
+                margin-top: 15px;
+                border-radius: 6px;
+                border: 1px solid #eee;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 500px;
+                width: 100%;
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 6px 4px;
+                font-size: 11px;
+                word-break: break-word;
+                min-width: 0;
+            }
+
+            th:first-child, td:first-child {
+                position: sticky;
+                left: 0;
+                background: white;
+                z-index: 1;
+            }
+
+            .actions-cell {
+                width: 70px;
+                min-width: 70px;
+                white-space: nowrap;
+            }
+
+            .actions-cell .btn {
+                padding: 3px 5px;
+                font-size: 10px;
+                margin-right: 2px;
+                min-height: 28px;
+                flex: none;
+                min-width: 30px;
+            }
+
+            .modal {
+                padding: 5px;
+                align-items: flex-start;
+            }
+
+            .modal-content {
+                margin: 5px;
+                padding: 12px;
+                max-height: calc(100vh - 10px);
+                width: calc(100vw - 10px);
+                max-width: calc(100vw - 10px);
+                overflow-y: auto;
+            }
+
+            .modal-header {
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+
+            .modal-header h3 {
+                font-size: 14px;
+                word-break: break-word;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .form-group {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+
+            .form-group label {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                padding: 10px;
+                font-size: 16px;
+                width: 100%;
+                max-width: 100%;
+                border-radius: 6px;
+                -webkit-appearance: none;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+                flex: none;
+            }
+
+            .nav-item {
+                padding: 15px 20px;
+                font-size: 15px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                word-break: break-word;
+            }
+
+            .loading, .empty-state {
+                padding: 20px 10px;
+                font-size: 14px;
+                word-break: break-word;
+            }
+
+            .status-message {
+                margin: 8px 0;
+                padding: 10px;
+                font-size: 13px;
+                word-break: break-word;
+            }
+
+            code {
+                word-break: break-all;
+                font-size: 10px;
+            }
+
+            .badge {
+                font-size: 9px;
+                padding: 2px 5px;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 5px 15px 5px;
+            }
+
+            .section {
+                padding: 8px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .section-actions {
+                flex-direction: column;
+            }
+
+            .section-actions .btn {
+                width: 100%;
+                text-align: center;
+                flex: none;
+            }
+
+            .actions-cell {
+                width: 60px;
+                min-width: 60px;
+            }
+
+            .actions-cell .btn {
+                padding: 2px 3px;
+                font-size: 9px;
+                margin-right: 1px;
+                min-width: 25px;
+                min-height: 24px;
+            }
+
+            .stat-number {
+                font-size: 16px;
+            }
+
+            .sidebar {
+                width: 100vw;
+                max-width: 100vw;
+            }
+
+            .modal-content {
+                margin: 2px;
+                padding: 8px;
+                width: calc(100vw - 4px);
+                max-width: calc(100vw - 4px);
+            }
+
+            table {
+                min-width: 400px;
+                font-size: 10px;
+            }
+
+            th, td {
+                padding: 4px 2px;
+                font-size: 10px;
+            }
+        }
+
+        /* Landscape tablet */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Fix for very wide tables */
+        @media (max-width: 768px) {
+            .table-container {
+                position: relative;
+            }
+            
+            .table-container::after {
+                content: '← Scroll to see more →';
+                position: absolute;
+                bottom: 5px;
+                right: 5px;
+                background: rgba(0,0,0,0.7);
+                color: white;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-size: 10px;
+                pointer-events: none;
+                opacity: 0.8;
+            }
+
+            /* Prevent any element from breaking viewport width */
+            *, *::before, *::after {
+                max-width: 100vw;
+                box-sizing: border-box;
+            }
+
+            /* Ensure no elements cause horizontal scroll */
+            .section-header, .section, .main-content, .admin-container {
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+
+            /* Force word wrapping for long text */
+            h1, h2, h3, h4, h5, h6, p, span, div, label {
+                word-wrap: break-word;
+                word-break: break-word;
+                hyphens: auto;
+            }
+
+            /* Fix button text wrapping */
+            .btn {
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Authentication Panel -->
-  <div id="authPanel" class="panel" style="max-width: 400px; margin: 10vh auto; background: white;">>
-    <h2 style="text-align: center; margin-bottom: 2rem;">
-      <span style="color: #c8102e;">Karam</span> <span style="color: #5e6b3d;">Libnan</span>
-      <br><small style="font-size: 0.875rem; font-weight: normal; color: #6b7280;">Admin Dashboard</small>
-    </h2>
-    
-    <form id="loginForm" data-form="login">
-      <div class="form-group">
-        <label for="loginEmail">Email Address</label>
-        <input type="email" id="loginEmail" name="email" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" name="password" required>
-      </div>
-      
-      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-        Sign In
-      </button>
-    </form>
-    
-    <div id="loginStatus" class="status-message"></div>
-  </div>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
 
-  <!-- Main Admin Layout -->
-  <div class="admin-layout">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar hidden">>
-      <div class="logo">Karam <span>Libnan</span></div>
-      <nav>
-        <a href="#" data-section="dashboard" class="active">
-          <span class="icon">📊</span>
-          Dashboard
-        </a>
-        <a href="#" data-section="products">
-          <span class="icon">📦</span>
-          Products
-        </a>
-        <a href="#" data-section="subcategories">
-          <span class="icon">🏷️</span>
-          Categories
-        </a>
-        <a href="#" data-section="sections">
-          <span class="icon">📄</span>
-          Sections
-        </a>
-        <a href="#" data-section="media">
-          <span class="icon">🖼️</span>
-          Media
-        </a>
-        <a href="#" data-action="logout" style="margin-top: auto; border-top: 1px solid #33383f; padding-top: 1rem;">
-          <span class="icon">🚪</span>
-          Logout
-        </a>
-      </nav>
-    </aside>
+    <div class="admin-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <h1>Karam Libnan<br>Mobile Admin</h1>
+            <button class="nav-item active" data-section="dashboard" onclick="closeMobileMenu()">📊 Dashboard</button>
+            <button class="nav-item" data-section="main-categories" onclick="closeMobileMenu()">📂 Main Categories</button>
+            <button class="nav-item" data-section="subcategories" onclick="closeMobileMenu()">📁 Subcategories</button>
+            <button class="nav-item" data-section="products" onclick="closeMobileMenu()">🥫 Products</button>
+            <button class="nav-item" data-section="sections" onclick="closeMobileMenu()">📄 Sections</button>
+            <button class="nav-item" data-section="media" onclick="closeMobileMenu()">🖼️ Media</button>
+        </nav>
 
-    <!-- Main Content -->
-    <main class="main">
-      <!-- Topbar -->
-      <div id="topbar" class="topbar hidden">>
-        <h1>Dashboard</h1>
-        <div class="user-info">
-          <span id="userEmail">admin@example.com</span>
-          <div class="user-avatar">A</div>
-        </div>
-      </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="status-message" class="status-message"></div>
 
-      <!-- Dashboard Section -->
-      <section id="section-dashboard" class="hidden">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <h3>Total Products</h3>
-            <div class="value" id="totalProducts">0</div>
-          </div>
-          <div class="stat-card secondary">
-            <h3>Active Products</h3>
-            <div class="value" id="activeProducts">0</div>
-          </div>
-          <div class="stat-card">
-            <h3>Featured Products</h3>
-            <div class="value" id="featuredProducts">0</div>
-          </div>
-          <div class="stat-card secondary">
-            <h3>Categories</h3>
-            <div class="value" id="totalSubcategories">0</div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h2>📊 Overview</h2>
-          <p>Welcome to the Karam Libnan admin dashboard. Use the sidebar to navigate between different sections and manage your website content.</p>
-          
-          <div class="flex gap-4" style="margin-top: 1.5rem;">
-            <button class="btn btn-primary" data-section="products">
-              Manage Products
-            </button>
-            <button class="btn btn-outline" data-section="subcategories">
-              Manage Categories
-            </button>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h2>🔧 System Status</h2>
-          <div id="systemStatus">
-            <p>Checking database connection...</p>
-          </div>
-          
-          <div class="flex gap-4" style="margin-top: 1rem;">
-            <button class="btn btn-outline btn-sm" onclick="adminManager.checkSystemStatus()">
-              Refresh Status
-            </button>
-            <button class="btn btn-outline btn-sm" onclick="adminManager.initializeDefaultSections()">
-              Initialize Sections
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Products Section -->
-      <section id="section-products" class="hidden">
-        <div class="panel">
-          <div class="flex justify-between items-center mb-4">
-            <h2>📦 Products <span class="badge" id="productCount">0</span></h2>
-            <div class="flex gap-4">
-              <button class="btn btn-outline btn-sm" onclick="adminManager.exportData('products')">
-                Export
-              </button>
-              <button class="btn btn-primary" data-action="new-product">
-                Add Product
-              </button>
-            </div>
-          </div>
-          
-          <div class="search-bar">
-            <input type="text" placeholder="Search products..." data-search="products">
-          </div>
-          
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Image</th>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Category</th>
-                  <th>Status</th>
-                  <th>Featured</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="productsTableBody">
-                <tr>
-                  <td colspan="7" class="text-center">Loading products...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div id="productsStatus" class="status-message"></div>
-        </div>
-
-        <!-- Product Form Panel -->
-        <div id="productFormPanel" class="panel hidden">
-          <h2 id="productFormTitle">New Product</h2>
-          
-          <form id="productForm" data-form="product">
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="productNameEn">Name (English)</label>
-                <input type="text" id="productNameEn" name="name_en" required>
-              </div>
-              
-              <div class="form-group">
-                <label for="productNameAr">Name (Arabic)</label>
-                <input type="text" id="productNameAr" name="name_ar">
-              </div>
-              
-              <div class="form-group">
-                <label for="productMainType">Main Type</label>
-                <select id="productMainType" name="main_type" required>
-                  <option value="single">Single Serve</option>
-                  <option value="bulk">Bulk</option>
-                </select>
-              </div>
-              
-              <div class="form-group">
-                <label for="productSubcategory">Subcategory</label>
-                <select id="productSubcategory" name="sub_slug">
-                  <option value="">Select subcategory</option>
-                </select>
-              </div>
-              
-              <div class="form-group full-width">
-                <label for="productDescriptionEn">Description (English)</label>
-                <textarea id="productDescriptionEn" name="description_en"></textarea>
-              </div>
-              
-              <div class="form-group full-width">
-                <label for="productDescriptionAr">Description (Arabic)</label>
-                <textarea id="productDescriptionAr" name="description_ar"></textarea>
-              </div>
-              
-              <div class="form-group full-width">
-                <label for="productIngredients">Ingredients (JSON array)</label>
-                <input type="text" id="productIngredients" name="ingredients" placeholder='["ingredient1", "ingredient2"]'>
-              </div>
-              
-              <div class="form-group full-width">
-                <label>Product Image</label>
-                <div class="file-upload">
-                  <input type="file" name="image_file" accept="image/*" data-preview="productImagePreview">
-                  <div>Choose image file (JPEG, PNG, max 4MB)</div>
-                  <img id="productImagePreview" class="image-preview" alt="Preview">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h2>📊 Dashboard</h2>
+                    <button class="btn" onclick="loadDashboard()">🔄 Refresh</button>
                 </div>
-              </div>
-              
-              <div class="form-group full-width">
-                <label>Display Sections</label>
-                <div id="sectionCheckboxes" class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
-                  <!-- Section checkboxes will be populated dynamically -->
+                <div id="dashboard-stats" class="stats-grid">
+                    <div class="loading">Loading dashboard stats...</div>
                 </div>
-              </div>
-              
-              <div class="form-group">
-                <label>
-                  <input type="checkbox" name="featured"> Featured Product
-                </label>
-              </div>
-              
-              <div class="form-group">
-                <label>
-                  <input type="checkbox" name="active" checked> Active
-                </label>
-              </div>
+            </section>
+
+            <!-- Main Categories Section -->
+            <section id="main-categories" class="section">
+                <div class="section-header">
+                    <h2>📂 Main Categories</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddMainCategoryModal()">➕ Add</button>
+                        <button class="btn" onclick="loadMainCategories()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="main-categories-table" class="table-container">
+                    <div class="loading">Loading main categories...</div>
+                </div>
+            </section>
+
+            <!-- Subcategories Section -->
+            <section id="subcategories" class="section">
+                <div class="section-header">
+                    <h2>📁 Subcategories</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddSubcategoryModal()">➕ Add</button>
+                        <button class="btn" onclick="loadSubcategories()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="subcategories-table" class="table-container">
+                    <div class="loading">Loading subcategories...</div>
+                </div>
+            </section>
+
+            <!-- Products Section -->
+            <section id="products" class="section">
+                <div class="section-header">
+                    <h2>🥫 Products</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddProductModal()">➕ Add</button>
+                        <button class="btn" onclick="loadProducts()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="products-table" class="table-container">
+                    <div class="loading">Loading products...</div>
+                </div>
+            </section>
+
+            <!-- Sections Section -->
+            <section id="sections" class="section">
+                <div class="section-header">
+                    <h2>📄 Website Sections</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddSectionModal()">➕ Add</button>
+                        <button class="btn" onclick="loadSections()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="sections-table" class="table-container">
+                    <div class="loading">Loading sections...</div>
+                </div>
+            </section>
+
+            <!-- Media Section -->
+            <section id="media" class="section">
+                <div class="section-header">
+                    <h2>🖼️ Media Files</h2>
+                    <div class="section-actions">
+                        <button class="btn" onclick="loadMedia()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="media-table" class="table-container">
+                    <div class="loading">Loading media...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal Title</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
+            <div id="modal-body">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/supabaseClient.js';
+        
+        // Mobile Navigation Functions
+        window.toggleMobileMenu = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        window.closeMobileMenu = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('open');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
             
-            <div class="flex gap-4" style="margin-top: 1.5rem;">
-              <button type="submit" class="btn btn-primary">Save Product</button>
-              <button type="button" class="btn btn-secondary" data-action="cancel-product">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </section>
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !menuBtn.contains(e.target) && 
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
 
-      <!-- Subcategories Section -->
-      <section id="section-subcategories" class="hidden">
-        <div class="panel">
-          <div class="flex justify-between items-center mb-4">
-            <h2>🏷️ Subcategories <span class="badge" id="subcategoryCount">0</span></h2>
-            <div class="flex gap-4">
-              <button class="btn btn-outline btn-sm" data-action="import-subcategories">
-                Import from App.js
-              </button>
-              <button class="btn btn-outline btn-sm" onclick="adminManager.exportData('subcategories')">
-                Export
-              </button>
-              <button class="btn btn-primary" data-action="new-subcategory">
-                Add Category
-              </button>
-            </div>
-          </div>
-          
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Banner</th>
-                  <th>Title</th>
-                  <th>Slug</th>
-                  <th>Type</th>
-                  <th>Order</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="subcategoriesTableBody">
-                <tr>
-                  <td colspan="7" class="text-center">Loading subcategories...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div id="subcategoriesStatus" class="status-message"></div>
-        </div>
+        // Prevent horizontal scrolling on mobile
+        document.addEventListener('touchmove', function(e) {
+            if (window.innerWidth <= 768) {
+                const target = e.target.closest('.table-container');
+                if (!target) {
+                    // Allow vertical scrolling but prevent horizontal body scroll
+                    if (e.touches.length === 1) {
+                        e.preventDefault;
+                    }
+                }
+            }
+        }, { passive: false });
 
-        <!-- Subcategory Form Panel -->
-        <div id="subcategoryFormPanel" class="panel hidden">
-          <h2 id="subcategoryFormTitle">New Subcategory</h2>
-          
-          <form id="subcategoryForm" data-form="subcategory">
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="subcategorySlug">Slug</label>
-                <input type="text" id="subcategorySlug" name="slug" required placeholder="e.g., fresh-veges">
-              </div>
-              
-              <div class="form-group">
-                <label for="subcategoryType">Category Type</label>
-                <select id="subcategoryType" name="category_type" required>
-                  <option value="single">Single Serve</option>
-                  <option value="bulk">Bulk</option>
-                </select>
-              </div>
-              
-              <div class="form-group">
-                <label for="subcategoryTitleEn">Title (English)</label>
-                <input type="text" id="subcategoryTitleEn" name="title_en" required>
-              </div>
-              
-              <div class="form-group">
-                <label for="subcategoryTitleAr">Title (Arabic)</label>
-                <input type="text" id="subcategoryTitleAr" name="title_ar">
-              </div>
-              
-              <div class="form-group">
-                <label for="subcategorySortOrder">Sort Order</label>
-                <input type="number" id="subcategorySortOrder" name="sort_order" value="0">
-              </div>
-              
-              <div class="form-group">
-                <label>
-                  <input type="checkbox" name="active" checked> Active
-                </label>
-              </div>
-              
-              <div class="form-group full-width">
-                <label>Banner Image</label>
-                <div class="file-upload">
-                  <input type="file" name="banner_file" accept="image/*" data-preview="subcategoryBannerPreview">
-                  <div>Choose banner image (JPEG, PNG, max 4MB)</div>
-                  <img id="subcategoryBannerPreview" class="image-preview" alt="Preview">
-                </div>
-              </div>
-            </div>
-            
-            <div class="flex gap-4" style="margin-top: 1.5rem;">
-              <button type="submit" class="btn btn-primary">Save Subcategory</button>
-              <button type="button" class="btn btn-secondary" data-action="cancel-subcategory">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </section>
+        // Ensure viewport width is maintained
+        function ensureViewportWidth() {
+            if (window.innerWidth <= 768) {
+                document.body.style.maxWidth = '100vw';
+                document.body.style.overflowX = 'hidden';
+                
+                // Fix any elements that might be too wide
+                const wideElements = document.querySelectorAll('table, .section, .main-content');
+                wideElements.forEach(el => {
+                    if (el.scrollWidth > window.innerWidth) {
+                        el.style.maxWidth = '100vw';
+                        el.style.overflowX = 'auto';
+                    }
+                });
+            }
+        }
 
-      <!-- Sections Section -->
-      <section id="section-sections" class="hidden">
-        <div class="panel">
-          <div class="flex justify-between items-center mb-4">
-            <h2>📄 Content Sections <span class="badge" id="sectionCount">0</span></h2>
-            <div class="flex gap-2">
-              <button class="btn btn-secondary btn-sm" data-action="init-core-sections" title="Add missing core sections to database">
-                Initialize Core Sections
-              </button>
-              <button class="btn btn-warning btn-sm" data-action="cleanup-sections" title="Remove duplicate/orphaned sections">
-                Cleanup Sections
-              </button>
-              <button class="btn btn-primary" data-action="new-section">
-                Add Section
-              </button>
-            </div>
-          </div>
-          
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Key</th>
-                  <th>Title</th>
-                  <th>Image</th>
-                  <th>Updated</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="sectionsTableBody">
-                <tr>
-                  <td colspan="5" class="text-center">Loading sections...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div id="sectionsStatus" class="status-message"></div>
-        </div>
+        // Run on load and resize
+        window.addEventListener('load', ensureViewportWidth);
+        window.addEventListener('resize', ensureViewportWidth);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(ensureViewportWidth, 100);
+        });
 
-        <!-- Section Form Panel -->
-        <div id="sectionFormPanel" class="panel hidden">
-          <h2 id="sectionFormTitle">New Section</h2>
-          
-          <form id="sectionForm" data-form="section">
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="sectionKey">Section Key</label>
-                <input type="text" id="sectionKey" name="key" required placeholder="e.g., hero, about">
-              </div>
-              
-              <div class="form-group">
-                <label for="sectionTitleEn">Title (English)</label>
-                <input type="text" id="sectionTitleEn" name="title_en">
-              </div>
-              
-              <div class="form-group">
-                <label for="sectionTitleAr">Title (Arabic)</label>
-                <input type="text" id="sectionTitleAr" name="title_ar">
-              </div>
-              
-              <div class="form-group full-width">
-                <label for="sectionContentEn">Content (English)</label>
-                <textarea id="sectionContentEn" name="content_en" rows="4"></textarea>
-              </div>
-              
-              <div class="form-group full-width">
-                <label for="sectionContentAr">Content (Arabic)</label>
-                <textarea id="sectionContentAr" name="content_ar" rows="4"></textarea>
-              </div>
-              
-              <div class="form-group full-width">
-                <label>Section Image</label>
-                <div class="file-upload">
-                  <input type="file" name="image_file" accept="image/*" data-preview="sectionImagePreview">
-                  <div>Choose section image (JPEG, PNG, max 4MB)</div>
-                  <img id="sectionImagePreview" class="image-preview" alt="Preview">
-                </div>
-              </div>
-            </div>
-            
-            <div class="flex gap-4" style="margin-top: 1.5rem;">
-              <button type="submit" class="btn btn-primary">Save Section</button>
-              <button type="button" class="btn btn-secondary" data-action="cancel-section">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </section>
+        // Admin Panel Manager with Full CRUD + Mobile Support
+        class FullCrudAdmin {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.editingItem = null;
+                this.init();
+            }
 
-      <!-- Media Section -->
-      <section id="section-media" class="hidden">
-        <div class="panel">
-          <h2>🖼️ Media Management</h2>
-          <p>Manage uploaded images and media files.</p>
-          
-          <div class="flex gap-4 mb-4">
-            <button class="btn btn-primary" onclick="adminManager.showUploadDialog()">
-              Upload New Image
-            </button>
-            <button class="btn btn-outline" onclick="adminManager.refreshMediaLibrary()">
-              Refresh Library
-            </button>
-          </div>
-          
-          <div id="mediaLibrary">
-            <p>Loading media files...</p>
-          </div>
-          
-          <div id="mediaStatus" class="status-message"></div>
-        </div>
-      </section>
-    </main>
-  </div>
+            init() {
+                console.log('🚀 Initializing Full CRUD Admin Panel...');
+                this.setupEventListeners();
+                this.testConnection();
+                
+                // Auto-load dashboard immediately
+                this.loadDashboard();
+                
+                // Optional: Auto-refresh dashboard every 30 seconds
+                setInterval(() => {
+                    if (this.currentSection === 'dashboard') {
+                        this.loadDashboard();
+                    }
+                }, 30000);
+            }
 
-  <!-- Supabase and Admin Scripts -->
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    const SUPABASE_URL = document.querySelector('meta[name="supabase-url"]').content;
-    const SUPABASE_ANON_KEY = document.querySelector('meta[name="supabase-anon-key"]').content;
-    window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
-    window.createSupabaseClient = (url,key) => createClient(url,key);
-    window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  </script>
-  
-  <script src="js/admin.js" defer></script>
+            setupEventListeners() {
+                // Navigation clicks
+                document.querySelectorAll('[data-section]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const section = e.target.dataset.section;
+                        this.showSection(section);
+                    });
+                });
+
+                // Modal close on background click
+                document.getElementById('modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'modal') {
+                        this.closeModal();
+                    }
+                });
+
+                // Handle orientation change
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        if (window.innerWidth > 768) {
+                            document.getElementById('sidebar').classList.remove('open');
+                        }
+                    }, 100);
+                });
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 768) {
+                        document.getElementById('sidebar').classList.remove('open');
+                    }
+                });
+            }
+
+            showSection(section) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                document.getElementById(section).classList.add('active');
+
+                this.currentSection = section;
+                console.log(`📄 Switched to ${section} section`);
+
+                // Auto-load data when switching sections
+                this.autoLoadSectionData(section);
+
+                // Close mobile menu after selection
+                if (window.innerWidth <= 768) {
+                    setTimeout(() => {
+                        document.getElementById('sidebar').classList.remove('open');
+                    }, 300);
+                }
+            }
+
+            autoLoadSectionData(section) {
+                switch (section) {
+                    case 'dashboard':
+                        this.loadDashboard();
+                        break;
+                    case 'main-categories':
+                        this.loadMainCategories();
+                        break;
+                    case 'subcategories':
+                        this.loadSubcategories();
+                        break;
+                    case 'products':
+                        this.loadProducts();
+                        break;
+                    case 'sections':
+                        this.loadSections();
+                        break;
+                    case 'media':
+                        this.loadMedia();
+                        break;
+                }
+            }
+
+            // Auto-refresh current section and dashboard after any data change
+            refreshCurrentData() {
+                this.loadDashboard(); // Always refresh dashboard stats
+                this.autoLoadSectionData(this.currentSection); // Refresh current section
+            }
+
+            async testConnection() {
+                try {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('id')
+                        .limit(1);
+                    
+                    if (error) {
+                        this.showMessage('❌ Connection failed: ' + error.message, 'error');
+                        return false;
+                    }
+                    
+                    this.showMessage('✅ Database connection successful', 'success');
+                    return true;
+                } catch (err) {
+                    this.showMessage('❌ Connection error: ' + err.message, 'error');
+                    return false;
+                }
+            }
+
+            showMessage(message, type = 'success', duration = 4000) {
+                const statusEl = document.getElementById('status-message');
+                statusEl.textContent = message;
+                statusEl.className = `status-message status-${type}`;
+                statusEl.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, duration);
+            }
+
+            openModal(title, content) {
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-body').innerHTML = content;
+                document.getElementById('modal').classList.add('show');
+                
+                // Prevent body scrolling when modal is open
+                document.body.style.overflow = 'hidden';
+            }
+
+            closeModal() {
+                document.getElementById('modal').classList.remove('show');
+                this.editingItem = null;
+                
+                // Re-enable body scrolling
+                document.body.style.overflow = '';
+            }
+
+            // DASHBOARD
+            async loadDashboard() {
+                const container = document.getElementById('dashboard-stats');
+                container.innerHTML = '<div class="loading">Loading stats...</div>';
+
+                try {
+                    const [productsData, subcategoriesData, mainCategoriesData, sectionsData] = await Promise.all([
+                        supabase.from('products').select('id, active, featured'),
+                        supabase.from('subcategories').select('slug, active'),
+                        supabase.from('main_categories').select('slug, active'),
+                        supabase.from('sections').select('key')
+                    ]);
+
+                    const stats = {
+                        products: productsData.data?.length || 0,
+                        activeProducts: productsData.data?.filter(p => p.active).length || 0,
+                        featuredProducts: productsData.data?.filter(p => p.featured).length || 0,
+                        subcategories: subcategoriesData.data?.length || 0,
+                        mainCategories: mainCategoriesData.data?.length || 0,
+                        sections: sectionsData.data?.length || 0
+                    };
+
+                    container.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.products}</div>
+                            <div class="stat-label">Total Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.activeProducts}</div>
+                            <div class="stat-label">Active Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.featuredProducts}</div>
+                            <div class="stat-label">Featured Products</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.subcategories}</div>
+                            <div class="stat-label">Subcategories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.mainCategories}</div>
+                            <div class="stat-label">Main Categories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.sections}</div>
+                            <div class="stat-label">Website Sections</div>
+                        </div>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading dashboard</div>';
+                    this.showMessage('Dashboard error: ' + error.message, 'error');
+                }
+            }
+
+            // MAIN CATEGORIES CRUD
+            async loadMainCategories() {
+                const container = document.getElementById('main-categories-table');
+                container.innerHTML = '<div class="loading">Loading main categories...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('main_categories')
+                        .select('*')
+                        .order('sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No main categories found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Slug</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Description (EN)</th>
+                                    <th>Description (AR)</th>
+                                    <th>Sort</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(cat => `
+                                    <tr>
+                                        <td><code>${cat.slug}</code></td>
+                                        <td>${cat.title_en || ''}</td>
+                                        <td>${cat.title_ar || ''}</td>
+                                        <td class="description-cell">${cat.description_en ? cat.description_en.substring(0, 50) + (cat.description_en.length > 50 ? '...' : '') : ''}</td>
+                                        <td class="description-cell">${cat.description_ar ? cat.description_ar.substring(0, 50) + (cat.description_ar.length > 50 ? '...' : '') : ''}</td>
+                                        <td>${cat.sort_order}</td>
+                                        <td class="status-${cat.active ? 'active' : 'inactive'}">
+                                            ${cat.active ? '✅ Active' : '❌ Inactive'}
+                                        </td>
+                                        <td>${new Date(cat.created_at).toLocaleDateString()}</td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editMainCategory('${cat.slug}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMainCategory('${cat.slug}')">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading main categories</div>';
+                    this.showMessage('Main categories error: ' + error.message, 'error');
+                }
+            }
+
+            showAddMainCategoryModal() {
+                const content = `
+                    <form id="main-category-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="slug">Slug*</label>
+                                <input type="text" id="slug" name="slug" required placeholder="e.g., premium">
+                            </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_en">Title (English)*</label>
+                                <input type="text" id="title_en" name="title_en" required placeholder="Premium Products">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_ar">Title (Arabic)</label>
+                                <input type="text" id="title_ar" name="title_ar" placeholder="منتجات مميزة">
+                            </div>
+                            <div class="form-group">
+                                <label for="description_en">Description (English)</label>
+                                <textarea id="description_en" name="description_en" rows="3" placeholder="Brief description of this category..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="description_ar">Description (Arabic)</label>
+                                <textarea id="description_ar" name="description_ar" rows="3" placeholder="وصف مختصر لهذه الفئة..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="active">Status</label>
+                                <select id="active" name="active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Category</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Main Category', content);
+                
+                document.getElementById('main-category-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveMainCategory();
+                };
+            }
+
+            async saveMainCategory() {
+                const form = document.getElementById('main-category-form');
+                const formData = new FormData(form);
+                
+                const data = {
+                    slug: formData.get('slug'),
+                    title_en: formData.get('title_en'),
+                    title_ar: formData.get('title_ar') || null,
+                    description_en: formData.get('description_en') || null,
+                    description_ar: formData.get('description_ar') || null,
+                    sort_order: parseInt(formData.get('sort_order')) || 0,
+                    active: formData.get('active') === 'true'
+                };
+
+                try {
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('main_categories')
+                            .update(data)
+                            .eq('slug', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Main category updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('main_categories')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Main category created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    
+                    // Auto-refresh data after successful operation
+                    this.loadMainCategories();
+                    this.loadDashboard(); // Update dashboard stats too
+                    
+                } catch (error) {
+                    this.showMessage('❌ Error saving main category: ' + error.message, 'error');
+                }
+            }
+
+            async editMainCategory(slug) {
+                try {
+                    const { data, error } = await supabase
+                        .from('main_categories')
+                        .select('*')
+                        .eq('slug', slug)
+                        .single();
+
+                    if (error) throw error;
+
+                    this.editingItem = slug;
+                    
+                    const content = `
+                        <form id="main-category-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="slug">Slug*</label>
+                                    <input type="text" id="slug" name="slug" value="${data.slug}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${data.sort_order || 0}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_en">Title (English)*</label>
+                                    <input type="text" id="title_en" name="title_en" value="${data.title_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_ar">Title (Arabic)</label>
+                                    <input type="text" id="title_ar" name="title_ar" value="${data.title_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="description_en">Description (English)</label>
+                                    <textarea id="description_en" name="description_en" rows="3" placeholder="Brief description of this category...">${data.description_en || ''}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description_ar">Description (Arabic)</label>
+                                    <textarea id="description_ar" name="description_ar" rows="3" placeholder="وصف مختصر لهذه الفئة...">${data.description_ar || ''}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="active">Status</label>
+                                    <select id="active" name="active">
+                                        <option value="true" ${data.active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!data.active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Category</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Main Category', content);
+                    
+                    document.getElementById('main-category-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveMainCategory();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading main category: ' + error.message, 'error');
+                }
+            }
+
+            async deleteMainCategory(slug) {
+                if (!confirm(`Are you sure you want to delete the main category "${slug}"?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('main_categories')
+                        .delete()
+                        .eq('slug', slug);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Main category deleted successfully!', 'success');
+                    this.loadMainCategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting main category: ' + error.message, 'error');
+                }
+            }
+
+            // SUBCATEGORIES CRUD
+            async loadSubcategories() {
+                const container = document.getElementById('subcategories-table');
+                container.innerHTML = '<div class="loading">Loading subcategories...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('subcategories')
+                        .select('*')
+                        .order('category_type, sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No subcategories found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Slug</th>
+                                    <th>Main Category</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Sort</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(sub => `
+                                    <tr>
+                                        <td><code>${sub.slug}</code></td>
+                                        <td><span class="badge badge-${sub.category_type}">${sub.category_type}</span></td>
+                                        <td>${sub.title_en || ''}</td>
+                                        <td>${sub.title_ar || ''}</td>
+                                        <td>${sub.sort_order}</td>
+                                        <td class="status-${sub.active ? 'active' : 'inactive'}">
+                                            ${sub.active ? '✅' : '❌'}
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editSubcategory('${sub.slug}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSubcategory('${sub.slug}')">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading subcategories</div>';
+                    this.showMessage('Subcategories error: ' + error.message, 'error');
+                }
+            }
+
+            async showAddSubcategoryModal() {
+                // First load main categories for the dropdown
+                const { data: mainCategories } = await supabase
+                    .from('main_categories')
+                    .select('slug, title_en')
+                    .eq('active', true)
+                    .order('sort_order');
+
+                const categoryOptions = mainCategories?.map(cat => 
+                    `<option value="${cat.slug}">${cat.title_en} (${cat.slug})</option>`
+                ).join('') || '';
+
+                const content = `
+                    <form id="subcategory-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="slug">Slug*</label>
+                                <input type="text" id="slug" name="slug" required placeholder="e.g., premium-olives">
+                            </div>
+                            <div class="form-group">
+                                <label for="category_type">Main Category*</label>
+                                <select id="category_type" name="category_type" required>
+                                    <option value="">Select Main Category</option>
+                                    ${categoryOptions}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="title_en">Title (English)*</label>
+                                <input type="text" id="title_en" name="title_en" required placeholder="Premium Olives">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_ar">Title (Arabic)</label>
+                                <input type="text" id="title_ar" name="title_ar" placeholder="زيتون مميز">
+                            </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="active">Status</label>
+                                <select id="active" name="active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Subcategory</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Subcategory', content);
+                
+                document.getElementById('subcategory-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveSubcategory();
+                };
+            }
+
+            async saveSubcategory() {
+                const form = document.getElementById('subcategory-form');
+                const formData = new FormData(form);
+                
+                const data = {
+                    slug: formData.get('slug'),
+                    category_type: formData.get('category_type'),
+                    title_en: formData.get('title_en'),
+                    title_ar: formData.get('title_ar') || null,
+                    sort_order: parseInt(formData.get('sort_order')) || 0,
+                    active: formData.get('active') === 'true'
+                };
+
+                try {
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('subcategories')
+                            .update(data)
+                            .eq('slug', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Subcategory updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('subcategories')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Subcategory created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadSubcategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving subcategory: ' + error.message, 'error');
+                }
+            }
+
+            async editSubcategory(slug) {
+                try {
+                    const [subcategoryResult, mainCategoriesResult] = await Promise.all([
+                        supabase.from('subcategories').select('*').eq('slug', slug).single(),
+                        supabase.from('main_categories').select('slug, title_en').eq('active', true).order('sort_order')
+                    ]);
+
+                    if (subcategoryResult.error) throw subcategoryResult.error;
+
+                    const subcategory = subcategoryResult.data;
+                    const mainCategories = mainCategoriesResult.data || [];
+
+                    this.editingItem = slug;
+
+                    const categoryOptions = mainCategories.map(cat => 
+                        `<option value="${cat.slug}" ${subcategory.category_type === cat.slug ? 'selected' : ''}>${cat.title_en} (${cat.slug})</option>`
+                    ).join('');
+                    
+                    const content = `
+                        <form id="subcategory-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="slug">Slug*</label>
+                                    <input type="text" id="slug" name="slug" value="${subcategory.slug}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="category_type">Main Category*</label>
+                                    <select id="category_type" name="category_type" required>
+                                        <option value="">Select Main Category</option>
+                                        ${categoryOptions}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_en">Title (English)*</label>
+                                    <input type="text" id="title_en" name="title_en" value="${subcategory.title_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_ar">Title (Arabic)</label>
+                                    <input type="text" id="title_ar" name="title_ar" value="${subcategory.title_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${subcategory.sort_order || 0}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="active">Status</label>
+                                    <select id="active" name="active">
+                                        <option value="true" ${subcategory.active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!subcategory.active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Subcategory</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Subcategory', content);
+                    
+                    document.getElementById('subcategory-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveSubcategory();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading subcategory: ' + error.message, 'error');
+                }
+            }
+
+            async deleteSubcategory(slug) {
+                if (!confirm(`Are you sure you want to delete the subcategory "${slug}"?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('subcategories')
+                        .delete()
+                        .eq('slug', slug);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Subcategory deleted successfully!', 'success');
+                    this.loadSubcategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting subcategory: ' + error.message, 'error');
+                }
+            }
+
+            // PRODUCTS CRUD
+            async loadProducts() {
+                const container = document.getElementById('products-table');
+                container.innerHTML = '<div class="loading">Loading products...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('products')
+                        .select('*')
+                        .order('id');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No products found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name (EN)</th>
+                                    <th>Name (AR)</th>
+                                    <th>Main Category</th>
+                                    <th>Subcategory</th>
+                                    <th>Variants</th>
+                                    <th>Tags</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(product => `
+                                    <tr>
+                                        <td><strong>#${product.id}</strong></td>
+                                        <td>${product.name_en || ''} ${product.featured ? '⭐' : ''}</td>
+                                        <td>${product.name_ar || ''}</td>
+                                        <td><span class="badge badge-${product.main_type}">${product.main_type}</span></td>
+                                        <td><code>${product.sub_slug || '-'}</code></td>
+                                        <td>${product.variants && product.variants.length > 0 ? product.variants.join(', ') : '-'}</td>
+                                        <td>${product.tags && product.tags.length > 0 ? product.tags.map(tag => `<span class="tag">${tag}</span>`).join(' ') : '-'}</td>
+                                        <td class="status-${product.active ? 'active' : 'inactive'}">
+                                            ${product.active ? '✅' : '❌'}
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editProduct(${product.id})">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading products</div>';
+                    this.showMessage('Products error: ' + error.message, 'error');
+                }
+            }
+
+            async showAddProductModal() {
+                // Load both subcategories and main categories for the dropdowns
+                const [subcategoriesResult, mainCategoriesResult] = await Promise.all([
+                    supabase.from('subcategories').select('slug, title_en, category_type').eq('active', true).order('category_type, sort_order'),
+                    supabase.from('main_categories').select('slug, title_en').eq('active', true).order('sort_order')
+                ]);
+
+                const subcategoryOptions = subcategoriesResult.data?.map(sub => 
+                    `<option value="${sub.slug}">${sub.title_en} [${sub.category_type}]</option>`
+                ).join('') || '';
+
+                const mainCategoryOptions = mainCategoriesResult.data?.map(cat => 
+                    `<option value="${cat.slug}">${cat.title_en}</option>`
+                ).join('') || '';
+
+                const content = `
+                    <form id="product-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="name_en">Name (English)*</label>
+                                <input type="text" id="name_en" name="name_en" required placeholder="Premium Olive Oil">
+                            </div>
+                            <div class="form-group">
+                                <label for="name_ar">Name (Arabic)</label>
+                                <input type="text" id="name_ar" name="name_ar" placeholder="زيت زيتون مميز">
+                            </div>
+                            <div class="form-group">
+                                <label for="main_type">Main Category*</label>
+                                <select id="main_type" name="main_type" required>
+                                    <option value="">Select Main Category</option>
+                                    ${mainCategoryOptions}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sub_slug">Subcategory</label>
+                                <select id="sub_slug" name="sub_slug">
+                                    <option value="">Select Subcategory</option>
+                                    ${subcategoryOptions}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="image_file">Product Image</label>
+                                <input type="file" id="image_file" name="image_file" accept="image/*" onchange="previewImage(this)">
+                                <small>Choose image file (JPEG, PNG, WebP, GIF - max 5MB)</small>
+                                <img id="image_preview" style="max-width: 200px; max-height: 150px; margin-top: 10px; display: none;" alt="Preview">
+                            </div>
+                            <div class="form-group">
+                                <label for="featured">Featured</label>
+                                <select id="featured" name="featured">
+                                    <option value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="active">Status</label>
+                                <select id="active" name="active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="999" min="1">
+                                <small>Lower numbers appear first (default: 999)</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description_en">Description (English)</label>
+                            <textarea id="description_en" name="description_en" placeholder="Product description in English"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="description_ar">Description (Arabic)</label>
+                            <textarea id="description_ar" name="description_ar" placeholder="وصف المنتج بالعربية"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="ingredients">Ingredients (English)</label>
+                            <input type="text" id="ingredients" name="ingredients" placeholder="cucumber, vinegar, salt, turmeric (separate by commas)">
+                            <small>Enter ingredients separated by commas (e.g., cucumber, vinegar, salt)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="ingredients_ar">Ingredients (Arabic)</label>
+                            <input type="text" id="ingredients_ar" name="ingredients_ar" placeholder="خيار، خل، ملح، كركم (فصل بالفواصل)">
+                            <small>Enter Arabic ingredients separated by commas</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="variants">Variants (English)</label>
+                            <input type="text" id="variants" name="variants" placeholder="large, small, 500ml, 1L (separate by commas)">
+                            <small>Enter product variants separated by commas (e.g., large, small, 500ml)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="variants_ar">Variants (Arabic)</label>
+                            <input type="text" id="variants_ar" name="variants_ar" placeholder="كبير، صغير، 500مل، 1لتر (فصل بالفواصل)">
+                            <small>Enter Arabic variants separated by commas</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="tags">Special Tags (English)</label>
+                            <input type="text" id="tags" name="tags" placeholder="organic, fresh, premium, halal (separate by commas)">
+                            <small>Enter special tags separated by commas (e.g., organic, fresh, premium)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="tags_ar">Special Tags (Arabic)</label>
+                            <input type="text" id="tags_ar" name="tags_ar" placeholder="عضوي، طازج، مميز، حلال (فصل بالفواصل)">
+                            <small>Enter Arabic special tags separated by commas</small>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Product</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Product', content);
+                
+                document.getElementById('product-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveProduct();
+                };
+            }
+
+            async uploadImageToStorage(file) {
+                try {
+                    // Generate unique filename
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+                    const filePath = `products/${fileName}`;
+                    
+                    // Upload to Supabase Storage
+                    const { data, error } = await supabase.storage
+                        .from('images')
+                        .upload(filePath, file);
+                        
+                    if (error) throw error;
+                    
+                    // Get public URL
+                    const { data: urlData } = supabase.storage
+                        .from('images')
+                        .getPublicUrl(filePath);
+                        
+                    return urlData.publicUrl;
+                    
+                } catch (error) {
+                    console.error('Image upload error:', error);
+                    throw new Error(`Image upload failed: ${error.message}`);
+                }
+            }
+
+            parseTags(tagsString) {
+                if (!tagsString || tagsString.trim() === '') return [];
+                // Split by comma, trim whitespace, filter empty strings, convert to lowercase for consistency
+                return tagsString.split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0)
+                    .map(tag => tag.toLowerCase());
+            }
+
+            async saveProduct() {
+                const form = document.getElementById('product-form');
+                const formData = new FormData(form);
+                
+                try {
+                    // Handle image upload first if file selected
+                    let imageUrl = null;
+                    const imageFile = formData.get('image_file');
+                    if (imageFile && imageFile.size > 0) {
+                        this.showMessage('📤 Uploading image...', 'info');
+                        imageUrl = await this.uploadImageToStorage(imageFile);
+                    }
+                    
+                    const data = {
+                        name_en: formData.get('name_en'),
+                        name_ar: formData.get('name_ar') || null,
+                        description_en: formData.get('description_en') || null,
+                        description_ar: formData.get('description_ar') || null,
+                        main_type: formData.get('main_type'),
+                        sub_slug: formData.get('sub_slug') || null,
+                        ingredients: this.parseTags(formData.get('ingredients')),
+                        ingredients_ar: this.parseTags(formData.get('ingredients_ar')),
+                        variants: this.parseTags(formData.get('variants')),
+                        variants_ar: this.parseTags(formData.get('variants_ar')),
+                        featured: formData.get('featured') === 'true',
+                        active: formData.get('active') === 'true',
+                        tags: this.parseTags(formData.get('tags')),
+                        tags_ar: this.parseTags(formData.get('tags_ar')),
+                        sort_order: parseInt(formData.get('sort_order')) || 999
+                    };
+                    
+                    // Add image URL if uploaded (for new products or when replacing existing image)
+                    if (imageUrl) {
+                        data.image_url = imageUrl;
+                    }
+
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('products')
+                            .update(data)
+                            .eq('id', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Product updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('products')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Product created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadProducts();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving product: ' + error.message, 'error');
+                }
+            }
+
+            async editProduct(id) {
+                try {
+                    const [productResult, subcategoriesResult, mainCategoriesResult] = await Promise.all([
+                        supabase.from('products').select('*').eq('id', id).single(),
+                        supabase.from('subcategories').select('slug, title_en, category_type').eq('active', true).order('category_type, sort_order'),
+                        supabase.from('main_categories').select('slug, title_en').eq('active', true).order('sort_order')
+                    ]);
+
+                    if (productResult.error) throw productResult.error;
+
+                    const product = productResult.data;
+                    const subcategories = subcategoriesResult.data || [];
+                    const mainCategories = mainCategoriesResult.data || [];
+
+                    this.editingItem = id;
+
+                    const subcategoryOptions = subcategories.map(sub => 
+                        `<option value="${sub.slug}" ${product.sub_slug === sub.slug ? 'selected' : ''}>${sub.title_en} (${sub.category_type})</option>`
+                    ).join('');
+                    
+                    const mainCategoryOptions = mainCategories.map(cat => 
+                        `<option value="${cat.slug}" ${product.main_type === cat.slug ? 'selected' : ''}>${cat.title_en}</option>`
+                    ).join('');
+
+                    const content = `
+                        <form id="product-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="name_en">Name (English)*</label>
+                                    <input type="text" id="name_en" name="name_en" value="${product.name_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name_ar">Name (Arabic)</label>
+                                    <input type="text" id="name_ar" name="name_ar" value="${product.name_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="main_type">Main Category*</label>
+                                    <select id="main_type" name="main_type" required>
+                                        <option value="">Select Main Category</option>
+                                        ${mainCategoryOptions}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sub_slug">Subcategory</label>
+                                    <select id="sub_slug" name="sub_slug">
+                                        <option value="">Select Subcategory</option>
+                                        ${subcategoryOptions}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image_file">Product Image</label>
+                                    <input type="file" id="image_file" name="image_file" accept="image/*" onchange="previewImage(this)">
+                                    <small>Choose new image file (optional - leave empty to keep current image)</small>
+                                    ${product.image_url ? `<div style="margin-top: 10px;"><strong>Current image:</strong><br><img src="${product.image_url}" style="max-width: 200px; max-height: 150px;" alt="Current image"></div>` : ''}
+                                    <img id="image_preview" style="max-width: 200px; max-height: 150px; margin-top: 10px; display: none;" alt="Preview">
+                                </div>
+                                <div class="form-group">
+                                    <label for="featured">Featured</label>
+                                    <select id="featured" name="featured">
+                                        <option value="false" ${!product.featured ? 'selected' : ''}>No</option>
+                                        <option value="true" ${product.featured ? 'selected' : ''}>Yes</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="active">Status</label>
+                                    <select id="active" name="active">
+                                        <option value="true" ${product.active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!product.active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${product.sort_order ?? 999}" min="1">
+                                    <small>Lower numbers appear first (default: 999)</small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description_en">Description (English)</label>
+                                <textarea id="description_en" name="description_en">${product.description_en || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="description_ar">Description (Arabic)</label>
+                                <textarea id="description_ar" name="description_ar">${product.description_ar || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="ingredients">Ingredients (English)</label>
+                                <input type="text" id="ingredients" name="ingredients" value="${product.ingredients ? (Array.isArray(product.ingredients) ? product.ingredients.join(', ') : product.ingredients) : ''}" placeholder="cucumber, vinegar, salt, turmeric (separate by commas)">
+                                <small>Enter ingredients separated by commas (e.g., cucumber, vinegar, salt)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="ingredients_ar">Ingredients (Arabic)</label>
+                                <input type="text" id="ingredients_ar" name="ingredients_ar" value="${product.ingredients_ar ? (Array.isArray(product.ingredients_ar) ? product.ingredients_ar.join(', ') : product.ingredients_ar) : ''}" placeholder="خيار، خل، ملح، كركم (فصل بالفواصل)">
+                                <small>Enter Arabic ingredients separated by commas</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="variants">Variants (English)</label>
+                                <input type="text" id="variants" name="variants" value="${product.variants ? (Array.isArray(product.variants) ? product.variants.join(', ') : product.variants) : ''}" placeholder="large, small, 500ml, 1L (separate by commas)">
+                                <small>Enter product variants separated by commas (e.g., large, small, 500ml)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="variants_ar">Variants (Arabic)</label>
+                                <input type="text" id="variants_ar" name="variants_ar" value="${product.variants_ar ? (Array.isArray(product.variants_ar) ? product.variants_ar.join(', ') : product.variants_ar) : ''}" placeholder="كبير، صغير، 500مل، 1لتر (فصل بالفواصل)">
+                                <small>Enter Arabic variants separated by commas</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="tags">Special Tags (English)</label>
+                                <input type="text" id="tags" name="tags" value="${product.tags ? (Array.isArray(product.tags) ? product.tags.join(', ') : product.tags) : ''}" placeholder="organic, fresh, premium, halal (separate by commas)">
+                                <small>Enter special tags separated by commas (e.g., organic, fresh, premium)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="tags_ar">Special Tags (Arabic)</label>
+                                <input type="text" id="tags_ar" name="tags_ar" value="${product.tags_ar ? (Array.isArray(product.tags_ar) ? product.tags_ar.join(', ') : product.tags_ar) : ''}" placeholder="عضوي، طازج، مميز، حلال (فصل بالفواصل)">
+                                <small>Enter Arabic special tags separated by commas</small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Product</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Product', content);
+                    
+                    document.getElementById('product-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveProduct();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading product: ' + error.message, 'error');
+                }
+            }
+
+            async deleteProduct(id) {
+                if (!confirm(`Are you sure you want to delete product #${id}?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('products')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Product deleted successfully!', 'success');
+                    this.loadProducts();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting product: ' + error.message, 'error');
+                }
+            }
+
+            // SECTIONS CRUD
+            async loadSections() {
+                const container = document.getElementById('sections-table');
+                container.innerHTML = '<div class="loading">Loading sections...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('sections')
+                        .select('*')
+                        .order('sort_order');
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No sections found. Click "Add" to create one.</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Title (EN)</th>
+                                    <th>Title (AR)</th>
+                                    <th>Content Preview</th>
+                                    <th>Sort</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(section => `
+                                    <tr>
+                                        <td><code>${section.key}</code></td>
+                                        <td>${section.title_en || ''}</td>
+                                        <td>${section.title_ar || ''}</td>
+                                        <td title="${section.content_en || ''}">
+                                            ${section.content_en ? section.content_en.substring(0, 30) + '...' : '-'}
+                                        </td>
+                                        <td>${section.sort_order || 0}</td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editSection('${section.key}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSection('${section.key}')">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading sections</div>';
+                    this.showMessage('Sections error: ' + error.message, 'error');
+                }
+            }
+
+            showAddSectionModal() {
+                const content = `
+                    <form id="section-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="key">Key*</label>
+                                <input type="text" id="key" name="key" required placeholder="e.g., about-us">
+                            </div>
+                            <div class="form-group">
+                                <label for="sort_order">Sort Order</label>
+                                <input type="number" id="sort_order" name="sort_order" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_en">Title (English)*</label>
+                                <input type="text" id="title_en" name="title_en" required placeholder="About Us">
+                            </div>
+                            <div class="form-group">
+                                <label for="title_ar">Title (Arabic)</label>
+                                <input type="text" id="title_ar" name="title_ar" placeholder="عنا">
+                            </div>
+                            <div class="form-group">
+                                <label for="image_url">Image URL</label>
+                                <input type="url" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="content_en">Content (English)</label>
+                            <textarea id="content_en" name="content_en" placeholder="Section content in English"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="content_ar">Content (Arabic)</label>
+                            <textarea id="content_ar" name="content_ar" placeholder="محتوى القسم بالعربية"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Section</button>
+                        </div>
+                    </form>
+                `;
+
+                this.openModal('Add Section', content);
+                
+                document.getElementById('section-form').onsubmit = async (e) => {
+                    e.preventDefault();
+                    await this.saveSection();
+                };
+            }
+
+            async saveSection() {
+                const form = document.getElementById('section-form');
+                const formData = new FormData(form);
+                
+                const data = {
+                    key: formData.get('key'),
+                    title_en: formData.get('title_en'),
+                    title_ar: formData.get('title_ar') || null,
+                    content_en: formData.get('content_en') || null,
+                    content_ar: formData.get('content_ar') || null,
+                    image_url: formData.get('image_url') || null,
+                    sort_order: parseInt(formData.get('sort_order')) || 0
+                };
+
+                try {
+                    if (this.editingItem) {
+                        const { error } = await supabase
+                            .from('sections')
+                            .update(data)
+                            .eq('key', this.editingItem);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Section updated successfully!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('sections')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Section created successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadSections();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving section: ' + error.message, 'error');
+                }
+            }
+
+            async editSection(key) {
+                try {
+                    const { data, error } = await supabase
+                        .from('sections')
+                        .select('*')
+                        .eq('key', key)
+                        .single();
+
+                    if (error) throw error;
+
+                    this.editingItem = key;
+                    
+                    const content = `
+                        <form id="section-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="key">Key*</label>
+                                    <input type="text" id="key" name="key" value="${data.key}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sort_order">Sort Order</label>
+                                    <input type="number" id="sort_order" name="sort_order" value="${data.sort_order || 0}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_en">Title (English)*</label>
+                                    <input type="text" id="title_en" name="title_en" value="${data.title_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="title_ar">Title (Arabic)</label>
+                                    <input type="text" id="title_ar" name="title_ar" value="${data.title_ar || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="image_url">Image URL</label>
+                                    <input type="url" id="image_url" name="image_url" value="${data.image_url || ''}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="content_en">Content (English)</label>
+                                <textarea id="content_en" name="content_en">${data.content_en || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="content_ar">Content (Arabic)</label>
+                                <textarea id="content_ar" name="content_ar">${data.content_ar || ''}</textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Section</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit Section', content);
+                    
+                    document.getElementById('section-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveSection();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading section: ' + error.message, 'error');
+                }
+            }
+
+            async deleteSection(key) {
+                if (!confirm(`Are you sure you want to delete the section "${key}"?`)) {
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('sections')
+                        .delete()
+                        .eq('key', key);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Section deleted successfully!', 'success');
+                    this.loadSections();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting section: ' + error.message, 'error');
+                }
+            }
+
+            // MEDIA (read only for now)
+            async loadMedia() {
+                const container = document.getElementById('media-table');
+                container.innerHTML = '<div class="loading">Loading media files...</div>';
+
+                try {
+                    const { data, error } = await supabase
+                        .from('media')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No media files found</div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>File Name</th>
+                                    <th>Path</th>
+                                    <th>Size</th>
+                                    <th>Type</th>
+                                    <th>Uploaded</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(media => `
+                                    <tr>
+                                        <td><code>${media.id.substring(0, 8)}...</code></td>
+                                        <td>${media.file_name || '-'}</td>
+                                        <td><code>${media.file_path || '-'}</code></td>
+                                        <td>${media.file_size ? (media.file_size / 1024).toFixed(1) + ' KB' : '-'}</td>
+                                        <td><span class="badge">${media.mime_type || '-'}</span></td>
+                                        <td>${new Date(media.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state">Error loading media</div>';
+                    this.showMessage('Media error: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Image preview function
+        function previewImage(input) {
+            const preview = document.getElementById('image_preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // Global functions for button clicks
+        window.loadDashboard = () => admin.loadDashboard();
+        window.loadMainCategories = () => admin.loadMainCategories();
+        window.loadSubcategories = () => admin.loadSubcategories();
+        window.loadProducts = () => admin.loadProducts();
+        window.loadSections = () => admin.loadSections();
+        window.loadMedia = () => admin.loadMedia();
+        window.closeModal = () => admin.closeModal();
+
+        // Main Categories CRUD
+        window.showAddMainCategoryModal = () => admin.showAddMainCategoryModal();
+        window.editMainCategory = (slug) => admin.editMainCategory(slug);
+        window.deleteMainCategory = (slug) => admin.deleteMainCategory(slug);
+
+        // Subcategories CRUD  
+        window.showAddSubcategoryModal = () => admin.showAddSubcategoryModal();
+        window.editSubcategory = (slug) => admin.editSubcategory(slug);
+        window.deleteSubcategory = (slug) => admin.deleteSubcategory(slug);
+
+        // Products CRUD
+        window.showAddProductModal = () => admin.showAddProductModal();
+        window.editProduct = (id) => admin.editProduct(id);
+        window.deleteProduct = (id) => admin.deleteProduct(id);
+
+        // Sections CRUD
+        window.showAddSectionModal = () => admin.showAddSectionModal();
+        window.editSection = (key) => admin.editSection(key);
+        window.deleteSection = (key) => admin.deleteSection(key);
+
+        // Initialize admin panel
+        const admin = new FullCrudAdmin();
+        
+        console.log('✅ Full CRUD Admin Panel Ready!');
+    </script>
 </body>
 </html>

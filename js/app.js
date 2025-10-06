@@ -9,6 +9,12 @@ const FALLBACK_IMAGE = 'https://placehold.co/400x300?text=Image+Unavailable';
 // Extended product dataset with mainType (single/bulk) and subcategory mapping
 const productsData = [];
 
+// Global main categories storage
+let mainCategories = [
+  { slug: 'single', title_en: 'Single Serve Products', sort_order: 1 },
+  { slug: 'bulk', title_en: 'Bulk Products', sort_order: 2 }
+];
+
 // Configurable subcategory lists
 const SUBCATS = {
   single: ['all','fresh veges','fresh pickles','ordinary pickles','olives','olive oil','labne & kishik','pastes','molases','hydrosols','natural syrubs','tahhene','vinegar','herbal','kamar el din','ready to serve'],
@@ -94,43 +100,151 @@ function applyContentOverrides() {
   }
 }
 
-// Navigation toggle
-const navToggle = document.querySelector('.nav-toggle');
-const navList = document.querySelector('.nav-list');
-navToggle?.addEventListener('click', () => {
-  const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-  navToggle.setAttribute('aria-expanded', String(!expanded));
-  navList.classList.toggle('open');
-});
+// Navigation initialization function
+function initializeNavigation() {
+  // Navigation toggle with sidebar and overlay
+  const navToggle = document.querySelector('.nav-toggle');
+  const navList = document.querySelector('.nav-list');
+  const navOverlay = document.getElementById('navOverlay');
 
-// Close nav on link click (mobile)
-navList?.addEventListener('click', e => {
-  if (e.target.matches('a')) {
-    navList.classList.remove('open');
-    navToggle.setAttribute('aria-expanded', 'false');
+  function toggleNavigation() {
+    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+    const isOpen = !expanded;
+    
+    navToggle.setAttribute('aria-expanded', String(isOpen));
+    navList.classList.toggle('open', isOpen);
+    navOverlay.classList.toggle('show', isOpen);
+    
+    // Add/remove nav-open class to body for blur effect
+    document.body.classList.toggle('nav-open', isOpen);
+    
+    // Prevent body scroll when sidebar is open
+    document.body.style.overflow = isOpen ? 'hidden' : '';
   }
-});
 
-// Active link highlighting on scroll
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-list a');
-function onScroll() {
-  const scrollPos = window.scrollY + 120; // offset for header
-  sections.forEach(sec => {
-    if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
-      navLinks.forEach(l => l.classList.remove('active'));
-      const active = document.querySelector(`.nav-list a[href="#${sec.id}"]`);
-      active?.classList.add('active');
+  function closeNavigation() {
+    navToggle.setAttribute('aria-expanded', 'false');
+    navList.classList.remove('open');
+    navOverlay.classList.remove('show');
+    document.body.classList.remove('nav-open');
+    document.body.style.overflow = '';
+  }
+
+  navToggle?.addEventListener('click', toggleNavigation);
+
+  // Close nav on overlay click
+  navOverlay?.addEventListener('click', closeNavigation);
+
+  // Close button in sidebar
+  const navClose = document.querySelector('.nav-close');
+  navClose?.addEventListener('click', closeNavigation);
+
+  // Close nav on link click (mobile) + handle active states
+  navList?.addEventListener('click', e => {
+    if (e.target.matches('a')) {
+      // Remove active class from all nav links
+      document.querySelectorAll('.nav-list a').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      // Add active class to clicked link
+      e.target.classList.add('active');
+      
+      closeNavigation();
+    }
+  });
+
+  // Close nav on escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && navList.classList.contains('open')) {
+      closeNavigation();
+    }
+  });
+
+  // Active link highlighting for navigation
+  function updateActiveNavigation() {
+    const sections = document.querySelectorAll('section[id]');
+    const allNavLinks = document.querySelectorAll('.nav-list a');
+    
+    function onScroll() {
+      const scrollPos = window.scrollY + 120; // offset for header
+      sections.forEach(sec => {
+        if (scrollPos >= sec.offsetTop && scrollPos < sec.offsetTop + sec.offsetHeight) {
+          allNavLinks.forEach(l => l.classList.remove('active'));
+          const activeLink = document.querySelector(`.nav-list a[href="#${sec.id}"]`);
+          activeLink?.classList.add('active');
+        }
+      });
+    }
+    
+    window.addEventListener('scroll', onScroll);
+    onScroll(); // Call once on load
+  }
+
+  // Initialize active navigation
+  updateActiveNavigation();
+
+  // Search functionality (after navigation is loaded)
+  initializeSearch();
+}
+
+// Search initialization
+function initializeSearch() {
+  const searchInput = document.getElementById('productSearch');
+  const searchInputDesktop = document.getElementById('productSearchDesktop');
+
+  // Handle mobile search
+  searchInput?.addEventListener('input', () => {
+    document.body.classList.toggle('searching', !!searchInput.value.trim());
+    renderProducts();
+  });
+
+  // Handle desktop search
+  searchInputDesktop?.addEventListener('input', () => {
+    document.body.classList.toggle('searching', !!searchInputDesktop.value.trim());
+    renderProducts();
+  });
+
+  // Search toggle functionality for mobile
+  const searchToggle = document.getElementById('searchToggle');
+  searchToggle?.addEventListener('click', () => {
+    const isExpanded = searchInput.classList.contains('expanded');
+    if (isExpanded) {
+      searchInput.classList.remove('expanded');
+      searchInput.value = '';
+      document.body.classList.remove('searching');
+      renderProducts();
+    } else {
+      searchInput.classList.add('expanded');
+      setTimeout(() => searchInput.focus(), 350); // Wait for animation
+    }
+  });
+
+  // Search toggle functionality for desktop
+  const searchToggleDesktop = document.getElementById('searchToggleDesktop');
+  searchToggleDesktop?.addEventListener('click', () => {
+    const isExpanded = searchInputDesktop.classList.contains('expanded');
+    if (isExpanded) {
+      searchInputDesktop.classList.remove('expanded');
+      searchInputDesktop.value = '';
+      document.body.classList.remove('searching');
+      renderProducts();
+    } else {
+      searchInputDesktop.classList.add('expanded');
+      setTimeout(() => searchInputDesktop.focus(), 350); // Wait for animation
     }
   });
 }
-window.addEventListener('scroll', onScroll);
 
 // Inject featured products
 function renderFeatured() {
   const container = document.getElementById('featuredProducts');
   if (!container) return;
-  const featured = productsData.filter(p => p.featured);
+  const featured = productsData.filter(p => p.featured).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   container.innerHTML = featured.map(p => cardTemplate(p, true)).join('');
 }
 
@@ -138,7 +252,11 @@ function renderFeatured() {
 function renderBestsellers() {
   const container = document.getElementById('bestsellersProducts');
   if (!container) return;
-  const bestsellers = productsData.filter(p => p.sections?.includes('bestsellers'));
+  const bestsellers = productsData.filter(p => p.sections?.includes('bestsellers')).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   if (bestsellers.length > 0) {
     container.innerHTML = bestsellers.map(p => cardTemplate(p)).join('');
     document.querySelector('.bestsellers').style.display = 'block';
@@ -149,7 +267,11 @@ function renderBestsellers() {
 function renderNewArrivals() {
   const container = document.getElementById('newArrivalsProducts');
   if (!container) return;
-  const newArrivals = productsData.filter(p => p.sections?.includes('new-arrivals'));
+  const newArrivals = productsData.filter(p => p.sections?.includes('new-arrivals')).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   if (newArrivals.length > 0) {
     container.innerHTML = newArrivals.map(p => cardTemplate(p)).join('');
     document.querySelector('.new-arrivals').style.display = 'block';
@@ -160,7 +282,11 @@ function renderNewArrivals() {
 function renderSeasonal() {
   const container = document.getElementById('seasonalProducts');
   if (!container) return;
-  const seasonal = productsData.filter(p => p.sections?.includes('seasonal'));
+  const seasonal = productsData.filter(p => p.sections?.includes('seasonal')).sort((a, b) => {
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   if (seasonal.length > 0) {
     container.innerHTML = seasonal.map(p => cardTemplate(p)).join('');
     document.querySelector('.seasonal').style.display = 'block';
@@ -178,7 +304,11 @@ function renderCustomSections() {
   )];
 
   customSections.forEach(sectionKey => {
-    const products = productsData.filter(p => p.sections?.includes(sectionKey));
+    const products = productsData.filter(p => p.sections?.includes(sectionKey)).sort((a, b) => {
+      const orderA = a.sort_order ?? 999;
+      const orderB = b.sort_order ?? 999;
+      return orderA - orderB;
+    });
     if (products.length === 0) return;
 
     // Look up section title from database sections
@@ -234,29 +364,70 @@ function createCustomSection(sectionKey, sectionTitle) {
 
 // Product card template
 function cardTemplate(item, isFeatured = false) {
-  const searchTerm = (document.getElementById('productSearch')?.value || '').trim();
-  const name = highlight(item.name, searchTerm);
-  const desc = highlight(item.description, searchTerm);
-  return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}">
-    ${isFeatured ? '<span class="badge">Featured</span>' : ''}
-    <img src="${item.image}" alt="${item.name} image" loading="lazy" data-original="${item.image}" />
+  const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim();
+  const name = highlight(getLocalizedText(item, 'name'), searchTerm);
+  const desc = highlight(getLocalizedText(item, 'description'), searchTerm);
+  
+  // Get localized arrays
+  const ingredients = getLocalizedArray(item, 'ingredients');
+  const variants = getLocalizedArray(item, 'variants');
+  const tags = getLocalizedArray(item, 'tags');
+  
+  // Get translations
+  const map = translations[currentLang];
+  const ingredientsLabel = map && map['products.ingredients'] ? map['products.ingredients'] : 'Ingredients:';
+  const variantsLabel = map && map['products.variants'] ? map['products.variants'] : 'Variants:';
+  const featuredLabel = map && map['featured.badge'] ? map['featured.badge'] : 'Featured';
+  
+  // Generate variants HTML if variants exist
+  const variantsHTML = variants.length > 0 
+    ? `<div class="product-variants"><strong>${variantsLabel}</strong> ${variants.join(', ')}</div>`
+    : '';
+  
+  // Generate tags HTML if tags exist
+  const tagsHTML = tags.length > 0 
+    ? `<div class="product-tags">${tags.map(tag => `<span class="product-tag">${tag}</span>`).join('')}</div>`
+    : '';
+  
+  return `<article class="card fade-in" data-category="${item.category}" data-sub="${item.sub}" data-main="${item.mainType}" data-product-id="${item.id}" style="cursor: pointer;">
+    ${isFeatured ? `<span class="badge">${featuredLabel}</span>` : ''}
+    <img src="${item.image}" alt="${getLocalizedText(item, 'name')} image" loading="lazy" data-original="${item.image}" />
     <div class="card-body">
       <h3 class="card-title">${name}</h3>
       <p class="desc">${desc}</p>
-      <div class="ingredients"><strong>Ingredients:</strong> ${item.ingredients.join(', ')}</div>
-      <span class="category-tag">${item.sub}</span>
+      <div class="ingredients"><strong>${ingredientsLabel}</strong> ${ingredients.join(', ')}</div>
+      ${variantsHTML}
+      ${tagsHTML}
     </div>
   </article>`;
 }
 
 // Render all products
-let currentMain = 'single';
+let currentMain = '';  // Will be set dynamically to first available main category
 let currentSub = 'all';
 function renderProducts() {
   const grid = document.getElementById('productGrid');
   if (!grid) return;
-  const searchTerm = (document.getElementById('productSearch')?.value || '').trim().toLowerCase();
-  const items = productsData.filter(p => p.mainType === currentMain && (currentSub === 'all' || p.sub === currentSub) && (!searchTerm || p.name.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm)));
+  const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim().toLowerCase();
+  const items = productsData.filter(p => {
+    // Check main type and sub category
+    const mainMatch = p.mainType === currentMain;
+    const subMatch = currentSub === 'all' || p.sub === currentSub;
+    
+    // Check search term in localized content
+    if (!searchTerm) return mainMatch && subMatch;
+    
+    const name = getLocalizedText(p, 'name').toLowerCase();
+    const description = getLocalizedText(p, 'description').toLowerCase();
+    const searchMatch = name.includes(searchTerm) || description.includes(searchTerm);
+    
+    return mainMatch && subMatch && searchMatch;
+  }).sort((a, b) => {
+    // Sort by sort_order ascending (lower numbers first)
+    const orderA = a.sort_order ?? 999;
+    const orderB = b.sort_order ?? 999;
+    return orderA - orderB;
+  });
   // Optional skeleton effect (quick, not async) for perceived performance
   grid.innerHTML = items.map(()=>'<div class="card skeleton" style="height:260px;border-radius:10px;"></div>').join('');
   setTimeout(()=>{ grid.innerHTML = items.map(p => cardTemplate(p)).join(''); attachImageFallbacks(); observeFadeIns(); }, 80);
@@ -268,27 +439,98 @@ function updateBanner() {
   if (!banner) return;
   const key = currentSub === 'all' ? 'default' : currentSub;
   banner.style.backgroundImage = `url('${BANNERS[key] || BANNERS.default}')`;
-  banner.innerHTML = `<span>${capitalizeWords(currentSub === 'all' ? currentMain + ' products' : currentSub)}</span>`;
+  
+  // Get current main category data
+  const currentMainCategory = mainCategories.find(c => c.slug === currentMain);
+  
+  // Use translated subcategory name for banner text
+  const bannerText = currentSub === 'all' 
+    ? (currentLang === 'ar' 
+        ? (currentMainCategory?.title_ar || currentMainCategory?.title_en || currentMain) + ' منتجات'
+        : (currentMainCategory?.title_en || currentMain) + ' products')
+    : translateSubcategory(currentSub);
+  
+  // Get description for main category (only show when viewing 'all' subcategory)
+  const description = currentSub === 'all' && currentMainCategory 
+    ? (currentLang === 'ar' && currentMainCategory.description_ar 
+        ? currentMainCategory.description_ar 
+        : currentMainCategory.description_en || '')
+    : '';
+  
+  banner.innerHTML = `
+    <div class="banner-content">
+      <span class="banner-title">${bannerText}</span>
+      ${description ? `<p class="banner-description">${description}</p>` : ''}
+    </div>
+  `;
   banner.setAttribute('aria-hidden','false');
 }
 
 function capitalizeWords(str) { return str.replace(/\b\w/g, c => c.toUpperCase()); }
 
+function buildMainTabs() {
+  const mainTabsContainer = document.querySelector('.main-cat-tabs');
+  if (!mainTabsContainer) return;
+  
+  // Set currentMain to first category if not set
+  if (!currentMain && mainCategories.length > 0) {
+    currentMain = mainCategories[0].slug;
+  }
+  
+  // Generate main category tabs dynamically with localized titles
+  const tabsHTML = mainCategories.map((cat, index) => {
+    const isActive = cat.slug === currentMain;
+    const title = currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en;
+    return `<button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${title}</button>`;
+  }).join('');
+  
+  mainTabsContainer.innerHTML = tabsHTML;
+}
+
 function buildSubFilters() {
-  const singleWrap = document.getElementById('subFiltersSingle');
-  const bulkWrap = document.getElementById('subFiltersBulk');
-  if (!singleWrap || !bulkWrap) return;
-  singleWrap.innerHTML = SUBCATS.single.map((c,i)=>`<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="single">${capitalizeWords(c)}</button>`).join('');
-  bulkWrap.innerHTML = SUBCATS.bulk.map((c,i)=>`<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="bulk">${capitalizeWords(c)}</button>`).join('');
-  // Attach listeners
-  [singleWrap, bulkWrap].forEach(wrap => wrap.addEventListener('click', e => {
+  // Remove existing subcategory containers
+  const subcategoryWrapper = document.querySelector('.subcategory-wrapper');
+  if (!subcategoryWrapper) return;
+  
+  // Clear existing containers
+  subcategoryWrapper.innerHTML = '';
+  
+  // Create containers for each main category
+  mainCategories.forEach((cat) => {
+    const isVisible = cat.slug === currentMain;
+    const container = document.createElement('div');
+    container.className = `filters sub-filters${isVisible ? '' : ' hidden'}`;
+    container.id = `subFilters${cat.slug.charAt(0).toUpperCase() + cat.slug.slice(1)}`;
+    container.setAttribute('aria-label', `${currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en} Subcategories`);
+    
+    if (SUBCATS[cat.slug]) {
+      container.innerHTML = SUBCATS[cat.slug].map((c,i)=>{
+        const translatedText = translateSubcategory(c);
+        return `<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="${cat.slug}">${translatedText}</button>`;
+      }).join('');
+    }
+    
+    subcategoryWrapper.appendChild(container);
+  });
+  
+  // Attach listeners to all subcategory containers
+  subcategoryWrapper.addEventListener('click', e => {
     if (e.target.matches('.filter-btn')) {
-      wrap.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      const container = e.target.closest('.sub-filters');
+      container.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
       e.target.classList.add('active');
       currentSub = e.target.dataset.sub;
       renderProducts();
     }
-  }));
+  });
+}
+
+// Helper function to translate subcategory names
+function translateSubcategory(subcat) {
+  if (currentLang === 'en') return capitalizeWords(subcat);
+  const key = `subcat.${subcat}`;
+  const map = translations[currentLang];
+  return map && map[key] ? map[key] : capitalizeWords(subcat);
 }
 
 function initMainTabs() {
@@ -300,21 +542,24 @@ function initMainTabs() {
       btn.setAttribute('aria-selected','true');
       currentMain = btn.dataset.main;
       currentSub = 'all';
-      document.getElementById('subFiltersSingle').classList.toggle('hidden', currentMain!=='single');
-      document.getElementById('subFiltersBulk').classList.toggle('hidden', currentMain!=='bulk');
-      // reset active button
-      (currentMain==='single'?document.getElementById('subFiltersSingle'):document.getElementById('subFiltersBulk')).querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
+      
+      // Hide all subcategory containers
+      document.querySelectorAll('.sub-filters').forEach(container => {
+        container.classList.add('hidden');
+      });
+      
+      // Show the container for current main category
+      const activeContainer = document.getElementById(`subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`);
+      if (activeContainer) {
+        activeContainer.classList.remove('hidden');
+        // Reset active button to 'all'
+        activeContainer.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
+      }
+      
       renderProducts();
     });
   });
 }
-
-// Search
-const searchInput = document.getElementById('productSearch');
-searchInput?.addEventListener('input', () => {
-  document.body.classList.toggle('searching', !!searchInput.value.trim());
-  renderProducts();
-});
 
 // (Legacy filtering removed - now handled by subcategory buttons)
 
@@ -327,22 +572,26 @@ form?.addEventListener('submit', e => {
   ['name','email','message'].forEach(field => {
     const input = form.querySelector(`[name="${field}"]`);
     const errorEl = form.querySelector(`[data-error-for="${field}"]`);
+    const map = translations[currentLang];
+    
     if (!input.value.trim()) {
       valid = false;
-      errorEl.textContent = 'Required';
+      errorEl.textContent = map && map['contact.required'] ? map['contact.required'] : 'Required';
     } else if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
       valid = false;
-      errorEl.textContent = 'Invalid email';
+      errorEl.textContent = map && map['contact.invalidEmail'] ? map['contact.invalidEmail'] : 'Invalid email';
     } else {
       errorEl.textContent = '';
     }
   });
   if (valid) {
-    status.textContent = 'Message sent (demo). We will reply soon!';
+    const map = translations[currentLang];
+    status.textContent = map && map['contact.success'] ? map['contact.success'] : 'Message sent (demo). We will reply soon!';
     form.reset();
     setTimeout(() => (status.textContent = ''), 4000);
   } else {
-    status.textContent = 'Please correct errors above.';
+    const map = translations[currentLang];
+    status.textContent = map && map['contact.error'] ? map['contact.error'] : 'Please correct errors above.';
   }
 });
 
@@ -369,30 +618,165 @@ function observeFadeIns() {
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-// Language toggle (rudimentary, two-language support placeholder)
+// Comprehensive translations object
 const translations = {
   ar: {
-    'nav.home':'الرئيسية','nav.about':'من نحن','nav.products':'المنتجات','nav.events':'الفعاليات','nav.services':'الخدمات','nav.faq':'الأسئلة','nav.contact':'اتصل بنا',
-    'products.title':'منتجاتنا','products.intro':'تصفح فئات منتجاتنا اللبنانية. كل صنف يتضمن وصفاً ومكونات.',
-    'products.singleServe':'منتجات فردية','products.bulk':'منتجات بالجملة'
+    // Navigation
+    'nav.home':'الرئيسية','nav.about':'من نحن','nav.products':'المنتجات','nav.events':'الفعاليات',
+    'nav.services':'الخدمات','nav.faq':'الأسئلة','nav.contact':'اتصل بنا','nav.navigation':'القائمة',
+    
+    // Hero Section
+    'hero.explore':'استكشف الكتالوج',
+    
+    // Sections
+    'featured.title':'المنتجات المميزة','featured.badge':'مميز',
+    'bestsellers.title':'الأكثر مبيعاً',
+    'newArrivals.title':'وصل حديثاً',
+    'seasonal.title':'عروض موسمية',
+    
+    // About Section
+    'about.title':'قصتنا',
+    'about.authentic':'وصفات أصيلة',
+    'about.natural':'مكونات طبيعية',
+    'about.handcrafted':'جودة يدوية الصنع',
+    'about.sustainable':'مصادر مستدامة',
+    
+    // Products Section
+    'products.title':'منتجاتنا',
+    'products.intro':'تصفح فئات منتجاتنا اللبنانية. كل صنف يتضمن وصفاً ومكونات (بدون أسعار)',
+    'products.all':'الكل',
+    'products.ingredients':'المكونات:',
+    'products.variants':'الأحجام:',
+    'products.tags':'الوسوم',
+    
+    // Contact Section
+    'contact.title':'اتصل بنا',
+    'contact.name':'الاسم',
+    'contact.email':'البريد الإلكتروني',
+    'contact.message':'الرسالة',
+    'contact.send':'إرسال الرسالة',
+    'contact.info':'معلومات الشركة',
+    'contact.namePlaceholder':'اسمك',
+    'contact.emailPlaceholder':'you@example.com',
+    'contact.messagePlaceholder':'اكتب رسالتك...',
+    'contact.email.label':'البريد:',
+    'contact.phone.label':'الهاتف:',
+    'contact.location.label':'الموقع:',
+    'contact.social':'تابعنا على وسائل التواصل:',
+    'contact.facebook':'فيسبوك',
+    'contact.instagram':'إنستغرام',
+    'contact.twitter':'تويتر',
+    'contact.required':'مطلوب',
+    'contact.invalidEmail':'بريد إلكتروني غير صالح',
+    'contact.success':'تم إرسال الرسالة (تجريبي). سنرد قريباً!',
+    'contact.error':'يرجى تصحيح الأخطاء أعلاه.',
+    
+    // Footer
+    'footer.tagline':'منتجات لبنانية أصيلة مصنوعة يدوياً ومعلبة. تقليد محفوظ في كل برطمان.',
+    'footer.home':'الرئيسية',
+    'footer.about':'من نحن',
+    'footer.products':'المنتجات',
+    'footer.events':'الفعاليات',
+    'footer.services':'الخدمات',
+    'footer.faq':'الأسئلة',
+    'footer.contact':'اتصل بنا',
+    'footer.email':'البريد:',
+    'footer.phone':'الهاتف:',
+    'footer.rights':'كرم لبنان. جميع الحقوق محفوظة.',
+    'footer.backToTop':'العودة للأعلى',
+    
+    // Search
+    'search.placeholder':'ابحث عن منتجات',
+    'search.open':'فتح البحث',
+    'search.close':'إغلاق البحث',
+    
+    // Modal
+    'modal.close':'إغلاق',
+    'modal.ingredients':'المكونات',
+    'modal.variants':'الأحجام',
+    'modal.tags':'الوسوم',
+    
+    // Subcategories (common ones)
+    'subcat.all':'الكل',
+    'subcat.fresh veges':'خضار طازجة',
+    'subcat.fresh pickles':'مخللات طازجة',
+    'subcat.ordinary pickles':'مخللات عادية',
+    'subcat.olives':'زيتون',
+    'subcat.olive oil':'زيت زيتون',
+    'subcat.sunflower oil':'زيت دوار الشمس',
+    'subcat.labne & kishik':'لبنة وكشك',
+    'subcat.kishik':'كشك',
+    'subcat.pastes':'معجون',
+    'subcat.molases':'دبس',
+    'subcat.hydrosols':'ماء الورد والزهر',
+    'subcat.natural syrubs':'شراب طبيعي',
+    'subcat.tahhene':'طحينة',
+    'subcat.vinegar':'خل',
+    'subcat.herbal':'أعشاب',
+    'subcat.kamar el din':'قمر الدين',
+    'subcat.ready to serve':'جاهز للتقديم'
   }
 };
 let currentLang = 'en';
+
+// Helper functions for localized content
+function getLocalizedText(item, field) {
+  if (currentLang === 'ar' && item[`${field}_ar`]) {
+    return item[`${field}_ar`];
+  }
+  return item[`${field}_en`] || item[field] || '';
+}
+
+function getLocalizedArray(item, field) {
+  if (currentLang === 'ar' && item[`${field}_ar`] && item[`${field}_ar`].length > 0) {
+    return item[`${field}_ar`];
+  }
+  return item[field] || [];
+}
+
 const langBtn = document.getElementById('langToggle');
 langBtn?.addEventListener('click', () => {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
-  applyTranslations();
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = currentLang;
   document.body.classList.toggle('rtl', currentLang==='ar');
+  
+  applyTranslations();
+  buildMainTabs();
+  buildSubFilters();
+  initMainTabs();
+  
+  // Re-render all product sections with new language
+  renderProducts();
+  renderFeatured();
+  renderBestsellers(); 
+  renderNewArrivals();
+  renderSeasonal();
+  renderCustomSections();
 });
 
 function applyTranslations() {
-  if (currentLang === 'en') return; // only override for Arabic for now
   const map = translations[currentLang];
+  if (!map) return; // English is default, no translations needed
+  
+  // Translate all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (map[key]) el.textContent = map[key];
+    if (map[key]) {
+      // Handle different element types
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        if (el.placeholder) el.placeholder = map[key];
+      } else {
+        el.textContent = map[key];
+      }
+    }
+  });
+  
+  // Special handling for aria-labels
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (map[key]) el.setAttribute('aria-label', map[key]);
   });
 }
 
@@ -414,6 +798,7 @@ window.addEventListener('scroll', () => {
 async function initializeSite(){
   loadOverrides();
   await tryRemoteLoad();
+  buildMainTabs();
   buildSubFilters();
   initMainTabs();
   renderFeatured();
@@ -432,6 +817,16 @@ async function tryRemoteLoad(){
   if(!anonKey || !window.createSupabaseClient) return; // no remote
   try {
     const client = window.createSupabaseClient('https://xbznaxiummganlidnmdd.supabase.co', anonKey);
+    
+    // Load main categories first
+    const { data: mainCats, error: mainCatsErr } = await client.from('main_categories').select('*').eq('active', true).order('sort_order');
+    if (mainCatsErr && /not found/i.test(mainCatsErr.message)) {
+      console.warn('Supabase table main_categories not found. Using default categories.');
+    }
+    if (mainCats?.length) {
+      mainCategories = mainCats;
+    }
+    
     // Load subcategories
     const { data: subs, error: subsErr } = await client.from('subcategories').select('*').eq('active', true).order('sort_order');
     if (subsErr && /not found/i.test(subsErr.message)) {
@@ -439,8 +834,24 @@ async function tryRemoteLoad(){
       return; // abort further remote attempts
     }
     if (subs?.length){
-      SUBCATS.single = subs.filter(s=>s.category_type==='single').map(s=>s.slug.replace(/-/g,' '));
-      SUBCATS.bulk = subs.filter(s=>s.category_type==='bulk').map(s=>s.slug.replace(/-/g,' '));
+      // Reset SUBCATS and rebuild based on available main categories
+      Object.keys(SUBCATS).forEach(key => {
+        if (!mainCategories.some(cat => cat.slug === key)) {
+          delete SUBCATS[key];
+        }
+      });
+      
+      // Build subcategory lists for each main category
+      mainCategories.forEach(mainCat => {
+        if (!SUBCATS[mainCat.slug]) {
+          SUBCATS[mainCat.slug] = ['all'];
+        }
+        const categorySubs = subs.filter(s => s.category_type === mainCat.slug).map(s => s.slug.replace(/-/g,' '));
+        if (categorySubs.length > 0) {
+          SUBCATS[mainCat.slug] = ['all', ...categorySubs];
+        }
+      });
+      
       // banners mapping
       subs.forEach(s=>{ if (s.banner_image_url) BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url; });
     }
@@ -460,15 +871,23 @@ async function tryRemoteLoad(){
         
         productsData.push({
           id: p.id,
-          name: p.name_en || 'Unnamed',
+          name_en: p.name_en || 'Unnamed',
+          name_ar: p.name_ar || p.name_en || 'Unnamed',
           category: p.sub_slug || 'general',
           mainType: p.main_type,
           sub: (p.sub_slug || '').replace(/-/g,' '),
           featured: !!p.featured, // Use database featured field
           sections: sections, // Add sections array for filtering
           image: p.image_url || FALLBACK_IMAGE,
-          description: p.description_en || '',
-          ingredients: Array.isArray(p.ingredients)? p.ingredients : []
+          description_en: p.description_en || '',
+          description_ar: p.description_ar || p.description_en || '',
+          ingredients: Array.isArray(p.ingredients)? p.ingredients : [],
+          ingredients_ar: Array.isArray(p.ingredients_ar) ? p.ingredients_ar : (Array.isArray(p.ingredients) ? p.ingredients : []),
+          variants: Array.isArray(p.variants) ? p.variants : [], // Add variants field
+          variants_ar: Array.isArray(p.variants_ar) ? p.variants_ar : (Array.isArray(p.variants) ? p.variants : []),
+          tags: Array.isArray(p.tags) ? p.tags : [], // Add tags field
+          tags_ar: Array.isArray(p.tags_ar) ? p.tags_ar : (Array.isArray(p.tags) ? p.tags : []),
+          sort_order: p.sort_order ?? 999 // Add sort_order field with fallback
         });
       });
     }
@@ -542,6 +961,11 @@ function updateSectionContent(sectionKey, sectionData) {
     if (leadElement && sectionData.body_en) {
       leadElement.innerHTML = sectionData.body_en;
     }
+    
+    // Update hero background image if provided
+    if (sectionData.image_url) {
+      section.style.backgroundImage = `var(--gradient-hero), url('${sectionData.image_url}')`;
+    }
   } else if (sectionKey === 'contact') {
     // For contact section, update the contact-info content
     const contactInfo = section.querySelector('.contact-info');
@@ -610,6 +1034,18 @@ function createNewSection(sectionKey, sectionData) {
   return newSection;
 }
 
+// Product card click handler (event delegation)
+document.addEventListener('click', (e) => {
+  const card = e.target.closest('.card[data-product-id]');
+  if (card) {
+    const productId = parseInt(card.dataset.productId);
+    const product = productsData.find(p => p.id === productId);
+    if (product) {
+      openProductModal(product);
+    }
+  }
+});
+
 initializeSite();
 
 // Attach fallback handlers to images (run after each render)
@@ -625,6 +1061,111 @@ function attachImageFallbacks() {
     }
   });
 }
+
+// Product Detail Modal Functions
+function openProductModal(item) {
+  const modal = document.getElementById('productModal');
+  if (!modal) return;
+  
+  // Get localized data
+  const name = getLocalizedText(item, 'name');
+  const description = getLocalizedText(item, 'description');
+  const ingredients = getLocalizedArray(item, 'ingredients');
+  const variants = getLocalizedArray(item, 'variants');
+  const tags = getLocalizedArray(item, 'tags');
+  
+  // Build modal content
+  const modalImage = modal.querySelector('.modal-image img');
+  const modalTitle = modal.querySelector('.modal-title');
+  const modalDescription = modal.querySelector('.modal-description');
+  const ingredientsSection = modal.querySelector('#modalIngredients');
+  const variantsSection = modal.querySelector('#modalVariants');
+  const tagsSection = modal.querySelector('#modalTags');
+  
+  const map = translations[currentLang];
+  const ingredientsLabel = map && map['modal.ingredients'] ? map['modal.ingredients'] : 'Ingredients';
+  const variantsLabel = map && map['modal.variants'] ? map['modal.variants'] : 'Variants';
+  const tagsLabel = map && map['modal.tags'] ? map['modal.tags'] : 'Tags';
+  
+  if (modalImage) modalImage.src = item.image;
+  if (modalTitle) modalTitle.textContent = name;
+  if (modalDescription) modalDescription.textContent = description;
+  
+  // Ingredients
+  if (ingredientsSection) {
+    if (ingredients.length > 0) {
+      ingredientsSection.innerHTML = `
+        <div class="modal-section-title">${ingredientsLabel}</div>
+        <div class="modal-list">${ingredients.join(', ')}</div>
+      `;
+      ingredientsSection.style.display = 'block';
+    } else {
+      ingredientsSection.style.display = 'none';
+    }
+  }
+  
+  // Variants
+  if (variantsSection) {
+    if (variants.length > 0) {
+      variantsSection.innerHTML = `
+        <div class="modal-section-title">${variantsLabel}</div>
+        <div class="modal-list">${variants.join(', ')}</div>
+      `;
+      variantsSection.style.display = 'block';
+    } else {
+      variantsSection.style.display = 'none';
+    }
+  }
+  
+  // Tags
+  if (tagsSection) {
+    if (tags.length > 0) {
+      tagsSection.innerHTML = `
+        <div class="modal-section-title">${tagsLabel}</div>
+        <div class="modal-tags">${tags.map(tag => `<span class="modal-tag">${tag}</span>`).join('')}</div>
+      `;
+      tagsSection.style.display = 'block';
+    } else {
+      tagsSection.style.display = 'none';
+    }
+  }
+  
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProductModal() {
+  const modal = document.getElementById('productModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+// Close modal on close button click
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-close') || e.target.closest('.modal-close')) {
+    closeProductModal();
+  }
+});
+
+// Close modal on background click
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('productModal');
+  if (modal && e.target === modal) {
+    closeProductModal();
+  }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('productModal');
+    if (modal && modal.classList.contains('active')) {
+      closeProductModal();
+    }
+  }
+});
 
 // Accessibility: trap focus when menu open (simplified)
 document.addEventListener('keydown', e => {

@@ -1,66 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Karam Libnan | Authentic Homemade & Canned Lebanese Products</title>
-  <meta name="description" content="Karam Libnan offers premium homemade and canned Lebanese products. Discover authentic flavors and traditions through our catalog." />
-  <meta name="keywords" content="Karam Libnan, Lebanese homemade products, Lebanese canned goods, traditional Lebanese food, organic Lebanon products, Lebanese catalog" />
+  <title>Karam Libnan | Lebanese Products</title>
+  <meta name="description"
+    content="Karam Libnan offers premium homemade and canned Lebanese products. Discover authentic flavors and traditions through our catalog." />
+  <meta name="keywords"
+    content="Karam Libnan, Lebanese homemade products, Lebanese canned goods, traditional Lebanese food, organic Lebanon products, Lebanese catalog" />
   <meta name="author" content="Karam Libnan" />
+  
+  <!-- Cache Control -->
+  <meta http-equiv="Cache-Control" content="public, max-age=31536000" />
+  <meta http-equiv="Expires" content="31536000" />
+  
   <!-- Supabase Configuration Meta (anon key is safe to expose) -->
   <meta name="supabase-url" content="https://xbznaxiummganlidnmdd.supabase.co" />
-  <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs" />
+  <meta name="supabase-anon-key"
+    content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhiem5heGl1bW1nYW5saWRubWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyNTc4MDQsImV4cCI6MjA3MDgzMzgwNH0.jM5vsB2UeeI6ZHlDWJylD6drRBrHvutmm2EA7GMddQs" />
+  
+  <!-- Performance Optimizations -->
+  <link rel="preload" href="images/hero.png" as="image" />
+  <link rel="preload" href="css/styles.css" as="style" />
+  <link rel="dns-prefetch" href="https://xbznaxiummganlidnmdd.supabase.co" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
   <!-- Open Graph -->
-  <meta property="og:title" content="Karam Libnan | Authentic Homemade & Canned Lebanese Products" />
-  <meta property="og:description" content="Discover authentic Lebanese flavors through our premium homemade and canned goods." />
-  <meta property="og:image" content="https://images.unsplash.com/photo-1604908176985-dcb7e7f3a0bf?auto=format&fit=crop&w=1200&q=80" />
+  <meta property="og:title" content="Karam Libnan | Lebanese Products" />
+  <meta property="og:description"
+    content="Discover authentic Lebanese flavors through our premium homemade and canned goods." />
+  <meta property="og:image"
+    content="https://images.unsplash.com/photo-1604908176985-dcb7e7f3a0bf?auto=format&fit=crop&w=1200&q=80" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.placeholder-karam-libnan.com" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preload" href="css/styles.css" as="style" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap"
+    rel="stylesheet" />
 </head>
+
 <body>
-  <!-- Header / Navigation -->
-  <header class="site-header header-transparent" id="top">
-    <div class="container flex between center-v header-inner">
-      <div class="logo" id="logo">Karam <span>Libnan</span></div>
-      <nav class="main-nav" aria-label="Primary Navigation">
-        <button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-        </button>
-        <ul id="navMenu" class="nav-list">
-          <li><a href="#home" class="active" data-i18n="nav.home">Home</a></li>
-          <li><a href="#about" data-i18n="nav.about">About</a></li>
-          <li><a href="#products" data-i18n="nav.products">Products</a></li>
-          <li><a href="events.html" data-i18n="nav.events">Events</a></li>
-          <li><a href="services.html" data-i18n="nav.services">Services</a></li>
-          <li><a href="faq.html" data-i18n="nav.faq">F&Q</a></li>
-          <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
-          <li class="lang-switch-item"><button id="langToggle" class="lang-toggle" aria-label="Toggle language">AR</button></li>
-        </ul>
-      </nav>
-      <div class="header-actions">
-        <div class="search-wrapper">
-          <input type="text" id="productSearch" placeholder="Search products" aria-label="Search products" />
-          <span class="search-icon" aria-hidden="true">🔍</span>
-        </div>
-      </div>
-    </div>
-  </header>
+  <!-- Navigation Component -->
+  <div id="navigation-container"></div>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-content">
 
   <!-- Hero Section -->
   <section id="home" class="hero" role="banner" aria-label="Hero Welcome Section">
     <div class="hero-overlay"></div>
     <div class="hero-content container">
-      <h1>Authentic Homemade & Canned Lebanese Products</h1>
-      <p class="lead">Crafted with passion, tradition, and the richness of Lebanon's natural bounty.</p>
+      <h1></h1>
+      <p class="lead"></p>
       <div class="hero-actions">
-        <a href="#products" class="btn btn-primary btn-lg">Explore Catalog</a>
-        <a href="#contact" class="btn btn-outline btn-lg">Contact Us</a>
+        <a href="#products" class="btn btn-primary btn-lg" data-i18n="hero.explore">Explore Catalog</a>
       </div>
     </div>
   </section>
@@ -68,7 +68,7 @@
   <!-- Featured Products -->
   <section class="featured section-padding" aria-labelledby="featuredHeading">
     <div class="container">
-      <h2 id="featuredHeading" class="section-title">Featured Highlights</h2>
+      <h2 id="featuredHeading" class="section-title" data-i18n="featured.title">Featured Highlights</h2>
       <div class="grid cards-3" id="featuredProducts">
         <!-- JS will inject sample featured items -->
       </div>
@@ -78,7 +78,7 @@
   <!-- Best Sellers -->
   <section class="bestsellers section-padding" aria-labelledby="bestsellersHeading" style="display: none;">
     <div class="container">
-      <h2 id="bestsellersHeading" class="section-title">Best Sellers</h2>
+      <h2 id="bestsellersHeading" class="section-title" data-i18n="bestsellers.title">Best Sellers</h2>
       <div class="grid cards-3" id="bestsellersProducts">
         <!-- JS will inject bestsellers -->
       </div>
@@ -88,7 +88,7 @@
   <!-- New Arrivals -->
   <section class="new-arrivals section-padding section-alt" aria-labelledby="newArrivalsHeading" style="display: none;">
     <div class="container">
-      <h2 id="newArrivalsHeading" class="section-title">New Arrivals</h2>
+      <h2 id="newArrivalsHeading" class="section-title" data-i18n="newArrivals.title">New Arrivals</h2>
       <div class="grid cards-3" id="newArrivalsProducts">
         <!-- JS will inject new arrivals -->
       </div>
@@ -98,7 +98,7 @@
   <!-- Seasonal Specials -->
   <section class="seasonal section-padding" aria-labelledby="seasonalHeading" style="display: none;">
     <div class="container">
-      <h2 id="seasonalHeading" class="section-title">Seasonal Specials</h2>
+      <h2 id="seasonalHeading" class="section-title" data-i18n="seasonal.title">Seasonal Specials</h2>
       <div class="grid cards-3" id="seasonalProducts">
         <!-- JS will inject seasonal products -->
       </div>
@@ -109,18 +109,21 @@
   <section id="about" class="about section-alt section-padding" aria-labelledby="aboutHeading">
     <div class="container grid two-col">
       <div>
-        <h2 id="aboutHeading" class="section-title">Our Story</h2>
-        <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p>
-        <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p>
+        <h2 id="aboutHeading" class="section-title" data-i18n="about.title">Our Story</h2>
+        <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We
+          specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed
+          orchards, and mountain herbs.</p>
+        <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted
+          product represents heritage, care, and authenticity.</p>
         <ul class="values-list">
-          <li>Authentic Recipes</li>
-          <li>Natural Ingredients</li>
-          <li>Handcrafted Quality</li>
-          <li>Sustainable Sourcing</li>
+          <li data-i18n="about.authentic">Authentic Recipes</li>
+          <li data-i18n="about.natural">Natural Ingredients</li>
+          <li data-i18n="about.handcrafted">Handcrafted Quality</li>
+          <li data-i18n="about.sustainable">Sustainable Sourcing</li>
         </ul>
       </div>
       <div class="about-image-wrapper">
-  <img src="images/ourstory.png" alt="Our story - Lebanese heritage" class="responsive about-image" />
+        <img src="images/ourstory.png" alt="Our story - Lebanese heritage" class="responsive about-image" />
       </div>
     </div>
   </section>
@@ -129,18 +132,17 @@
   <section id="products" class="products section-padding" aria-labelledby="productsHeading">
     <div class="container">
       <h2 id="productsHeading" class="section-title" data-i18n="products.title">Our Products</h2>
-      <p class="section-intro" data-i18n="products.intro">Browse our categories of Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)</p>
+      <p class="section-intro" data-i18n="products.intro">Browse our categories of Lebanese goods. Each item includes a
+        brief description and ingredients. (No prices shown.)</p>
 
       <!-- Main Category Tabs -->
       <div class="main-cat-tabs" role="tablist" aria-label="Main product groups">
-        <button role="tab" aria-selected="true" class="main-cat-tab active" data-main="single" data-i18n="products.singleServe">Single Serve Products</button>
-        <button role="tab" aria-selected="false" class="main-cat-tab" data-main="bulk" data-i18n="products.bulk">Bulk Products</button>
+        <!-- Main category tabs will be generated dynamically by JavaScript -->
       </div>
 
       <!-- Subcategory Filters -->
       <div class="subcategory-wrapper" aria-live="polite">
-        <div class="filters sub-filters" id="subFiltersSingle" aria-label="Single Serve Subcategories"></div>
-        <div class="filters sub-filters hidden" id="subFiltersBulk" aria-label="Bulk Subcategories"></div>
+        <!-- Subcategory filters will be generated dynamically by JavaScript -->
       </div>
 
       <!-- Category Banner -->
@@ -153,43 +155,46 @@
   <!-- Contact Section -->
   <section id="contact" class="contact section-alt section-padding" aria-labelledby="contactHeading">
     <div class="container">
-      <h2 id="contactHeading" class="section-title">Contact Us</h2>
+      <h2 id="contactHeading" class="section-title" data-i18n="contact.title">Contact Us</h2>
       <div class="grid two-col contact-layout">
         <div>
           <form id="contactForm" novalidate aria-describedby="formStatus">
             <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" id="name" name="name" required placeholder="Your Name" />
+              <label for="name" data-i18n="contact.name">Name</label>
+              <input type="text" id="name" name="name" required data-i18n="contact.namePlaceholder" placeholder="Your Name" />
               <small class="error" data-error-for="name"></small>
             </div>
             <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" required placeholder="you@example.com" />
+              <label for="email" data-i18n="contact.email">Email</label>
+              <input type="email" id="email" name="email" required data-i18n="contact.emailPlaceholder" placeholder="you@example.com" />
               <small class="error" data-error-for="email"></small>
             </div>
             <div class="form-group">
-              <label for="message">Message</label>
-              <textarea id="message" name="message" rows="5" required placeholder="Write your message..."></textarea>
+              <label for="message" data-i18n="contact.message">Message</label>
+              <textarea id="message" name="message" rows="5" required data-i18n="contact.messagePlaceholder" placeholder="Write your message..."></textarea>
               <small class="error" data-error-for="message"></small>
             </div>
-            <button type="submit" class="btn btn-primary">Send Message</button>
+            <button type="submit" class="btn btn-primary" data-i18n="contact.send">Send Message</button>
             <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
           </form>
           <div class="contact-info">
-            <h3>Company Info</h3>
-            <p><strong>Email:</strong> <a href="mailto:info@karamlibnan.com">info@karamlibnan.com</a></p>
-            <p><strong>Phone:</strong> <a href="tel:+9611234567">+961 1 234 567</a></p>
-            <p><strong>Location:</strong> Placeholder Address, Lebanon</p>
-            <p>Follow us on social media:</p>
+            <h3 data-i18n="contact.info">Company Info</h3>
+            <p><strong data-i18n="contact.email.label">Email:</strong> <a href="mailto:info@karamlibnan.com">info@karamlibnan.com</a></p>
+            <p><strong data-i18n="contact.phone.label">Phone:</strong> <a href="tel:+9611234567">+961 1 234 567</a></p>
+            <p><strong data-i18n="contact.location.label">Location:</strong> Placeholder Address, Lebanon</p>
+            <p data-i18n="contact.social">Follow us on social media:</p>
             <ul class="social-list">
-              <li><a href="#" aria-label="Facebook">Facebook</a></li>
-              <li><a href="#" aria-label="Instagram">Instagram</a></li>
-              <li><a href="#" aria-label="Twitter">Twitter</a></li>
+              <li><a href="#" aria-label="Facebook" data-i18n="contact.facebook">Facebook</a></li>
+              <li><a href="#" aria-label="Instagram" data-i18n="contact.instagram">Instagram</a></li>
+              <li><a href="#" aria-label="Twitter" data-i18n="contact.twitter">Twitter</a></li>
             </ul>
           </div>
         </div>
         <div class="map-wrapper">
-          <iframe title="Google Maps placeholder" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26269.964643537265!2d35.4851683!3d33.8886289!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151f1721595bd76d%3A0xe20fd75f635d8d71!2sBeirut!5e0!3m2!1sen!2slb!4v0000000000000" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <iframe title="Google Maps placeholder"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26269.964643537265!2d35.4851683!3d33.8886289!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151f1721595bd76d%3A0xe20fd75f635d8d71!2sBeirut!5e0!3m2!1sen!2slb!4v0000000000000"
+            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
       </div>
     </div>
@@ -199,33 +204,84 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-brand">
-        <div class="logo">Karam <span>Libnan</span></div>
-        <p>Authentic Lebanese homemade & canned products. Tradition preserved in every jar.</p>
+        <div class="logo">
+          <img src="images/logo.png" alt="Karam Libnan Logo" class="logo-image" />
+        </div>
+        <p data-i18n="footer.tagline">Authentic Lebanese homemade & canned products. Tradition preserved in every jar.</p>
       </div>
       <nav aria-label="Footer Navigation">
         <ul class="footer-nav">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#products">Products</a></li>
-          <li><a href="events.html">Events</a></li>
-          <li><a href="services.html">Services</a></li>
-          <li><a href="faq.html">F&Q</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="#home" data-i18n="footer.home">Home</a></li>
+          <li><a href="#about" data-i18n="footer.about">About</a></li>
+          <li><a href="#products" data-i18n="footer.products">Products</a></li>
+          <li><a href="events.html" data-i18n="footer.events">Events</a></li>
+          <li><a href="services.html" data-i18n="footer.services">Services</a></li>
+          <li><a href="faq.html" data-i18n="footer.faq">F&Q</a></li>
+          <li><a href="#contact" data-i18n="footer.contact">Contact</a></li>
         </ul>
       </nav>
       <div class="footer-contact">
-        <p><strong>Email:</strong> info@karamlibnan.com</p>
-        <p><strong>Phone:</strong> +961 1 234 567</p>
+        <p><strong data-i18n="footer.email">Email:</strong> info@karamlibnan.com</p>
+        <p><strong data-i18n="footer.phone">Phone:</strong> +961 1 234 567</p>
       </div>
     </div>
     <div class="sub-footer">
-      <p>&copy; <span id="year"></span> Karam Libnan. All rights reserved.</p>
-      <a href="#top" class="back-to-top" aria-label="Back to Top">▲</a>
+      <p>&copy; <span id="year"></span> <span data-i18n="footer.rights">Karam Libnan. All rights reserved.</span></p>
+      <a href="#top" class="back-to-top" aria-label="Back to Top" data-i18n="footer.backToTop">▲</a>
     </div>
   </footer>
 
   <!-- Floating WhatsApp -->
-  <a href="https://wa.me/9611234567" class="float-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp Chat">💬</a>
+  <a href="https://wa.me/9611234567" class="float-whatsapp" target="_blank" rel="noopener"
+    aria-label="WhatsApp Chat">
+    <img src="images/whatsapp.png" alt="WhatsApp" />
+  </a>
+
+  </div> <!-- End Main Content -->
+
+  <!-- Product Details Modal -->
+  <div id="productModal" class="product-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close modal" data-i18n-aria="modal.close">&times;</button>
+      
+      <div class="modal-image">
+        <img src="" alt="Product image" />
+      </div>
+      
+      <div class="modal-details">
+        <h2 id="modalTitle" class="modal-title"></h2>
+        <p class="modal-description"></p>
+        
+        <div id="modalIngredients" class="modal-section" style="display: none;">
+          <div class="modal-section-title" data-i18n="modal.ingredients">Ingredients</div>
+          <div class="modal-list"></div>
+        </div>
+        
+        <div id="modalVariants" class="modal-section" style="display: none;">
+          <div class="modal-section-title" data-i18n="modal.variants">Variants</div>
+          <div class="modal-list"></div>
+        </div>
+        
+        <div id="modalTags" class="modal-section" style="display: none;">
+          <div class="modal-section-title" data-i18n="modal.tags">Tags</div>
+          <div class="modal-tags"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Navigation Component -->
+  <script>
+    // Load navigation component
+    fetch('components/navigation.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navigation-container').innerHTML = data;
+        // Initialize navigation after loading
+        initializeNavigation();
+      })
+      .catch(error => console.error('Error loading navigation:', error));
+  </script>
 
   <!-- Supabase Initialization -->
   <script type="module">
@@ -233,9 +289,39 @@
     const SUPABASE_URL = document.querySelector('meta[name="supabase-url"]').content;
     const SUPABASE_ANON_KEY = document.querySelector('meta[name="supabase-anon-key"]').content;
     window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY; // for app.js usage
-    window.createSupabaseClient = (url,key)=> createClient(url,key);
+    window.createSupabaseClient = (url, key) => createClient(url, key);
     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <script src="js/app.js" defer></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    // Register Service Worker for caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('✅ Service Worker registered successfully:', registration.scope);
+            console.log('🚀 Hero image and static assets will be cached for faster loading');
+            
+            // Listen for updates
+            registration.addEventListener('updatefound', () => {
+              console.log('🔄 Service Worker update found, new version installing...');
+            });
+          })
+          .catch((error) => {
+            console.log('❌ Service Worker registration failed:', error);
+          });
+          
+        // Check if page was loaded from cache
+        navigator.serviceWorker.ready.then(() => {
+          console.log('⚡ Service Worker ready - assets will load from cache on next visit');
+        });
+      });
+    } else {
+      console.log('ℹ️ Service Worker not supported in this browser');
+    }
+  </script>
 </body>
+
 </html>

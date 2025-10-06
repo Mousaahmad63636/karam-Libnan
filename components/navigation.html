@@ -1,0 +1,64 @@
+<!-- Header / Navigation -->
+<header class="site-header header-transparent" id="top">
+  <div class="container flex between center-v header-inner">
+    <div class="logo" id="logo">
+      <img src="images/logo.png" alt="Karam Libnan Logo" class="logo-image" />
+    </div>
+    <nav class="main-nav" aria-label="Primary Navigation">
+      <div class="nav-controls mobile-only">
+        <div class="search-wrapper">
+          <button id="searchToggle" class="search-icon-btn" aria-label="Open search" data-i18n-aria="search.open">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </button>
+          <input type="text" id="productSearch" class="search-input collapsed" data-i18n="search.placeholder" placeholder="Search products"
+            aria-label="Search products" />
+        </div>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <ul id="navMenu" class="nav-list">
+        <button class="nav-close" aria-label="Close navigation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <div class="nav-header">
+          <img src="images/logo.png" alt="Karam Libnan" class="nav-logo" />
+          <h3 data-i18n="nav.navigation">Navigation</h3>
+        </div>
+        <li><a href="#home" class="active" data-i18n="nav.home">Home</a></li>
+        <li><a href="#about" data-i18n="nav.about">About</a></li>
+        <li><a href="#products" data-i18n="nav.products">Products</a></li>
+        <li><a href="events.html" data-i18n="nav.events">Events</a></li>
+        <li><a href="services.html" data-i18n="nav.services">Services</a></li>
+        <li><a href="faq.html" data-i18n="nav.faq">F&Q</a></li>
+        <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+        <li class="lang-switch-item">
+          <button id="langToggle" class="lang-toggle" aria-label="Toggle language">AR</button>
+        </li>
+      </ul>
+    </nav>
+    <div class="header-actions desktop-only">
+      <div class="search-wrapper">
+        <button id="searchToggleDesktop" class="search-icon-btn" aria-label="Open search" data-i18n-aria="search.open">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </button>
+        <input type="text" id="productSearchDesktop" class="search-input collapsed" data-i18n="search.placeholder" placeholder="Search products"
+          aria-label="Search products" />
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Navigation Overlay -->
+<div class="nav-overlay" id="navOverlay"></div>
