@@ -485,6 +485,34 @@ function buildMainTabs() {
   }).join('');
   
   mainTabsContainer.innerHTML = tabsHTML;
+  
+  // Update main category description
+  updateMainCategoryDescription();
+}
+
+function updateMainCategoryDescription() {
+  const descriptionContainer = document.getElementById('mainCategoryDescription');
+  if (!descriptionContainer) return;
+  
+  // Get current main category data
+  const currentMainCategory = mainCategories.find(c => c.slug === currentMain);
+  
+  if (!currentMainCategory) {
+    descriptionContainer.classList.remove('visible');
+    return;
+  }
+  
+  // Get localized description
+  const description = currentLang === 'ar' && currentMainCategory.description_ar 
+    ? currentMainCategory.description_ar 
+    : currentMainCategory.description_en || '';
+  
+  if (description.trim()) {
+    descriptionContainer.innerHTML = `<p>${description}</p>`;
+    descriptionContainer.classList.add('visible');
+  } else {
+    descriptionContainer.classList.remove('visible');
+  }
 }
 
 function buildSubFilters() {
@@ -555,6 +583,9 @@ function initMainTabs() {
         // Reset active button to 'all'
         activeContainer.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
       }
+      
+      // Update main category description
+      updateMainCategoryDescription();
       
       renderProducts();
     });
