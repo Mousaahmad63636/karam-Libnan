@@ -477,42 +477,19 @@ function buildMainTabs() {
     currentMain = mainCategories[0].slug;
   }
   
-  // Generate main category tabs dynamically with localized titles
+  // Generate main category tabs dynamically with localized titles and descriptions
   const tabsHTML = mainCategories.map((cat, index) => {
     const isActive = cat.slug === currentMain;
     const title = currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en;
-    return `<button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${title}</button>`;
+    const description = currentLang === 'ar' && cat.description_ar ? cat.description_ar : cat.description_en || '';
+    
+    return `<button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">
+      <span class="tab-title">${title}</span>
+      ${isActive && description ? `<span class="tab-description">${description}</span>` : ''}
+    </button>`;
   }).join('');
   
   mainTabsContainer.innerHTML = tabsHTML;
-  
-  // Update main category description
-  updateMainCategoryDescription();
-}
-
-function updateMainCategoryDescription() {
-  const descriptionContainer = document.getElementById('mainCategoryDescription');
-  if (!descriptionContainer) return;
-  
-  // Get current main category data
-  const currentMainCategory = mainCategories.find(c => c.slug === currentMain);
-  
-  if (!currentMainCategory) {
-    descriptionContainer.classList.remove('visible');
-    return;
-  }
-  
-  // Get localized description
-  const description = currentLang === 'ar' && currentMainCategory.description_ar 
-    ? currentMainCategory.description_ar 
-    : currentMainCategory.description_en || '';
-  
-  if (description && description.trim()) {
-    descriptionContainer.innerHTML = `<p>${description}</p>`;
-    descriptionContainer.classList.add('visible');
-  } else {
-    descriptionContainer.classList.remove('visible');
-  }
 }
 
 function buildSubFilters() {
@@ -584,8 +561,9 @@ function initMainTabs() {
         activeContainer.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
       }
       
-      // Update main category description
-      updateMainCategoryDescription();
+      // Rebuild tabs to show description in active tab
+      buildMainTabs();
+      initMainTabs();
       
       renderProducts();
     });
