@@ -98,6 +98,17 @@ function applyContentOverrides() {
       if (img) img.src = SITE_OVERRIDES.about.image;
     }
   }
+  // Products
+  if (SITE_OVERRIDES.products) {
+    if (SITE_OVERRIDES.products.title) {
+      const productsHeading = document.querySelector('#productsHeading');
+      if (productsHeading) productsHeading.textContent = SITE_OVERRIDES.products.title;
+    }
+    if (SITE_OVERRIDES.products.intro) {
+      const productsIntro = document.querySelector('#products .section-intro');
+      if (productsIntro) productsIntro.textContent = SITE_OVERRIDES.products.intro;
+    }
+  }
 }
 
 // Navigation initialization function
@@ -296,7 +307,7 @@ function renderSeasonal() {
 // Render custom sections dynamically
 function renderCustomSections() {
   // Get all unique section keys from products (excluding core sections)
-  const coreSection = ['featured', 'bestsellers', 'new-arrivals', 'seasonal', 'hero', 'about', 'contact'];
+  const coreSection = ['featured', 'bestsellers', 'new-arrivals', 'seasonal', 'hero', 'about', 'products', 'contact'];
   
   const customSections = [...new Set(
     productsData.flatMap(p => p.sections || [])
@@ -910,10 +921,10 @@ async function tryRemoteLoad(){
       SITE_OVERRIDES = SITE_OVERRIDES || {};
       
       // Define section order: hero, about, products, custom sections, then contact at end
-      const fixedSections = ['hero', 'about'];
+      const fixedSections = ['hero', 'about', 'products'];
       const contactSection = sections.find(s => s.key === 'contact');
       
-      // Process fixed sections first (hero, about)
+      // Process fixed sections first (hero, about, products)
       fixedSections.forEach(key => {
         const section = sections.find(s => s.key === key);
         if (section) {
@@ -922,6 +933,9 @@ async function tryRemoteLoad(){
           }
           if (section.key === 'about') {
             SITE_OVERRIDES.about = { heading: section.title_en, text: section.body_en? [section.body_en]:[], image: section.image_url };
+          }
+          if (section.key === 'products') {
+            SITE_OVERRIDES.products = { title: section.title_en, intro: section.content_en };
           }
           updateSectionContent(section.key, section);
         }
@@ -972,6 +986,12 @@ function updateSectionContent(sectionKey, sectionData) {
     // Update hero background image if provided
     if (sectionData.image_url) {
       section.style.backgroundImage = `var(--gradient-hero), url('${sectionData.image_url}')`;
+    }
+  } else if (sectionKey === 'products') {
+    // For products section, update the intro paragraph
+    const introElement = section.querySelector('.section-intro');
+    if (introElement && sectionData.content_en) {
+      introElement.textContent = sectionData.content_en;
     }
   } else if (sectionKey === 'contact') {
     // For contact section, update the contact-info content

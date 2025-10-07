@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Products Section - Karam Libnan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .section-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        pre {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Add Missing "Our Products" Section</h1>
+        
+        <div class="section-preview">
+            <h3>Section to be added:</h3>
+            <p><strong>Key:</strong> <code>products</code></p>
+            <p><strong>Title (EN):</strong> Our Products</p>
+            <p><strong>Title (AR):</strong> منتجاتنا</p>
+            <p><strong>Content (EN):</strong> Browse our categories of Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)</p>
+            <p><strong>Content (AR):</strong> تصفح فئات منتجاتنا اللبنانية. كل صنف يتضمن وصفاً ومكونات (بدون أسعار)</p>
+            <p><strong>Sort Order:</strong> 3</p>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <button id="checkBtn" onclick="checkSection()">🔍 Check if Section Exists</button>
+        <button id="addBtn" onclick="addSection()" disabled>➕ Add Products Section</button>
+        <button id="testBtn" onclick="testConnection()">🔗 Test Database Connection</button>
+
+        <div id="details" style="margin-top: 20px; display: none;">
+            <h3>Database Query:</h3>
+            <pre id="queryDisplay"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/supabaseClient.js';
+        
+        window.supabase = supabase;
+        
+        // Test database connection
+        window.testConnection = async function() {
+            showStatus('Testing database connection...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                showStatus('✅ Database connection successful!', 'success');
+                document.getElementById('checkBtn').disabled = false;
+            } catch (error) {
+                showStatus('❌ Database connection failed: ' + error.message, 'error');
+                console.error('Connection error:', error);
+            }
+        }
+        
+        // Check if products section exists
+        window.checkSection = async function() {
+            showStatus('Checking if products section exists...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .select('*')
+                    .eq('key', 'products');
+                
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    showStatus('ℹ️ Products section already exists in database!', 'info');
+                    document.getElementById('addBtn').disabled = true;
+                    
+                    // Show existing data
+                    document.getElementById('queryDisplay').textContent = JSON.stringify(data[0], null, 2);
+                    document.getElementById('details').style.display = 'block';
+                } else {
+                    showStatus('❌ Products section not found. Ready to add it!', 'error');
+                    document.getElementById('addBtn').disabled = false;
+                }
+            } catch (error) {
+                showStatus('❌ Error checking section: ' + error.message, 'error');
+                console.error('Check error:', error);
+            }
+        }
+        
+        // Add products section to database
+        window.addSection = async function() {
+            showStatus('Adding products section to database...', 'info');
+            document.getElementById('addBtn').disabled = true;
+            
+            const sectionData = {
+                key: 'products',
+                title_en: 'Our Products',
+                title_ar: 'منتجاتنا',
+                content_en: 'Browse our categories of Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)',
+                content_ar: 'تصفح فئات منتجاتنا اللبنانية. كل صنف يتضمن وصفاً ومكونات (بدون أسعار)',
+                sort_order: 3
+            };
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .insert([sectionData])
+                    .select();
+                
+                if (error) throw error;
+                
+                showStatus('✅ Products section added successfully! You can now manage it in the admin panel.', 'success');
+                
+                // Show inserted data
+                document.getElementById('queryDisplay').textContent = JSON.stringify(data[0], null, 2);
+                document.getElementById('details').style.display = 'block';
+                
+                // Re-enable check button for verification
+                document.getElementById('checkBtn').disabled = false;
+                
+            } catch (error) {
+                showStatus('❌ Error adding section: ' + error.message, 'error');
+                console.error('Insert error:', error);
+                document.getElementById('addBtn').disabled = false;
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+        }
+        
+        // Auto-test connection on load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+</body>
+</html>
