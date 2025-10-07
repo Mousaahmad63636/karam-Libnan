@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Hero Overlay Controls - Karam Libnan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .section-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        pre {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .overlay-demo {
+            width: 100%;
+            height: 200px;
+            background: url('images/hero.png') center/cover;
+            position: relative;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .overlay-demo::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(41,36,29,0.4), rgba(41,36,29,0.4));
+            border-radius: 8px;
+        }
+        .overlay-demo span {
+            position: relative;
+            z-index: 2;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .control-group input, .control-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .color-input {
+            width: 60px;
+            height: 40px;
+            padding: 2px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Add Hero Overlay Controls</h1>
+        
+        <div class="section-preview">
+            <h3>Hero Overlay Controls to be added:</h3>
+            <p><strong>Overlay Color:</strong> Customizable color (default: dark brown #29241d)</p>
+            <p><strong>Overlay Opacity:</strong> 0-100% intensity control (default: 40%)</p>
+            <p><strong>Overlay Type:</strong> Solid, Top-to-bottom gradient, Radial gradient</p>
+            <p><strong>Secondary Color:</strong> For gradient overlays</p>
+        </div>
+
+        <div class="overlay-demo" id="overlayDemo">
+            <span>Hero Section Preview</span>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Overlay Type:</label>
+                <select id="overlayType" onchange="updatePreview()">
+                    <option value="solid">Solid Color</option>
+                    <option value="linear" selected>Linear Gradient</option>
+                    <option value="radial">Radial Gradient</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Primary Color:</label>
+                <input type="color" id="primaryColor" value="#29241d" class="color-input" onchange="updatePreview()">
+            </div>
+            <div class="control-group">
+                <label>Secondary Color:</label>
+                <input type="color" id="secondaryColor" value="#29241d" class="color-input" onchange="updatePreview()">
+            </div>
+            <div class="control-group">
+                <label>Opacity (%):</label>
+                <input type="range" id="opacity" min="0" max="100" value="40" onchange="updatePreview()">
+                <span id="opacityValue">40%</span>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <button id="checkBtn" onclick="checkHeroSection()">🔍 Check Hero Section</button>
+        <button id="updateBtn" onclick="updateHeroSection()" disabled>🎨 Add Overlay Controls</button>
+        <button id="testBtn" onclick="testConnection()">🔗 Test Database Connection</button>
+
+        <div id="details" style="margin-top: 20px; display: none;">
+            <h3>Database Query Result:</h3>
+            <pre id="queryDisplay"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/supabaseClient.js';
+        
+        window.supabase = supabase;
+        
+        // Update preview based on controls
+        window.updatePreview = function() {
+            const demo = document.getElementById('overlayDemo');
+            const type = document.getElementById('overlayType').value;
+            const primary = document.getElementById('primaryColor').value;
+            const secondary = document.getElementById('secondaryColor').value;
+            const opacity = document.getElementById('opacity').value;
+            
+            document.getElementById('opacityValue').textContent = opacity + '%';
+            
+            const alpha = opacity / 100;
+            let overlayCSS = '';
+            
+            switch(type) {
+                case 'solid':
+                    overlayCSS = `rgba(${hexToRgb(primary)}, ${alpha})`;
+                    break;
+                case 'linear':
+                    overlayCSS = `linear-gradient(rgba(${hexToRgb(primary)}, ${alpha}), rgba(${hexToRgb(secondary)}, ${alpha}))`;
+                    break;
+                case 'radial':
+                    overlayCSS = `radial-gradient(circle, rgba(${hexToRgb(primary)}, ${alpha}), rgba(${hexToRgb(secondary)}, ${alpha}))`;
+                    break;
+            }
+            
+            demo.style.setProperty('--overlay', overlayCSS);
+            demo.querySelector('::before') || (demo.innerHTML = '<span>Hero Section Preview</span>');
+            
+            // Update the overlay
+            const style = document.createElement('style');
+            style.textContent = `#overlayDemo::before { background: ${overlayCSS} !important; }`;
+            document.head.appendChild(style);
+        }
+        
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? 
+                `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+                '41, 36, 29';
+        }
+        
+        // Test database connection
+        window.testConnection = async function() {
+            showStatus('Testing database connection...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                showStatus('✅ Database connection successful!', 'success');
+                document.getElementById('checkBtn').disabled = false;
+            } catch (error) {
+                showStatus('❌ Database connection failed: ' + error.message, 'error');
+                console.error('Connection error:', error);
+            }
+        }
+        
+        // Check if hero section exists
+        window.checkHeroSection = async function() {
+            showStatus('Checking hero section in database...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .select('*')
+                    .eq('key', 'hero');
+                
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    showStatus('✅ Hero section found! Ready to add overlay controls.', 'success');
+                    document.getElementById('updateBtn').disabled = false;
+                    
+                    // Show existing data
+                    document.getElementById('queryDisplay').textContent = JSON.stringify(data[0], null, 2);
+                    document.getElementById('details').style.display = 'block';
+                } else {
+                    showStatus('❌ Hero section not found. Please add the hero section first.', 'error');
+                    document.getElementById('updateBtn').disabled = true;
+                }
+            } catch (error) {
+                showStatus('❌ Error checking hero section: ' + error.message, 'error');
+                console.error('Check error:', error);
+            }
+        }
+        
+        // Update hero section with overlay controls
+        window.updateHeroSection = async function() {
+            showStatus('Adding overlay controls to hero section...', 'info');
+            document.getElementById('updateBtn').disabled = true;
+            
+            const overlayData = {
+                overlay_type: 'linear',
+                overlay_primary_color: '#29241d',
+                overlay_secondary_color: '#29241d', 
+                overlay_opacity: 40
+            };
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .update(overlayData)
+                    .eq('key', 'hero')
+                    .select();
+                
+                if (error) throw error;
+                
+                showStatus('✅ Hero overlay controls added successfully! You can now manage them in the admin panel.', 'success');
+                
+                // Show updated data
+                document.getElementById('queryDisplay').textContent = JSON.stringify(data[0], null, 2);
+                document.getElementById('details').style.display = 'block';
+                
+            } catch (error) {
+                showStatus('❌ Error updating hero section: ' + error.message, 'error');
+                console.error('Update error:', error);
+                document.getElementById('updateBtn').disabled = false;
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+        }
+        
+        // Initialize preview
+        updatePreview();
+        
+        // Auto-test connection on load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+</body>
+</html>

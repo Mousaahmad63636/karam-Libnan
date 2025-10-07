@@ -966,6 +966,38 @@ async function tryRemoteLoad(){
   } catch(err){ console.warn('Remote load failed', err); }
 }
 
+// Generate overlay CSS based on section data
+function generateOverlayCSS(sectionData) {
+  const type = sectionData.overlay_type || 'linear';
+  const opacity = (sectionData.overlay_opacity || 40) / 100;
+  const primary = sectionData.overlay_primary_color || '#29241d';
+  const secondary = sectionData.overlay_secondary_color || '#29241d';
+  
+  // Convert hex to rgba
+  function hexToRgba(hex, alpha) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return `rgba(41, 36, 29, ${alpha})`;
+    
+    const r = parseInt(result[1], 16);
+    const g = parseInt(result[2], 16);
+    const b = parseInt(result[3], 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  
+  const primaryRgba = hexToRgba(primary, opacity);
+  const secondaryRgba = hexToRgba(secondary, opacity);
+  
+  switch(type) {
+    case 'solid':
+      return primaryRgba;
+    case 'radial':
+      return `radial-gradient(circle, ${primaryRgba}, ${secondaryRgba})`;
+    case 'linear':
+    default:
+      return `linear-gradient(${primaryRgba}, ${secondaryRgba})`;
+  }
+}
+
 // Update section content dynamically based on section data from database
 function updateSectionContent(sectionKey, sectionData) {
   // Handle hero/home ID mismatch - hero section in HTML has id="home"
@@ -998,9 +1030,19 @@ function updateSectionContent(sectionKey, sectionData) {
       leadElement.innerHTML = sectionData.body_en;
     }
     
-    // Update hero background image if provided
+    // Update hero background image and overlay if provided
     if (sectionData.image_url) {
-      section.style.backgroundImage = `var(--gradient-hero), url('${sectionData.image_url}')`;
+      // Generate overlay CSS based on section data
+      const overlayCSS = generateOverlayCSS(sectionData);
+      section.style.backgroundImage = `${overlayCSS}, url('${sectionData.image_url}')`;
+    } else if (sectionData.overlay_type || sectionData.overlay_opacity || sectionData.overlay_primary_color) {
+      // Update overlay even without changing image
+      const overlayCSS = generateOverlayCSS(sectionData);
+      const currentBg = section.style.backgroundImage || getComputedStyle(section).backgroundImage;
+      const imageMatch = currentBg.match(/url\([^)]+\)/);
+      if (imageMatch) {
+        section.style.backgroundImage = `${overlayCSS}, ${imageMatch[0]}`;
+      }
     }
   } else if (sectionKey === 'products') {
     // For products section, update the intro paragraph
