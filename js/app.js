@@ -85,7 +85,16 @@ function applyContentOverrides() {
       const aboutHeading = document.querySelector('#aboutHeading');
       if (aboutHeading) aboutHeading.textContent = SITE_OVERRIDES.about.heading;
     }
-    if (SITE_OVERRIDES.about.text && Array.isArray(SITE_OVERRIDES.about.text)) {
+    
+    // If we have full content, use it; otherwise fall back to text array
+    if (SITE_OVERRIDES.about.fullContent) {
+      const aboutSection = document.querySelector('#about .container .grid > div:first-child');
+      if (aboutSection) {
+        const title = aboutSection.querySelector('h2');
+        const titleHTML = title ? title.outerHTML : `<h2 id="aboutHeading" class="section-title">${SITE_OVERRIDES.about.heading}</h2>`;
+        aboutSection.innerHTML = titleHTML + SITE_OVERRIDES.about.fullContent;
+      }
+    } else if (SITE_OVERRIDES.about.text && Array.isArray(SITE_OVERRIDES.about.text)) {
       const aboutSection = document.querySelector('#about .container > div:first-child');
       if (aboutSection) {
         // Replace first two <p>
@@ -93,6 +102,7 @@ function applyContentOverrides() {
         SITE_OVERRIDES.about.text.forEach((t,i)=>{ if (ps[i]) ps[i].textContent = t; });
       }
     }
+    
     if (SITE_OVERRIDES.about.image) {
       const img = document.querySelector('.about-image-wrapper img');
       if (img) img.src = SITE_OVERRIDES.about.image;
@@ -932,7 +942,12 @@ async function tryRemoteLoad(){
             SITE_OVERRIDES.hero = { title: section.title_en, lead: section.body_en, image: section.image_url };
           }
           if (section.key === 'about') {
-            SITE_OVERRIDES.about = { heading: section.title_en, text: section.body_en? [section.body_en]:[], image: section.image_url };
+            SITE_OVERRIDES.about = { 
+              heading: section.title_en, 
+              text: section.body_en ? [section.body_en] : [], 
+              image: section.image_url,
+              fullContent: section.body_en // Store full HTML content
+            };
           }
           if (section.key === 'products') {
             SITE_OVERRIDES.products = { title: section.title_en, intro: section.content_en };
@@ -1000,6 +1015,21 @@ function updateSectionContent(sectionKey, sectionData) {
       // Keep the h3 title, replace the content after it
       const h3 = contactInfo.querySelector('h3');
       contactInfo.innerHTML = (h3 ? h3.outerHTML : '<h3>Company Info</h3>') + sectionData.body_en;
+    }
+  } else if (sectionKey === 'about') {
+    // For about section, replace the entire content div with full HTML
+    const contentDiv = section.querySelector('.container > .grid > div:first-child');
+    if (contentDiv && sectionData.body_en) {
+      // Keep the title, replace everything else
+      const title = contentDiv.querySelector('h2');
+      const titleHTML = title ? title.outerHTML : `<h2 id="aboutHeading" class="section-title">${sectionData.title_en}</h2>`;
+      contentDiv.innerHTML = titleHTML + sectionData.body_en;
+    }
+    
+    // Update the image if provided
+    if (sectionData.image_url) {
+      const img = section.querySelector('.about-image-wrapper img, .about-image');
+      if (img) img.src = sectionData.image_url;
     }
   } else {
     // For other sections, update general content areas

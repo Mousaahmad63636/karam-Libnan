@@ -2178,11 +2178,23 @@
                         </div>
                         <div class="form-group">
                             <label for="content_en">Content (English)</label>
-                            <textarea id="content_en" name="content_en" placeholder="Section content in English"></textarea>
+                            <textarea id="content_en" name="content_en" placeholder="Brief description/intro text"></textarea>
+                            <small>Short description for the section</small>
                         </div>
                         <div class="form-group">
                             <label for="content_ar">Content (Arabic)</label>
-                            <textarea id="content_ar" name="content_ar" placeholder="محتوى القسم بالعربية"></textarea>
+                            <textarea id="content_ar" name="content_ar" placeholder="وصف مختصر للقسم"></textarea>
+                            <small>Short description in Arabic</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="body_en">Full Body Content (English)</label>
+                            <textarea id="body_en" name="body_en" rows="8" placeholder="Full HTML content for the section (paragraphs, lists, etc.)"></textarea>
+                            <small>Full HTML content - you can use &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, etc.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="body_ar">Full Body Content (Arabic)</label>
+                            <textarea id="body_ar" name="body_ar" rows="8" placeholder="المحتوى الكامل بالعربية"></textarea>
+                            <small>Full HTML content in Arabic</small>
                         </div>
                         <div class="form-actions">
                             <button type="button" class="btn" onclick="closeModal()">Cancel</button>
@@ -2218,6 +2230,8 @@
                         title_ar: formData.get('title_ar') || null,
                         content_en: formData.get('content_en') || null,
                         content_ar: formData.get('content_ar') || null,
+                        body_en: formData.get('body_en') || null,
+                        body_ar: formData.get('body_ar') || null,
                         image_url: imageUrl,
                         sort_order: parseInt(formData.get('sort_order')) || 0
                     };
@@ -2294,10 +2308,22 @@
                             <div class="form-group">
                                 <label for="content_en">Content (English)</label>
                                 <textarea id="content_en" name="content_en">${data.content_en || ''}</textarea>
+                                <small>Short description for the section</small>
                             </div>
                             <div class="form-group">
                                 <label for="content_ar">Content (Arabic)</label>
                                 <textarea id="content_ar" name="content_ar">${data.content_ar || ''}</textarea>
+                                <small>Short description in Arabic</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="body_en">Full Body Content (English)</label>
+                                <textarea id="body_en" name="body_en" rows="8">${data.body_en || ''}</textarea>
+                                <small>Full HTML content - you can use &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, etc.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="body_ar">Full Body Content (Arabic)</label>
+                                <textarea id="body_ar" name="body_ar" rows="8">${data.body_ar || ''}</textarea>
+                                <small>Full HTML content in Arabic</small>
                             </div>
                             <div class="form-actions">
                                 <button type="button" class="btn" onclick="closeModal()">Cancel</button>

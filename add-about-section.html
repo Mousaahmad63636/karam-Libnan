@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Our Story Section - Karam Libnan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .section-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        pre {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .content-preview {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📖 Add "Our Story" Section for Full Admin Control</h1>
+        
+        <div class="section-preview">
+            <h3>Section to be added:</h3>
+            <p><strong>Key:</strong> <code>about</code></p>
+            <p><strong>Title (EN):</strong> Our Story</p>
+            <p><strong>Title (AR):</strong> قصتنا</p>
+            <p><strong>Content (EN):</strong> Browse our categories of Lebanese goods...</p>
+            <p><strong>Body (EN):</strong> Full HTML content with paragraphs and values list</p>
+            <p><strong>Image:</strong> images/ourstory.png</p>
+            <p><strong>Sort Order:</strong> 1</p>
+        </div>
+
+        <div class="content-preview">
+            <h4>Full Body Content (HTML):</h4>
+            <div id="bodyPreview"></div>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <button id="checkBtn" onclick="checkSection()">🔍 Check if About Section Exists</button>
+        <button id="addBtn" onclick="addSection()" disabled>➕ Add Our Story Section</button>
+        <button id="testBtn" onclick="testConnection()">🔗 Test Database Connection</button>
+
+        <div id="details" style="margin-top: 20px; display: none;">
+            <h3>Database Query Result:</h3>
+            <pre id="queryDisplay"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './js/supabaseClient.js';
+        
+        window.supabase = supabase;
+        
+        // Full HTML content for Our Story section
+        const aboutBodyContent = `
+            <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p>
+            <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p>
+            <ul class="values-list">
+                <li data-i18n="about.authentic">Authentic Recipes</li>
+                <li data-i18n="about.natural">Natural Ingredients</li>
+                <li data-i18n="about.handcrafted">Handcrafted Quality</li>
+                <li data-i18n="about.sustainable">Sustainable Sourcing</li>
+            </ul>
+        `.trim();
+
+        const aboutBodyContentAr = `
+            <p>وُلدت كرم لبنان من حب النكهات اللبنانية الأصيلة المتوارثة عبر الأجيال. نحن متخصصون في المنتجات المنزلية والمعلبة بعناية التي تعكس قلب أرضنا - بساتين الزيتون والبساتين المشمسة والأعشاب الجبلية.</p>
+            <p>مهمتنا هي الحفاظ على التقاليد مع احتضان الجودة والاستدامة. كل برطمان ومنتج مصنوع يدوياً يمثل التراث والعناية والأصالة.</p>
+            <ul class="values-list">
+                <li>وصفات أصيلة</li>
+                <li>مكونات طبيعية</li>
+                <li>جودة يدوية الصنع</li>
+                <li>مصادر مستدامة</li>
+            </ul>
+        `.trim();
+
+        // Show preview of content
+        document.getElementById('bodyPreview').innerHTML = aboutBodyContent;
+        
+        // Test database connection
+        window.testConnection = async function() {
+            showStatus('Testing database connection...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                showStatus('✅ Database connection successful!', 'success');
+                document.getElementById('checkBtn').disabled = false;
+            } catch (error) {
+                showStatus('❌ Database connection failed: ' + error.message, 'error');
+                console.error('Connection error:', error);
+            }
+        }
+        
+        // Check if about section exists
+        window.checkSection = async function() {
+            showStatus('Checking if Our Story (about) section exists...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .select('*')
+                    .eq('key', 'about');
+                
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    showStatus('ℹ️ Our Story section already exists in database!', 'info');
+                    document.getElementById('addBtn').disabled = true;
+                    
+                    // Show existing data
+                    document.getElementById('queryDisplay').textContent = JSON.stringify(data[0], null, 2);
+                    document.getElementById('details').style.display = 'block';
+                } else {
+                    showStatus('❌ Our Story section not found. Ready to add it!', 'error');
+                    document.getElementById('addBtn').disabled = false;
+                }
+            } catch (error) {
+                showStatus('❌ Error checking section: ' + error.message, 'error');
+                console.error('Check error:', error);
+            }
+        }
+        
+        // Add about section to database
+        window.addSection = async function() {
+            showStatus('Adding Our Story section to database...', 'info');
+            document.getElementById('addBtn').disabled = true;
+            
+            const sectionData = {
+                key: 'about',
+                title_en: 'Our Story',
+                title_ar: 'قصتنا',
+                content_en: 'Learn about our heritage and commitment to authentic Lebanese flavors.',
+                content_ar: 'تعرف على تراثنا والتزامنا بالنكهات اللبنانية الأصيلة.',
+                body_en: aboutBodyContent,
+                body_ar: aboutBodyContentAr,
+                image_url: 'images/ourstory.png',
+                sort_order: 1
+            };
+            
+            try {
+                const { data, error } = await supabase
+                    .from('sections')
+                    .insert([sectionData])
+                    .select();
+                
+                if (error) throw error;
+                
+                showStatus('✅ Our Story section added successfully! You can now fully manage it in the admin panel.', 'success');
+                
+                // Show inserted data
+                document.getElementById('queryDisplay').textContent = JSON.stringify(data[0], null, 2);
+                document.getElementById('details').style.display = 'block';
+                
+                // Re-enable check button for verification
+                document.getElementById('checkBtn').disabled = false;
+                
+            } catch (error) {
+                showStatus('❌ Error adding section: ' + error.message, 'error');
+                console.error('Insert error:', error);
+                document.getElementById('addBtn').disabled = false;
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+        }
+        
+        // Auto-test connection on load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+</body>
+</html>
