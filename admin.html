@@ -592,6 +592,7 @@
                 max-width: 100%;
                 border-radius: 6px;
                 -webkit-appearance: none;
+                appearance: none;
             }
 
             .form-actions {
@@ -1836,12 +1837,12 @@
                 };
             }
 
-            async uploadImageToStorage(file) {
+            async uploadImageToStorage(file, folder = 'products') {
                 try {
                     // Generate unique filename
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-                    const filePath = `products/${fileName}`;
+                    const filePath = `${folder}/${fileName}`;
                     
                     // Upload to Supabase Storage
                     const { data, error } = await supabase.storage
@@ -2164,8 +2165,15 @@
                                 <input type="text" id="title_ar" name="title_ar" placeholder="عنا">
                             </div>
                             <div class="form-group">
-                                <label for="image_url">Image URL</label>
+                                <label for="image_file">Section Image</label>
+                                <input type="file" id="image_file" name="image_file" accept="image/*" onchange="previewSectionImage(this)">
+                                <small>Choose image file for this section</small>
+                                <img id="section_image_preview" style="max-width: 200px; max-height: 150px; margin-top: 10px; display: none;" alt="Preview">
+                            </div>
+                            <div class="form-group">
+                                <label for="image_url">Or Image URL</label>
                                 <input type="url" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                                <small>Alternative: Enter image URL directly</small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -2195,17 +2203,25 @@
                 const form = document.getElementById('section-form');
                 const formData = new FormData(form);
                 
-                const data = {
-                    key: formData.get('key'),
-                    title_en: formData.get('title_en'),
-                    title_ar: formData.get('title_ar') || null,
-                    content_en: formData.get('content_en') || null,
-                    content_ar: formData.get('content_ar') || null,
-                    image_url: formData.get('image_url') || null,
-                    sort_order: parseInt(formData.get('sort_order')) || 0
-                };
-
                 try {
+                    // Handle image upload first if file selected
+                    let imageUrl = formData.get('image_url') || null; // Keep existing URL as fallback
+                    const imageFile = formData.get('image_file');
+                    if (imageFile && imageFile.size > 0) {
+                        this.showMessage('📤 Uploading section image...', 'info');
+                        imageUrl = await this.uploadImageToStorage(imageFile, 'sections');
+                    }
+                    
+                    const data = {
+                        key: formData.get('key'),
+                        title_en: formData.get('title_en'),
+                        title_ar: formData.get('title_ar') || null,
+                        content_en: formData.get('content_en') || null,
+                        content_ar: formData.get('content_ar') || null,
+                        image_url: imageUrl,
+                        sort_order: parseInt(formData.get('sort_order')) || 0
+                    };
+
                     if (this.editingItem) {
                         const { error } = await supabase
                             .from('sections')
@@ -2263,8 +2279,16 @@
                                     <input type="text" id="title_ar" name="title_ar" value="${data.title_ar || ''}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="image_url">Image URL</label>
+                                    <label for="image_file">Section Image</label>
+                                    <input type="file" id="image_file" name="image_file" accept="image/*" onchange="previewSectionImage(this)">
+                                    <small>Choose new image file (optional - leave empty to keep current image)</small>
+                                    ${data.image_url ? `<div style="margin-top: 10px;"><strong>Current image:</strong><br><img src="${data.image_url}" style="max-width: 200px; max-height: 150px;" alt="Current image"></div>` : ''}
+                                    <img id="section_image_preview" style="max-width: 200px; max-height: 150px; margin-top: 10px; display: none;" alt="Preview">
+                                </div>
+                                <div class="form-group">
+                                    <label for="image_url">Or Image URL</label>
                                     <input type="url" id="image_url" name="image_url" value="${data.image_url || ''}">
+                                    <small>Alternative: Enter image URL directly</small>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -2383,6 +2407,21 @@
             }
         }
 
+        // Section image preview function
+        function previewSectionImage(input) {
+            const preview = document.getElementById('section_image_preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
         // Global functions for button clicks
         window.loadDashboard = () => admin.loadDashboard();
         window.loadMainCategories = () => admin.loadMainCategories();
@@ -2391,6 +2430,7 @@
         window.loadSections = () => admin.loadSections();
         window.loadMedia = () => admin.loadMedia();
         window.closeModal = () => admin.closeModal();
+        window.previewSectionImage = previewSectionImage;
 
         // Main Categories CRUD
         window.showAddMainCategoryModal = () => admin.showAddMainCategoryModal();
