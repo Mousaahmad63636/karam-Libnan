@@ -347,7 +347,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   margin-top: 0.5rem;
   padding: 0.75rem 0;
   font-size: 0.85rem;
-  line-height: 1.4;
+  line-height: 1.5;
   color: var(--color-navy);
   text-align: left;
   display: -webkit-box;
@@ -357,6 +357,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   overflow: hidden;
   max-width: 100%;
   word-wrap: break-word;
+  max-height: calc(0.85rem * 1.5 * 4); /* font-size * line-height * number of lines */
 }
 
 
