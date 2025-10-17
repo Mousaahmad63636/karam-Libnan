@@ -346,12 +346,12 @@ a:hover, a:focus { color: var(--color-secondary); }
 .tab-description-below {
   margin-top: 0.5rem;
   padding: 0.75rem 0;
-  font-size: 0.85rem;
+  font-size: 1rem; /* Matched with Our Products description size */
   line-height: 1.5;
   color: var(--color-navy);
   text-align: left;
   position: relative;
-  height: 7em; /* Increased to show full 4th line */
+  height: 6em; /* Adjusted for new font size to show 4 lines */
   overflow: hidden;
   max-width: 100%;
   word-wrap: break-word;
