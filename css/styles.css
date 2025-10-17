@@ -362,11 +362,19 @@ body.searching .product-grid { opacity:.4; }
 .whatsapp-icon {
   width: 65px;
   height: 65px;
-  transition: transform 0.3s ease;
+  animation: floating 2s ease-in-out infinite;
 }
 
-.whatsapp-icon:hover {
-  transform: scale(1.15) translateY(-4px);
+@keyframes floating {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 /* Hero */
