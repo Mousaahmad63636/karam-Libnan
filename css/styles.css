@@ -356,7 +356,8 @@ a:hover, a:focus { color: var(--color-secondary); }
   max-width: 100%;
   word-wrap: break-word;
   cursor: pointer;
-  transition: height 0.3s ease;
+  transition: height 0.3s ease-out;
+  will-change: height;
 }
 
 .tab-description-below:hover {
@@ -366,8 +367,7 @@ a:hover, a:focus { color: var(--color-secondary); }
 }
 
 .tab-description-below.expanded {
-  height: auto;
-  max-height: none;
+  height: auto !important;
 }
 
 
