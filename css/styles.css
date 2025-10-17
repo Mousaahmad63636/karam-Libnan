@@ -280,6 +280,19 @@ a:hover, a:focus { color: var(--color-secondary); }
   flex: 1;
   min-width: 200px;
   max-width: 400px;
+  position: relative;
+}
+
+.tab-container:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 20px;
+  background-color: var(--color-secondary);
+  border-radius: 1px;
 }
 .main-cat-tab { 
   background: none;
