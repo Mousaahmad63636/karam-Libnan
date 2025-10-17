@@ -272,25 +272,26 @@ a:hover, a:focus { color: var(--color-secondary); }
   flex-wrap: wrap; 
   justify-content: space-between;
   max-width: var(--max-width);
-  padding: 0 1.2rem;
+  padding: 0;
 }
 
 .tab-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   width: calc(50% - 1.5rem);
   max-width: 500px;
   position: relative;
+  padding-right: 2rem;
 }
 
 .tab-container:last-child {
-  align-items: flex-start;
+  padding-left: 2rem;
+  padding-right: 0;
   margin-left: auto;
 }
 
 .tab-container:first-child {
-  align-items: flex-start;
+  padding-left: 0;
 }
 
 .tab-container:not(:last-child)::after {
@@ -330,8 +331,9 @@ a:hover, a:focus { color: var(--color-secondary); }
   margin-top: 0.4rem;
   border-radius: 2px;
   transition: width 0.3s ease;
-  margin-left: auto;
-  margin-right: auto;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .main-cat-tab:hover::after {
   width: 70px;
