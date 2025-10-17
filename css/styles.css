@@ -298,8 +298,9 @@ a:hover, a:focus { color: var(--color-secondary); }
   border: none;
   padding: 1rem 0.5rem;
   cursor: pointer; 
+  font-family: 'Playfair Display', serif;
   font-weight: 700; 
-  font-size: 1.5rem; /* Increased font size */
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
   position: relative; 
   color: var(--color-navy);
   text-align: center;
@@ -318,15 +319,17 @@ a:hover, a:focus { color: var(--color-secondary); }
   margin-top: 0.4rem;
   border-radius: 2px;
   transition: width 0.3s ease;
+  margin-left: auto;
+  margin-right: auto;
 }
 .main-cat-tab:hover::after {
-  width: 100%;
+  width: 70px;
 }
 .main-cat-tab.active { 
   color: var(--color-secondary);
 }
 .main-cat-tab.active::after { 
-  width: 100%;
+  width: 70px;
 }
 
 /* Tab Description Below */
