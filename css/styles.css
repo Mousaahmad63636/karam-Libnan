@@ -267,7 +267,7 @@ a:hover, a:focus { color: var(--color-secondary); }
 /* Main category tabs */
 .main-cat-tabs { 
   display: flex; 
-  gap: 1rem; 
+  gap: 2rem; 
   margin: 1.2rem 0 1rem; 
   flex-wrap: wrap; 
   justify-content: center;
@@ -282,36 +282,39 @@ a:hover, a:focus { color: var(--color-secondary); }
   max-width: 400px;
 }
 .main-cat-tab { 
-  background: #fff; 
-  border: 2px solid var(--color-border); 
-  padding: 1rem 2rem; 
-  border-radius: var(--radius-md); 
+  background: none;
+  border: none;
+  padding: 1rem 0.5rem;
   cursor: pointer; 
   font-weight: 700; 
-  font-size: 1rem; 
+  font-size: 1.1rem; 
   position: relative; 
   color: var(--color-navy);
-  flex: 1;
-  min-width: 200px;
-  max-width: 400px;
   text-align: center;
   transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
-.main-cat-tab:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
+.main-cat-tab::after {
+  content: '';
+  width: 0;
+  height: 4px;
+  background: var(--color-secondary);
+  display: block;
+  margin-top: 0.4rem;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.main-cat-tab:hover::after {
+  width: 100%;
 }
 .main-cat-tab.active { 
-  background: var(--color-secondary); 
-  color: #fff; 
-  border-color: var(--color-secondary);
-  box-shadow: var(--shadow-md);
+  color: var(--color-secondary);
+}
+.main-cat-tab.active::after { 
+  width: 100%;
 }
 
 
