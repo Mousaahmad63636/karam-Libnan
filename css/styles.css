@@ -351,10 +351,23 @@ a:hover, a:focus { color: var(--color-secondary); }
   color: var(--color-navy);
   text-align: left;
   position: relative;
-  height: 6.5em; /* Increased to show complete last line */
+  height: 6.5em;
   overflow: hidden;
   max-width: 100%;
   word-wrap: break-word;
+  cursor: pointer;
+  transition: height 0.3s ease;
+}
+
+.tab-description-below:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--color-secondary);
+  text-decoration-thickness: 1px;
+}
+
+.tab-description-below.expanded {
+  height: auto;
+  max-height: none;
 }
 
 
