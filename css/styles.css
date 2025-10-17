@@ -346,6 +346,12 @@ a:hover, a:focus { color: var(--color-secondary); }
   font-style: italic;
   max-width: 100%;
   word-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
