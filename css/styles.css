@@ -351,7 +351,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   color: var(--color-navy);
   text-align: left;
   position: relative;
-  height: 5.1em; /* Exactly 4 lines (1.5 * 3.4) */
+  height: 6.4em; /* Exactly 5 lines (1.5 * 4.25) */
   overflow: hidden;
   max-width: 100%;
   word-wrap: break-word;
