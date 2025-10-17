@@ -362,7 +362,11 @@ body.searching .product-grid { opacity:.4; }
 .whatsapp-icon {
   width: 65px;
   height: 65px;
-  animation: floating 2s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.whatsapp-icon:hover {
+  animation: floating 1s ease-in-out infinite;
 }
 
 @keyframes floating {
