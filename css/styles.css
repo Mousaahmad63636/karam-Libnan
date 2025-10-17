@@ -287,12 +287,11 @@ a:hover, a:focus { color: var(--color-secondary); }
   content: '';
   position: absolute;
   right: -1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 20px;
+  bottom: 0.5rem;
+  width: 3px;
+  height: 35px;
   background-color: var(--color-secondary);
-  border-radius: 1px;
+  border-radius: 1.5px;
 }
 .main-cat-tab { 
   background: none;
@@ -300,7 +299,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   padding: 1rem 0.5rem;
   cursor: pointer; 
   font-weight: 700; 
-  font-size: 1.1rem; 
+  font-size: 1.5rem; /* Increased font size */
   position: relative; 
   color: var(--color-navy);
   text-align: center;
@@ -329,6 +328,8 @@ a:hover, a:focus { color: var(--color-secondary); }
 .main-cat-tab.active::after { 
   width: 100%;
 }
+
+/* Tab Description Below */
 
 
 /* Tab Description Below */
