@@ -1210,8 +1210,8 @@
                                         </td>
                                         <td>${new Date(cat.created_at).toLocaleDateString()}</td>
                                         <td class="actions-cell">
-                                            <button class="btn btn-warning btn-sm" onclick="editMainCategory('${cat.slug}')">✏️</button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteMainCategory('${cat.slug}')">🗑️</button>
+                                            <button class="btn btn-warning btn-sm" onclick="editMainCategory('${cat.slug.replace(/'/g, "\\'")}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMainCategory('${cat.slug.replace(/'/g, "\\'")}')">🗑️</button>
                                         </td>
                                     </tr>
                                 `).join('')}
@@ -1449,8 +1449,8 @@
                                             ${sub.active ? '✅' : '❌'}
                                         </td>
                                         <td class="actions-cell">
-                                            <button class="btn btn-warning btn-sm" onclick="editSubcategory('${sub.slug}')">✏️</button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteSubcategory('${sub.slug}')">🗑️</button>
+                                            <button class="btn btn-warning btn-sm" onclick="editSubcategory('${sub.slug.replace(/'/g, "\\'")}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSubcategory('${sub.slug.replace(/'/g, "\\'")}')">🗑️</button>
                                         </td>
                                     </tr>
                                 `).join('')}
@@ -2129,8 +2129,8 @@
                                         </td>
                                         <td>${section.sort_order || 0}</td>
                                         <td class="actions-cell">
-                                            <button class="btn btn-warning btn-sm" onclick="editSection('${section.key}')">✏️</button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteSection('${section.key}')">🗑️</button>
+                                            <button class="btn btn-warning btn-sm" onclick="editSection('${section.key.replace(/'/g, "\\'")}')">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteSection('${section.key.replace(/'/g, "\\'")}')">🗑️</button>
                                         </td>
                                     </tr>
                                 `).join('')}
