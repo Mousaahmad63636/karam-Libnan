@@ -346,10 +346,11 @@ body.searching .product-grid { opacity:.4; }
 
 /* Floating WhatsApp */
 .float-whatsapp { position:fixed; bottom:18px; right:18px; display:flex; align-items:center; justify-content:center; z-index:150; }
-.float-whatsapp:hover { background: none; }
-.float-whatsapp:focus { outline: none; box-shadow: none; }
-.float-whatsapp img { width: 48px; height: 48px; object-fit: contain; }
-.float-whatsapp:hover { transform:translateY(-4px); box-shadow:0 6px 18px rgba(0,0,0,.3); }
+.float-whatsapp:hover { background: transparent !important; }
+.float-whatsapp:focus { outline: none !important; box-shadow: none !important; }
+.float-whatsapp:focus-visible { outline: none !important; box-shadow: none !important; }
+.float-whatsapp img { width: 48px; height: 48px; object-fit: contain; transition: transform 0.3s ease; }
+.float-whatsapp img:hover { transform: scale(1.15) translateY(-4px); }
 
 /* Hero */
 .hero { position: relative; min-height: 70vh; margin-top: 0; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero), url('../images/hero.png') center/cover no-repeat; color: var(--color-white); }
