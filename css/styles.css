@@ -349,7 +349,7 @@ body.searching .product-grid { opacity:.4; }
 .float-whatsapp:hover { background: transparent !important; }
 .float-whatsapp:focus { outline: none !important; box-shadow: none !important; }
 .float-whatsapp:focus-visible { outline: none !important; box-shadow: none !important; }
-.float-whatsapp img { width: 48px; height: 48px; object-fit: contain; transition: transform 0.3s ease; }
+.float-whatsapp img { width: 60px; height: 60px; object-fit: contain; transition: transform 0.3s ease; }
 .float-whatsapp img:hover { transform: scale(1.15) translateY(-4px); }
 
 /* Hero */
