@@ -516,7 +516,16 @@ function buildMainTabs() {
   
   mainTabsContainer.innerHTML = `
     <div class="tabs-row">
-      ${tabsHTML}
+      ${mainCategories.map((cat, index) => {
+        const isActive = cat.slug === currentMain;
+        const title = currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en;
+        
+        return `
+          <div class="tab-container">
+            <button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${title}</button>
+          </div>
+        `;
+      }).join('')}
     </div>
     <div class="descriptions-container">
       ${descriptionsHTML}

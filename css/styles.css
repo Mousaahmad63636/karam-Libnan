@@ -283,13 +283,30 @@ a:hover, a:focus { color: var(--color-secondary); }
   position: relative;
 }
 
-/* Separator between tabs */
-.tabs-row::after {
+.tab-container {
+  display: flex;
+  flex-direction: column;
+  width: calc(50% - 1.5rem);
+  max-width: 500px;
+  position: relative;
+  padding-right: 2rem;
+}
+
+.tab-container:last-child {
+  padding-left: 2rem;
+  padding-right: 0;
+  margin-left: auto;
+}
+
+.tab-container:first-child {
+  padding-left: 0;
+}
+
+.tab-container:not(:last-child)::after {
   content: '';
   position: absolute;
-  left: 50%;
+  right: -1rem;
   top: 1.5rem;
-  transform: translateX(-50%);
   width: 3px;
   height: 40px;
   background-color: var(--color-secondary);
