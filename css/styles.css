@@ -373,7 +373,6 @@ a:hover, a:focus { color: var(--color-secondary); }
   transition: max-height 0.4s ease-out, color 0.2s ease;
   border-radius: 8px;
   background: rgba(246, 243, 238, 0.6);
-  border: 1px solid var(--color-border);
 }
 
 .tab-description-below::after {
