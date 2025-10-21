@@ -649,16 +649,16 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 
 /* RTL search positioning - search expands to the left in Arabic */
 body.rtl #productSearch, body.rtl #productSearchDesktop {
-  right: auto;
-  left: 0;
+  left: auto;
+  right: 0;
 }
 body.rtl #productSearch.expanded, body.rtl #productSearchDesktop.expanded {
-  right: auto;
   left: auto;
-  position: relative;
-  transform: translateX(-100%);
-  margin-right: 0;
-  margin-left: -.5rem;
+  right: 100%;
+  position: absolute;
+  transform: none;
+  margin-left: 0;
+  margin-right: .5rem;
 }
 .error { color: #8b0000; font-size: .7rem; min-height: .8rem; }
 .form-status { margin-top: .5rem; font-size: .85rem; font-weight: 600; }
