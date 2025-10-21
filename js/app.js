@@ -498,21 +498,30 @@ function buildMainTabs() {
     currentMain = mainCategories[0].slug;
   }
   
-  // Generate main category tabs dynamically with localized titles and descriptions
+  // Generate main category tabs dynamically with localized titles
   const tabsHTML = mainCategories.map((cat, index) => {
     const isActive = cat.slug === currentMain;
     const title = currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en;
-    const description = currentLang === 'ar' && cat.description_ar ? cat.description_ar : cat.description_en || '';
     
-    return `
-      <div class="tab-container">
-        <button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${title}</button>
-        ${description ? `<div class="tab-description-below${isActive ? '' : ' hidden'}" data-category="${cat.slug}">${description}</div>` : ''}
-      </div>
-    `;
+    return `<button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${title}</button>`;
   }).join('');
   
-  mainTabsContainer.innerHTML = tabsHTML;
+  // Generate descriptions separately in a full-width container
+  const descriptionsHTML = mainCategories.map((cat, index) => {
+    const isActive = cat.slug === currentMain;
+    const description = currentLang === 'ar' && cat.description_ar ? cat.description_ar : cat.description_en || '';
+    
+    return description ? `<div class="tab-description-below${isActive ? '' : ' hidden'}" data-category="${cat.slug}">${description}</div>` : '';
+  }).join('');
+  
+  mainTabsContainer.innerHTML = `
+    <div class="tabs-row">
+      ${tabsHTML}
+    </div>
+    <div class="descriptions-container">
+      ${descriptionsHTML}
+    </div>
+  `;
   
   // Add click event listeners for expandable descriptions
   initExpandableDescriptions();

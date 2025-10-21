@@ -267,42 +267,39 @@ a:hover, a:focus { color: var(--color-secondary); }
 /* Main category tabs */
 .main-cat-tabs { 
   display: flex; 
-  gap: 2rem; 
+  flex-direction: column;
+  gap: 1.5rem; 
   margin: 1.2rem auto 1rem;
-  flex-wrap: wrap; 
-  justify-content: space-between;
   max-width: var(--max-width);
   padding: 0;
 }
 
-.tab-container {
-  display: flex;
-  flex-direction: column;
-  width: calc(50% - 1.5rem);
-  max-width: 500px;
+/* Tabs row container */
+.tabs-row {
+  display: flex; 
+  gap: 2rem; 
+  flex-wrap: wrap; 
+  justify-content: space-between;
   position: relative;
-  padding-right: 2rem;
 }
 
-.tab-container:last-child {
-  padding-left: 2rem;
-  padding-right: 0;
-  margin-left: auto;
-}
-
-.tab-container:first-child {
-  padding-left: 0;
-}
-
-.tab-container:not(:last-child)::after {
+/* Separator between tabs */
+.tabs-row::after {
   content: '';
   position: absolute;
-  right: -1rem;
+  left: 50%;
   top: 1.5rem;
+  transform: translateX(-50%);
   width: 3px;
   height: 40px;
   background-color: var(--color-secondary);
   border-radius: 1.5px;
+}
+
+/* Descriptions container - full width */
+.descriptions-container {
+  width: 100%;
+  margin-top: 0.5rem;
 }
 .main-cat-tab { 
   background: none;
@@ -344,22 +341,22 @@ a:hover, a:focus { color: var(--color-secondary); }
 
 /* Tab Description Below */
 .tab-description-below {
-  margin-top: 0.5rem;
-  padding: 0.75rem 0;
+  margin-top: 0;
+  padding: 1rem 1.5rem;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--color-navy);
   text-align: left;
   position: relative;
   max-height: 6.5em;
   overflow: hidden;
-  max-width: 100%;
+  width: 100%;
   word-wrap: break-word;
   cursor: pointer;
   transition: max-height 0.4s ease-out, color 0.2s ease;
-  border-radius: 4px;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  border-radius: 8px;
+  background: rgba(246, 243, 238, 0.6);
+  border: 1px solid var(--color-border);
 }
 
 .tab-description-below::after {
@@ -369,7 +366,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   left: 0;
   width: 100%;
   height: 1.5em;
-  background: linear-gradient(to bottom, transparent, var(--color-bg));
+  background: linear-gradient(to bottom, transparent, rgba(246, 243, 238, 0.6));
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
