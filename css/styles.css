@@ -109,13 +109,13 @@ a:hover, a:focus { color: var(--color-secondary); }
   color: var(--color-primary); 
   display: flex; 
   align-items: center; 
-  margin-left: -0.5rem; 
+  margin-left: -1.5rem; 
 }
 
 .logo-image { 
-  height: 60px; 
+  height: 75px; 
   width: auto; 
-  max-width: 200px; 
+  max-width: 250px; 
   object-fit: contain; 
 }
 
@@ -663,7 +663,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 /* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
   .container { padding: 0 0.8rem; }
-  .logo-image { height: 55px; max-width: 180px; }
+  .logo-image { height: 65px; max-width: 200px; }
   .search-wrapper { max-width: none; }
   #productSearch.expanded { width: 120px; }
   #productSearch.expanded:focus { width: 140px; }
@@ -785,7 +785,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 
 @media (max-width: 480px) {
   .container { padding: 0 0.8rem; }
-  .logo-image { height: 50px; max-width: 150px; }
+  .logo-image { height: 60px; max-width: 170px; }
   .search-wrapper { max-width: none; }
   #productSearch.expanded { width: 100px; font-size: 0.8rem; }
   #productSearch.expanded:focus { width: 120px; }
