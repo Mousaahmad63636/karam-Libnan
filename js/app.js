@@ -789,7 +789,8 @@ const translations = {
     'subcat.ready to serve':'جاهز للتقديم'
   }
 };
-let currentLang = 'en';
+// Load saved language preference or default to English
+let currentLang = localStorage.getItem('preferredLanguage') || 'en';
 
 // Helper functions for localized content
 function getLocalizedText(item, field) {
@@ -806,27 +807,48 @@ function getLocalizedArray(item, field) {
   return item[field] || [];
 }
 
-const langBtn = document.getElementById('langToggle');
-langBtn?.addEventListener('click', () => {
-  currentLang = currentLang === 'en' ? 'ar' : 'en';
+// Language toggle functionality - moved to initialization function
+function initializeLanguageToggle() {
+  const langBtn = document.getElementById('langToggle');
+  if (!langBtn) {
+    console.warn('Language toggle button not found. Retrying in 100ms...');
+    setTimeout(initializeLanguageToggle, 100);
+    return;
+  }
+  
+  // Set initial button text
   langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.documentElement.lang = currentLang;
-  document.body.classList.toggle('rtl', currentLang==='ar');
   
-  applyTranslations();
-  buildMainTabs();
-  buildSubFilters();
-  initMainTabs();
-  
-  // Re-render all product sections with new language
-  renderProducts();
-  renderFeatured();
-  renderBestsellers(); 
-  renderNewArrivals();
-  renderSeasonal();
-  renderCustomSections();
-});
+  langBtn.addEventListener('click', () => {
+    try {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = currentLang;
+      document.body.classList.toggle('rtl', currentLang === 'ar');
+      
+      // Save language preference
+      localStorage.setItem('preferredLanguage', currentLang);
+      
+      applyTranslations();
+      buildMainTabs();
+      buildSubFilters();
+      initMainTabs();
+      
+      // Re-render all product sections with new language
+      renderProducts();
+      renderFeatured();
+      renderBestsellers(); 
+      renderNewArrivals();
+      renderSeasonal();
+      renderCustomSections();
+      
+      console.log(`Language switched to: ${currentLang}`);
+    } catch (error) {
+      console.error('Error switching language:', error);
+    }
+  });
+}
 
 function applyTranslations() {
   const map = translations[currentLang];
@@ -869,6 +891,12 @@ window.addEventListener('scroll', () => {
 // Initial renders & setup with optional Supabase fetch
 async function initializeSite(){
   loadOverrides();
+  
+  // Set initial language state
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = currentLang;
+  document.body.classList.toggle('rtl', currentLang === 'ar');
+  
   await tryRemoteLoad();
   buildMainTabs();
   buildSubFilters();
@@ -882,6 +910,9 @@ async function initializeSite(){
   observeFadeIns();
   applyTranslations();
   applyContentOverrides();
+  
+  // Initialize language toggle after everything else is loaded
+  initializeLanguageToggle();
 }
 
 async function tryRemoteLoad(){
