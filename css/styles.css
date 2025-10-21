@@ -365,7 +365,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   color: var(--color-navy);
   text-align: left;
   position: relative;
-  max-height: 5.2em;
+  max-height: 5.4em;
   overflow: hidden;
   width: 100%;
   word-wrap: break-word;
