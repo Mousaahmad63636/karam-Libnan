@@ -646,6 +646,18 @@ body.rtl { direction:rtl; }
 body.rtl .nav-list { flex-direction:row-reverse; }
 body.rtl #productSearch { padding-right:2.2rem; padding-left:.9rem; }
 body.rtl .search-icon { left:auto; right:.75rem; }
+
+/* RTL search positioning - search expands to the left in Arabic */
+body.rtl #productSearch, body.rtl #productSearchDesktop {
+  right: auto;
+  left: 0;
+}
+body.rtl #productSearch.expanded, body.rtl #productSearchDesktop.expanded {
+  right: auto;
+  left: 100%;
+  margin-right: 0;
+  margin-left: .5rem;
+}
 .error { color: #8b0000; font-size: .7rem; min-height: .8rem; }
 .form-status { margin-top: .5rem; font-size: .85rem; font-weight: 600; }
 .contact-info { margin-top: 2rem; }
