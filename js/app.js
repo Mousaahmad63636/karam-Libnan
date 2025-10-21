@@ -209,21 +209,30 @@ function initializeNavigation() {
   initializeSearch();
 }
 
-// Search initialization
+// Search initialization with debouncing and performance improvements
+let searchTimeout;
 function initializeSearch() {
   const searchInput = document.getElementById('productSearch');
   const searchInputDesktop = document.getElementById('productSearchDesktop');
 
-  // Handle mobile search
+  // Debounced search function to reduce lag
+  function performSearch(inputElement) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const hasValue = !!inputElement.value.trim();
+      document.body.classList.toggle('searching', hasValue);
+      renderProducts();
+    }, 150); // 150ms debounce delay
+  }
+
+  // Handle mobile search with debouncing
   searchInput?.addEventListener('input', () => {
-    document.body.classList.toggle('searching', !!searchInput.value.trim());
-    renderProducts();
+    performSearch(searchInput);
   });
 
-  // Handle desktop search
+  // Handle desktop search with debouncing
   searchInputDesktop?.addEventListener('input', () => {
-    document.body.classList.toggle('searching', !!searchInputDesktop.value.trim());
-    renderProducts();
+    performSearch(searchInputDesktop);
   });
 
   // Search toggle functionality for mobile
@@ -231,13 +240,20 @@ function initializeSearch() {
   searchToggle?.addEventListener('click', () => {
     const isExpanded = searchInput.classList.contains('expanded');
     if (isExpanded) {
+      // Closing search
       searchInput.classList.remove('expanded');
       searchInput.value = '';
       document.body.classList.remove('searching');
+      clearTimeout(searchTimeout);
       renderProducts();
     } else {
+      // Opening search
       searchInput.classList.add('expanded');
-      setTimeout(() => searchInput.focus(), 350); // Wait for animation
+      // Reduced animation wait time for better UX
+      setTimeout(() => {
+        searchInput.focus();
+        searchInput.select(); // Select any existing text
+      }, 200);
     }
   });
 
@@ -246,13 +262,32 @@ function initializeSearch() {
   searchToggleDesktop?.addEventListener('click', () => {
     const isExpanded = searchInputDesktop.classList.contains('expanded');
     if (isExpanded) {
+      // Closing search
       searchInputDesktop.classList.remove('expanded');
       searchInputDesktop.value = '';
       document.body.classList.remove('searching');
+      clearTimeout(searchTimeout);
       renderProducts();
     } else {
+      // Opening search
       searchInputDesktop.classList.add('expanded');
-      setTimeout(() => searchInputDesktop.focus(), 350); // Wait for animation
+      // Reduced animation wait time for better UX
+      setTimeout(() => {
+        searchInputDesktop.focus();
+        searchInputDesktop.select(); // Select any existing text
+      }, 200);
+    }
+  });
+
+  // Handle escape key to close search
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (searchInput?.classList.contains('expanded')) {
+        searchToggle?.click();
+      }
+      if (searchInputDesktop?.classList.contains('expanded')) {
+        searchToggleDesktop?.click();
+      }
     }
   });
 }
@@ -423,13 +458,21 @@ function cardTemplate(item, isFeatured = false) {
   </article>`;
 }
 
-// Render all products
+// Render all products with optimized performance
 let currentMain = '';  // Will be set dynamically to first available main category
 let currentSub = 'all';
+let renderTimeout;
+
 function renderProducts() {
   const grid = document.getElementById('productGrid');
   if (!grid) return;
+  
+  // Clear any pending render to avoid multiple renders
+  clearTimeout(renderTimeout);
+  
+  // Cache search term to avoid multiple DOM queries
   const searchTerm = (document.getElementById('productSearch')?.value || document.getElementById('productSearchDesktop')?.value || '').trim().toLowerCase();
+  
   const items = productsData.filter(p => {
     // Check main type and sub category
     const mainMatch = p.mainType === currentMain;
@@ -449,9 +492,22 @@ function renderProducts() {
     const orderB = b.sort_order ?? 999;
     return orderA - orderB;
   });
-  // Optional skeleton effect (quick, not async) for perceived performance
-  grid.innerHTML = items.map(()=>'<div class="card skeleton" style="height:260px;border-radius:10px;"></div>').join('');
-  setTimeout(()=>{ grid.innerHTML = items.map(p => cardTemplate(p)).join(''); attachImageFallbacks(); observeFadeIns(); }, 80);
+
+  // For search results, render immediately without skeleton for better responsiveness
+  if (searchTerm) {
+    grid.innerHTML = items.map(p => cardTemplate(p)).join('');
+    attachImageFallbacks();
+    observeFadeIns();
+  } else {
+    // For category browsing, use minimal skeleton delay for perceived performance
+    grid.innerHTML = items.map(()=>'<div class="card skeleton" style="height:260px;border-radius:10px;background:var(--color-light);animation:pulse 1.5s ease-in-out infinite;"></div>').join('');
+    renderTimeout = setTimeout(() => { 
+      grid.innerHTML = items.map(p => cardTemplate(p)).join(''); 
+      attachImageFallbacks(); 
+      observeFadeIns(); 
+    }, 40); // Reduced from 80ms to 40ms
+  }
+  
   updateBanner();
 }
 
