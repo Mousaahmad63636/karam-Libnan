@@ -513,6 +513,18 @@ function buildMainTabs() {
   }).join('');
   
   mainTabsContainer.innerHTML = tabsHTML;
+  
+  // Add click event listeners for expandable descriptions
+  initExpandableDescriptions();
+}
+
+// Initialize expandable description functionality
+function initExpandableDescriptions() {
+  document.querySelectorAll('.tab-description-below').forEach(description => {
+    description.addEventListener('click', function() {
+      this.classList.toggle('expanded');
+    });
+  });
 }
 
 function buildSubFilters() {

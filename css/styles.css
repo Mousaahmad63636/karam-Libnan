@@ -356,7 +356,10 @@ a:hover, a:focus { color: var(--color-secondary); }
   max-width: 100%;
   word-wrap: break-word;
   cursor: pointer;
-  transition: max-height 0.3s ease-out;
+  transition: max-height 0.4s ease-out, color 0.2s ease;
+  border-radius: 4px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .tab-description-below::after {
@@ -372,17 +375,39 @@ a:hover, a:focus { color: var(--color-secondary); }
 }
 
 .tab-description-below:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--color-secondary);
-  text-decoration-thickness: 1px;
+  color: var(--color-primary);
+  background: rgba(94, 107, 61, 0.05);
+  transform: translateY(-1px);
 }
 
 .tab-description-below.expanded {
   max-height: 500px;
+  background: rgba(94, 107, 61, 0.03);
 }
 
 .tab-description-below.expanded::after {
   opacity: 0;
+}
+
+/* Add a subtle indicator that the description is clickable */
+.tab-description-below::before {
+  content: '⌄';
+  position: absolute;
+  right: 0.5rem;
+  top: 0.75rem;
+  color: var(--color-secondary);
+  font-size: 1.2rem;
+  font-weight: bold;
+  opacity: 0.6;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+.tab-description-below:hover::before {
+  opacity: 1;
+}
+
+.tab-description-below.expanded::before {
+  transform: rotate(180deg);
 }
 
 
