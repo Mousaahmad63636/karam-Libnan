@@ -647,18 +647,17 @@ body.rtl .nav-list { flex-direction:row-reverse; }
 body.rtl #productSearch { padding-right:2.2rem; padding-left:.9rem; }
 body.rtl .search-icon { left:auto; right:.75rem; }
 
-/* RTL search positioning - search expands to the right in Arabic */
-body.rtl #productSearch, body.rtl #productSearchDesktop {
-  left: auto;
-  right: 0;
+/* RTL search positioning - different approach using flexbox order */
+body.rtl .search-wrapper {
+  flex-direction: row-reverse;
 }
 body.rtl #productSearch.expanded, body.rtl #productSearchDesktop.expanded {
-  left: 100%;
-  right: auto;
-  position: absolute;
-  transform: none;
-  margin-left: .5rem;
-  margin-right: 0;
+  position: relative !important;
+  right: auto !important;
+  left: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  order: -1;
 }
 .error { color: #8b0000; font-size: .7rem; min-height: .8rem; }
 .form-status { margin-top: .5rem; font-size: .85rem; font-weight: 600; }
