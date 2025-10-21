@@ -20,7 +20,7 @@
   --radius-md: 10px;
   --radius-full: 999px;
   --transition: 0.3s ease;
-  --max-width: 100%;
+  --max-width: 1180px;
   --gradient-hero: linear-gradient(rgba(41,36,29,0.4), rgba(41,36,29,0.4));
   --gradient-surface: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.65));
   --ring-focus: 0 0 0 3px rgba(200,16,46,0.35);
@@ -43,7 +43,7 @@ a { color: var(--color-primary); text-decoration: none; }
 a:hover, a:focus { color: var(--color-secondary); }
 
 /* Layout Utilities */
-.container { width: 100%; max-width: 100%; margin: 0 auto; padding: 0 1.2rem; }
+.container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.2rem; }
 .flex { display: flex; }
 .center-v { align-items: center; }
 .between { justify-content: space-between; }
@@ -65,7 +65,6 @@ a:hover, a:focus { color: var(--color-secondary); }
   position: fixed; 
   top: 0; 
   left: 0; 
-  right: 0; 
   width: 100%; 
   background: rgba(255,255,255,0.6); 
   backdrop-filter: blur(8px); 
@@ -73,6 +72,12 @@ a:hover, a:focus { color: var(--color-secondary); }
   z-index: 300; 
   transition: background .3s ease, box-shadow .3s ease; 
   padding: 1rem 0; 
+}
+
+/* Header-specific full-width container */
+.site-header .container {
+  max-width: 100% !important;
+  padding: 0 2rem;
 }
 
 /* Ensure all header child elements are fully opaque and visible */
