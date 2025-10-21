@@ -649,15 +649,18 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 
 /* RTL search positioning - different approach using flexbox order */
 body.rtl .search-wrapper {
-  flex-direction: row-reverse;
+  flex-direction: row;
 }
 body.rtl #productSearch.expanded, body.rtl #productSearchDesktop.expanded {
   position: relative !important;
   right: auto !important;
   left: auto !important;
-  margin-left: 0 !important;
+  margin-left: .5rem !important;
   margin-right: 0 !important;
-  order: -1;
+  order: 1;
+}
+body.rtl .search-icon-btn {
+  order: 0;
 }
 .error { color: #8b0000; font-size: .7rem; min-height: .8rem; }
 .form-status { margin-top: .5rem; font-size: .85rem; font-weight: 600; }
