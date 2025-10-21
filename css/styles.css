@@ -654,9 +654,11 @@ body.rtl #productSearch, body.rtl #productSearchDesktop {
 }
 body.rtl #productSearch.expanded, body.rtl #productSearchDesktop.expanded {
   right: auto;
-  left: 100%;
+  left: auto;
+  position: relative;
+  transform: translateX(-100%);
   margin-right: 0;
-  margin-left: .5rem;
+  margin-left: -.5rem;
 }
 .error { color: #8b0000; font-size: .7rem; min-height: .8rem; }
 .form-status { margin-top: .5rem; font-size: .85rem; font-weight: 600; }
