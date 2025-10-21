@@ -109,7 +109,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   color: var(--color-primary); 
   display: flex; 
   align-items: center; 
-  margin-left: -1.5rem; 
+  margin-left: -2.5rem; 
 }
 
 .logo-image { 
@@ -663,6 +663,7 @@ body.rtl .search-icon { left:auto; right:.75rem; }
 /* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
   .container { padding: 0 0.8rem; }
+  .logo { margin-left: -1rem; }
   .logo-image { height: 65px; max-width: 200px; }
   .search-wrapper { max-width: none; }
   #productSearch.expanded { width: 120px; }
