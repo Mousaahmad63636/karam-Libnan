@@ -507,7 +507,7 @@ function buildMainTabs() {
     return `
       <div class="tab-container">
         <button role="tab" aria-selected="${isActive}" class="main-cat-tab${isActive ? ' active' : ''}" data-main="${cat.slug}">${title}</button>
-        ${description ? `<div class="tab-description-below">${description}</div>` : ''}
+        ${description ? `<div class="tab-description-below${isActive ? '' : ' hidden'}" data-category="${cat.slug}">${description}</div>` : ''}
       </div>
     `;
   }).join('');
@@ -522,7 +522,10 @@ function buildMainTabs() {
 function initExpandableDescriptions() {
   document.querySelectorAll('.tab-description-below').forEach(description => {
     description.addEventListener('click', function() {
-      this.classList.toggle('expanded');
+      // Only toggle if the description is visible (not hidden)
+      if (!this.classList.contains('hidden')) {
+        this.classList.toggle('expanded');
+      }
     });
   });
 }
@@ -582,6 +585,17 @@ function initMainTabs() {
       btn.setAttribute('aria-selected','true');
       currentMain = btn.dataset.main;
       currentSub = 'all';
+      
+      // Hide all category descriptions
+      document.querySelectorAll('.tab-description-below').forEach(desc => {
+        desc.classList.add('hidden');
+      });
+      
+      // Show the description for current main category
+      const activeDescription = document.querySelector(`.tab-description-below[data-category="${currentMain}"]`);
+      if (activeDescription) {
+        activeDescription.classList.remove('hidden');
+      }
       
       // Hide all subcategory containers
       document.querySelectorAll('.sub-filters').forEach(container => {
