@@ -890,16 +890,23 @@ function initializeLanguageToggle() {
   
   langBtn.addEventListener('click', () => {
     try {
+      console.log(`🔄 Language toggle clicked. Current: ${currentLang}`);
+      
       currentLang = currentLang === 'en' ? 'ar' : 'en';
       langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
       document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
       document.documentElement.lang = currentLang;
       document.body.classList.toggle('rtl', currentLang === 'ar');
       
+      console.log(`🌐 Switched to: ${currentLang}`);
+      
       // Save language preference
       localStorage.setItem('preferredLanguage', currentLang);
       
+      console.log('🔄 Applying translations...');
       applyTranslations();
+      
+      console.log('🔄 Rebuilding UI components...');
       buildMainTabs();
       buildSubFilters();
       initMainTabs();
@@ -963,35 +970,48 @@ function initializeLanguageToggle() {
 }
 
 function applyTranslations() {
+  console.log(`🌐 applyTranslations called for language: ${currentLang}`);
+  
   const map = translations[currentLang];
+  console.log(`📚 Translation map exists:`, !!map);
   
   // Store original English text on first run
   if (!window.originalTexts) {
+    console.log('💾 Storing original English texts...');
     window.originalTexts = {};
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       window.originalTexts[key] = el.textContent;
     });
+    console.log('✅ Original texts stored:', Object.keys(window.originalTexts).length, 'elements');
   }
   
   // Translate all elements with data-i18n attribute
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    
-    if (currentLang === 'en') {
-      // Restore original English text
-      if (window.originalTexts[key]) {
-        el.textContent = window.originalTexts[key];
+  try {
+    let translatedCount = 0;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      
+      if (currentLang === 'en') {
+        // Restore original English text
+        if (window.originalTexts[key]) {
+          el.textContent = window.originalTexts[key];
+          translatedCount++;
+        }
+      } else if (map && map[key]) {
+        // Apply translation
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          if (el.placeholder) el.placeholder = map[key];
+        } else {
+          el.textContent = map[key];
+        }
+        translatedCount++;
       }
-    } else if (map && map[key]) {
-      // Apply translation
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-        if (el.placeholder) el.placeholder = map[key];
-      } else {
-        el.textContent = map[key];
-      }
-    }
-  });
+    });
+    console.log(`✅ Applied translations to ${translatedCount} elements`);
+  } catch (error) {
+    console.error('❌ Error in applyTranslations:', error);
+  }
   
   // Special handling for aria-labels
   document.querySelectorAll('[data-i18n-aria]').forEach(el => {
