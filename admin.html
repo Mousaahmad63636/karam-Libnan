@@ -1787,8 +1787,8 @@
                         title_ar: 'الكل',
                         banner_image_url: bannerImageUrl,
                         sort_order: -1,
-                        active: true,
-                        is_virtual: true // Mark as virtual in database
+                        active: true
+                        // Note: No is_virtual field needed - we identify virtual subcategories by slug format
                     };
 
                     // Try to update first, if not exists then insert
