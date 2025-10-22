@@ -461,7 +461,7 @@ function cardTemplate(item, isFeatured = false) {
 }
 
 // Render all products with optimized performance
-let currentMain = '';  // Will be set dynamically to first available main category
+let currentMain = '';  // Empty means show all categories (global "All" button)
 let currentSub = 'all';
 let renderTimeout;
 
@@ -477,7 +477,7 @@ function renderProducts() {
   
   const items = productsData.filter(p => {
     // Check main type and sub category
-    const mainMatch = p.mainType === currentMain;
+    const mainMatch = !currentMain || p.mainType === currentMain; // Show all if currentMain is empty
     const subMatch = currentSub === 'all' || p.sub === currentSub;
     
     // Check search term in localized content
@@ -551,10 +551,7 @@ function buildMainTabs() {
   const mainTabsContainer = document.querySelector('.main-cat-tabs');
   if (!mainTabsContainer) return;
   
-  // Set currentMain to first category if not set
-  if (!currentMain && mainCategories.length > 0) {
-    currentMain = mainCategories[0].slug;
-  }
+  // Keep currentMain empty initially to show all categories via global "All" button
   
   // Generate main category tabs dynamically with localized titles
   const tabsHTML = mainCategories.map((cat, index) => {
@@ -614,7 +611,11 @@ function buildSubFilters() {
   // Clear existing containers
   subcategoryWrapper.innerHTML = '';
   
-  console.log(`🏗️ Building subcategory containers. currentMain: ${currentMain}`);
+  // Create global "All" button first
+  const globalAllContainer = document.createElement('div');
+  globalAllContainer.className = 'filters global-all-filter';
+  globalAllContainer.innerHTML = `<button class="filter-btn${currentSub === 'all' ? ' active' : ''}" data-sub="all" data-main="all">${currentLang === 'ar' ? 'الكل' : 'All'}</button>`;
+  subcategoryWrapper.appendChild(globalAllContainer);
   
   // Create containers for each main category
   mainCategories.forEach((cat) => {
@@ -624,15 +625,12 @@ function buildSubFilters() {
     container.id = `subFilters${cat.slug.charAt(0).toUpperCase() + cat.slug.slice(1)}`;
     container.setAttribute('aria-label', `${currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en} Subcategories`);
     
-    console.log(`📦 Creating container for ${cat.slug}: ID=${container.id}, visible=${isVisible}, className=${container.className}`);
-    
     if (SUBCATS[cat.slug]) {
       const subcatButtons = SUBCATS[cat.slug].map((c,i)=>{
         const translatedText = translateSubcategory(c);
-        return `<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="${cat.slug}">${translatedText}</button>`;
+        return `<button class="filter-btn" data-sub="${c}" data-main="${cat.slug}">${translatedText}</button>`;
       }).join('');
       container.innerHTML = subcatButtons;
-      console.log(`   Added ${SUBCATS[cat.slug].length} subcategory buttons: ${SUBCATS[cat.slug].join(', ')}`);
     }
     
     subcategoryWrapper.appendChild(container);
@@ -641,10 +639,20 @@ function buildSubFilters() {
   // Attach listeners to all subcategory containers
   subcategoryWrapper.addEventListener('click', e => {
     if (e.target.matches('.filter-btn')) {
-      const container = e.target.closest('.sub-filters');
-      container.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      // Remove active class from all filter buttons
+      subcategoryWrapper.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
       e.target.classList.add('active');
+      
       currentSub = e.target.dataset.sub;
+      const mainCategory = e.target.dataset.main;
+      
+      // If global "All" is clicked, reset main category selection
+      if (mainCategory === 'all') {
+        currentMain = ''; // Show all categories
+      } else {
+        currentMain = mainCategory;
+      }
+      
       renderProducts();
     }
   });
@@ -711,24 +719,14 @@ function initMainTabs() {
       }
       
       // Hide all subcategory containers and show only the current one
-      console.log(`🔧 Hiding all subcategory containers...`);
       document.querySelectorAll('.sub-filters').forEach(container => {
-        console.log(`   Hiding container: ${container.id}`);
         container.classList.add('hidden');
       });
       
       // Show subcategories for current main category
-      const expectedId = `subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`;
-      console.log(`🔍 Looking for container with ID: ${expectedId}`);
-      const activeContainer = document.getElementById(expectedId);
+      const activeContainer = document.getElementById(`subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`);
       if (activeContainer) {
-        console.log(`✅ Found and showing container: ${activeContainer.id}`);
         activeContainer.classList.remove('hidden');
-        // Reset active button to 'all'
-        activeContainer.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
-      } else {
-        console.log(`❌ Container not found: ${expectedId}`);
-        console.log(`Available containers:`, Array.from(document.querySelectorAll('.sub-filters')).map(c => c.id));
       }
       
       renderProducts();
@@ -1180,14 +1178,14 @@ async function tryRemoteLoad(){
         }
       });
       
-      // Build subcategory lists for each main category
+      // Build subcategory lists for each main category (without individual 'all' buttons)
       mainCategories.forEach(mainCat => {
         if (!SUBCATS[mainCat.slug]) {
-          SUBCATS[mainCat.slug] = ['all'];
+          SUBCATS[mainCat.slug] = [];
         }
         const categorySubs = subs.filter(s => s.category_type === mainCat.slug).map(s => s.slug.replace(/-/g,' '));
         if (categorySubs.length > 0) {
-          SUBCATS[mainCat.slug] = ['all', ...categorySubs];
+          SUBCATS[mainCat.slug] = categorySubs;
         }
       });
       
