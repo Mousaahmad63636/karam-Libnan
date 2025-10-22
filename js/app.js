@@ -302,10 +302,6 @@ function renderFeatured() {
     return orderA - orderB;
   });
   
-  console.log(`🌟 Rendering ${featured.length} featured products for language: ${currentLang}`);
-  featured.forEach(p => {
-    console.log(`📦 Featured product: ${getLocalizedText(p, 'name')} (EN: ${p.name_en}, AR: ${p.name_ar})`);
-  });
   
   container.innerHTML = featured.map(p => cardTemplate(p, true)).join('');
 }
@@ -665,15 +661,12 @@ function translateSubcategory(subcat) {
     const subcatData = window.subcategoriesData.find(s => s.slug === subcatSlug);
     
     if (subcatData) {
-      console.log(`🏷️ Found subcategory in DB: ${subcat} -> ${currentLang === 'ar' ? subcatData.title_ar : subcatData.title_en}`);
       if (currentLang === 'ar' && subcatData.title_ar) {
         return subcatData.title_ar;
       }
       if (subcatData.title_en) {
         return subcatData.title_en;
       }
-    } else {
-      console.log(`⚠️ Subcategory not found in DB: ${subcat} (slug: ${subcatSlug})`);
     }
   }
   
@@ -894,13 +887,10 @@ function getLocalizedText(item, field) {
   const enField = `${field}_en`;
   
   if (currentLang === 'ar' && item[arField]) {
-    console.log(`🌐 Using Arabic ${field} for ${item.name_en}: ${item[arField]}`);
     return item[arField];
   }
   
-  const result = item[enField] || item[field] || '';
-  console.log(`🌐 Using English ${field} for ${item.name_en}: ${result}`);
-  return result;
+  return item[enField] || item[field] || '';
 }
 
 function getLocalizedArray(item, field) {
@@ -935,12 +925,55 @@ function initializeLanguageToggle() {
       
       applyTranslations();
       
-      // Fix for English: manually reset section titles that don't get reset by applyTranslations
+      // Fix for English: manually reset elements that don't get reset by applyTranslations
       if (currentLang === 'en') {
-        const featuredTitle = document.querySelector('#featuredHeading');
-        if (featuredTitle && featuredTitle.getAttribute('data-i18n') === 'featured.title') {
-          featuredTitle.textContent = 'Featured Highlights';
+        // Store original English texts if not already stored
+        if (!window.originalEnglishTexts) {
+          window.originalEnglishTexts = {
+            'featured.title': 'Featured Highlights',
+            'contact.title': 'Contact Us',
+            'contact.name': 'Name',
+            'contact.email': 'Email', 
+            'contact.message': 'Message',
+            'contact.send': 'Send Message',
+            'contact.info': 'Company Info',
+            'contact.email.label': 'Email:',
+            'contact.phone.label': 'Phone:',
+            'contact.location.label': 'Location:',
+            'contact.social': 'Follow us on social media:',
+            'contact.facebook': 'Facebook',
+            'contact.instagram': 'Instagram',
+            'contact.twitter': 'Twitter',
+            'contact.namePlaceholder': 'Your Name',
+            'contact.emailPlaceholder': 'you@example.com',
+            'contact.messagePlaceholder': 'Write your message...',
+            'footer.tagline': 'Authentic Lebanese homemade & canned products. Tradition preserved in every jar.',
+            'footer.home': 'Home',
+            'footer.about': 'About',
+            'footer.products': 'Products',
+            'footer.events': 'Events',
+            'footer.services': 'Services',
+            'footer.faq': 'F&Q',
+            'footer.contact': 'Contact',
+            'footer.email': 'Email:',
+            'footer.phone': 'Phone:',
+            'footer.rights': 'Karam Libnan. All rights reserved.',
+            'footer.backToTop': '▲'
+          };
         }
+        
+        // Reset all elements with data-i18n to their original English text
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (window.originalEnglishTexts[key]) {
+            // Handle different element types
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+              if (el.placeholder) el.placeholder = window.originalEnglishTexts[key];
+            } else {
+              el.textContent = window.originalEnglishTexts[key];
+            }
+          }
+        });
       }
       
       buildMainTabs();
