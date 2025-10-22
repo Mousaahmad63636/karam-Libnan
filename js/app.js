@@ -930,7 +930,36 @@ function initializeLanguageToggle() {
         // Store original English texts if not already stored
         if (!window.originalEnglishTexts) {
           window.originalEnglishTexts = {
+            // Hero section
+            'hero.explore': 'Explore Catalog',
+            
+            // Navigation
+            'nav.navigation': 'Navigation',
+            'nav.home': 'Home',
+            'nav.about': 'About',
+            'nav.products': 'Products',
+            'nav.events': 'Events',
+            'nav.services': 'Services',
+            'nav.faq': 'F&Q',
+            'nav.contact': 'Contact',
+            
+            // Search
+            'search.placeholder': 'Search products',
+            
+            // Sections
             'featured.title': 'Featured Highlights',
+            'bestsellers.title': 'Best Sellers',
+            'newArrivals.title': 'New Arrivals',
+            'seasonal.title': 'Seasonal Specials',
+            'about.title': 'Our Story',
+            'about.authentic': 'Authentic Recipes',
+            'about.natural': 'Natural Ingredients',
+            'about.handcrafted': 'Handcrafted Quality',
+            'about.sustainable': 'Sustainable Sourcing',
+            'products.title': 'Our Products',
+            'products.intro': 'Browse our categories of Lebanese goods. Each item includes a brief description and ingredients. (No prices shown.)',
+            
+            // Contact form
             'contact.title': 'Contact Us',
             'contact.name': 'Name',
             'contact.email': 'Email', 
@@ -947,6 +976,8 @@ function initializeLanguageToggle() {
             'contact.namePlaceholder': 'Your Name',
             'contact.emailPlaceholder': 'you@example.com',
             'contact.messagePlaceholder': 'Write your message...',
+            
+            // Footer
             'footer.tagline': 'Authentic Lebanese homemade & canned products. Tradition preserved in every jar.',
             'footer.home': 'Home',
             'footer.about': 'About',
