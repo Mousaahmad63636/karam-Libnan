@@ -622,8 +622,6 @@ function buildSubFilters() {
     container.id = `subFilters${cat.slug.charAt(0).toUpperCase() + cat.slug.slice(1)}`;
     container.setAttribute('aria-label', `${currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en} Subcategories`);
     
-    console.log(`Creating subcategory container for ${cat.slug}: visible=${isVisible}, className="${container.className}"`);
-    
     if (SUBCATS[cat.slug]) {
       container.innerHTML = SUBCATS[cat.slug].map((c,i)=>{
         const translatedText = translateSubcategory(c);
@@ -1178,14 +1176,28 @@ async function tryRemoteLoad(){
         if (!SUBCATS[mainCat.slug]) {
           SUBCATS[mainCat.slug] = ['all'];
         }
-        const categorySubs = subs.filter(s => s.category_type === mainCat.slug).map(s => s.slug.replace(/-/g,' '));
+        
+        // Filter subcategories for this main category, excluding virtual "all" entries from database
+        const categorySubs = subs
+          .filter(s => s.category_type === mainCat.slug && !s.slug.endsWith('-all'))
+          .map(s => s.slug.replace(/-/g,' '));
+        
         if (categorySubs.length > 0) {
           SUBCATS[mainCat.slug] = ['all', ...categorySubs];
         }
       });
       
       // banners mapping
-      subs.forEach(s=>{ if (s.banner_image_url) BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url; });
+      subs.forEach(s => { 
+        if (s.banner_image_url) {
+          // Handle virtual "all" banners - map them to 'all' key for their category
+          if (s.slug.endsWith('-all')) {
+            BANNERS['all'] = s.banner_image_url;
+          } else {
+            BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url;
+          }
+        }
+      });
     }
     // Load products with their section assignments
     const { data: prods, error: prodsErr } = await client.from('products').select(`
