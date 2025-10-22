@@ -1431,6 +1431,10 @@
                     const allSubcategories = [];
                     
                     mainCategories.forEach(mainCat => {
+                        // Check if there's a stored virtual subcategory with banner image
+                        const virtualSlug = `${mainCat.slug}-all`;
+                        const existingVirtual = subcategories.find(sub => sub.slug === virtualSlug);
+                        
                         // Add virtual "All" subcategory for each main category
                         allSubcategories.push({
                             slug: 'all',
@@ -1439,7 +1443,8 @@
                             title_ar: 'الكل',
                             sort_order: -1, // Always first
                             active: true,
-                            isVirtual: true // Mark as virtual/system-generated
+                            isVirtual: true, // Mark as virtual/system-generated
+                            banner_image_url: existingVirtual?.banner_image_url || null // Use existing banner if available
                         });
                     });
                     
@@ -1477,7 +1482,8 @@
                                         </td>
                                         <td class="actions-cell">
                                             ${sub.isVirtual ? 
-                                                '<small style="color: #6c757d;">System Generated</small>' : 
+                                                `<button class="btn btn-warning btn-sm" onclick="editVirtualSubcategory('${sub.category_type}', '${sub.slug}')" title="Edit banner image">🖼️</button>
+                                                <small style="color: #6c757d;">System</small>` : 
                                                 `<button class="btn btn-warning btn-sm" onclick="editSubcategory('${sub.slug.replace(/'/g, "\\'")}')">✏️</button>
                                                 <button class="btn btn-danger btn-sm" onclick="deleteSubcategory('${sub.slug.replace(/'/g, "\\'")}')">🗑️</button>`
                                             }
@@ -1683,6 +1689,139 @@
                     this.loadDashboard();
                 } catch (error) {
                     this.showMessage('❌ Error deleting subcategory: ' + error.message, 'error');
+                }
+            }
+
+            // Edit virtual "All" subcategory (only for banner image)
+            async editVirtualSubcategory(categoryType, slug) {
+                try {
+                    // Check if there's already a banner image for this virtual subcategory
+                    const virtualSlug = `${categoryType}-all`;
+                    const { data: existingVirtual } = await supabase
+                        .from('subcategories')
+                        .select('banner_image_url')
+                        .eq('slug', virtualSlug)
+                        .single();
+                    
+                    const currentBannerUrl = existingVirtual?.banner_image_url || '';
+                    
+                    const content = `
+                        <form id="virtual-subcategory-form">
+                            <div class="form-group">
+                                <label>Category Type</label>
+                                <input type="text" value="${categoryType}" readonly style="background: #f8f9fa;">
+                                <small>This is a system-generated "All" filter for the ${categoryType} category</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Slug</label>
+                                <input type="text" value="${slug}" readonly style="background: #f8f9fa;">
+                                <small>System-generated slug (cannot be changed)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Title (English)</label>
+                                <input type="text" value="All" readonly style="background: #f8f9fa;">
+                                <small>System-generated title (cannot be changed)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Title (Arabic)</label>
+                                <input type="text" value="الكل" readonly style="background: #f8f9fa;">
+                                <small>System-generated title (cannot be changed)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="banner_image_file">Banner Image</label>
+                                <input type="file" id="banner_image_file" name="banner_image_file" accept="image/*" onchange="previewImage(this)">
+                                <small>Upload a banner image for the "All" filter in ${categoryType} category</small>
+                                ${currentBannerUrl ? `<div style="margin-top: 10px;"><strong>Current banner:</strong><br><img src="${currentBannerUrl}" style="max-width: 200px; max-height: 150px;" alt="Current banner"></div>` : ''}
+                                <img id="image_preview" style="max-width: 200px; max-height: 150px; margin-top: 10px; display: none;" alt="Preview">
+                            </div>
+                            <div class="form-group">
+                                <label for="banner_image_url">Or Banner Image URL</label>
+                                <input type="url" id="banner_image_url" name="banner_image_url" value="${currentBannerUrl}" placeholder="https://example.com/banner.jpg">
+                                <small>Alternative: Enter banner image URL directly</small>
+                            </div>
+                            <input type="hidden" name="category_type" value="${categoryType}">
+                            <input type="hidden" name="slug" value="${slug}">
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Save Banner Image</button>
+                            </div>
+                        </form>
+                    `;
+
+                    this.openModal('Edit "All" Filter Banner', content);
+                    
+                    document.getElementById('virtual-subcategory-form').onsubmit = async (e) => {
+                        e.preventDefault();
+                        await this.saveVirtualSubcategory();
+                    };
+
+                } catch (error) {
+                    this.showMessage('❌ Error loading virtual subcategory: ' + error.message, 'error');
+                }
+            }
+
+            async saveVirtualSubcategory() {
+                const form = document.getElementById('virtual-subcategory-form');
+                const formData = new FormData(form);
+                
+                try {
+                    // Handle image upload first if file selected
+                    let bannerImageUrl = formData.get('banner_image_url') || null;
+                    const imageFile = formData.get('banner_image_file');
+                    if (imageFile && imageFile.size > 0) {
+                        this.showMessage('📤 Uploading banner image...', 'info');
+                        bannerImageUrl = await this.uploadImageToStorage(imageFile, 'subcategories');
+                    }
+
+                    const categoryType = formData.get('category_type');
+                    const slug = formData.get('slug');
+                    
+                    // Create or update a special subcategory entry for the virtual "All" filter
+                    // We'll use a special slug format to distinguish it from regular subcategories
+                    const virtualSlug = `${categoryType}-all`;
+                    
+                    const data = {
+                        slug: virtualSlug,
+                        category_type: categoryType,
+                        title_en: 'All',
+                        title_ar: 'الكل',
+                        banner_image_url: bannerImageUrl,
+                        sort_order: -1,
+                        active: true,
+                        is_virtual: true // Mark as virtual in database
+                    };
+
+                    // Try to update first, if not exists then insert
+                    const { data: existing } = await supabase
+                        .from('subcategories')
+                        .select('slug')
+                        .eq('slug', virtualSlug)
+                        .single();
+
+                    if (existing) {
+                        // Update existing virtual subcategory
+                        const { error } = await supabase
+                            .from('subcategories')
+                            .update({ banner_image_url: bannerImageUrl })
+                            .eq('slug', virtualSlug);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Virtual subcategory banner updated successfully!', 'success');
+                    } else {
+                        // Insert new virtual subcategory
+                        const { error } = await supabase
+                            .from('subcategories')
+                            .insert([data]);
+                        
+                        if (error) throw error;
+                        this.showMessage('✅ Virtual subcategory banner saved successfully!', 'success');
+                    }
+
+                    this.closeModal();
+                    this.loadSubcategories();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving virtual subcategory: ' + error.message, 'error');
                 }
             }
 
@@ -2512,6 +2651,7 @@
         // Subcategories CRUD  
         window.showAddSubcategoryModal = () => admin.showAddSubcategoryModal();
         window.editSubcategory = (slug) => admin.editSubcategory(slug);
+        window.editVirtualSubcategory = (categoryType, slug) => admin.editVirtualSubcategory(categoryType, slug);
         window.deleteSubcategory = (slug) => admin.deleteSubcategory(slug);
 
         // Products CRUD
