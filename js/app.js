@@ -622,10 +622,14 @@ function buildSubFilters() {
     container.id = `subFilters${cat.slug.charAt(0).toUpperCase() + cat.slug.slice(1)}`;
     container.setAttribute('aria-label', `${currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en} Subcategories`);
     
+    console.log(`Creating subcategory container for ${cat.slug}: visible=${isVisible}, className="${container.className}"`);
+    
     if (SUBCATS[cat.slug]) {
       container.innerHTML = SUBCATS[cat.slug].map((c,i)=>{
         const translatedText = translateSubcategory(c);
-        return `<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="${cat.slug}">${translatedText}</button>`;
+        // Only make first button active if this container is visible
+        const isActive = isVisible && i === 0;
+        return `<button class="filter-btn${isActive ? ' active' : ''}" data-sub="${c}" data-main="${cat.slug}">${translatedText}</button>`;
       }).join('');
     }
     
@@ -713,7 +717,12 @@ function initMainTabs() {
       const activeContainer = document.getElementById(`subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`);
       if (activeContainer) {
         activeContainer.classList.remove('hidden');
+        // Reset active button to 'all' (first button)
+        activeContainer.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
       }
+      
+      // Reset currentSub to 'all' when switching main categories
+      currentSub = 'all';
       
       renderProducts();
     });
