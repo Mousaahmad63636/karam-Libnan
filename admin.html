@@ -822,6 +822,9 @@
                         <button class="btn" onclick="loadSubcategories()">🔄 Refresh</button>
                     </div>
                 </div>
+                <div style="background: #e3f2fd; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-size: 14px;">
+                    <strong>ℹ️ Note:</strong> "All" subcategories are automatically generated for each main category and cannot be edited or deleted. They are used for filtering purposes on the website.
+                </div>
                 <div id="subcategories-table" class="table-container">
                     <div class="loading">Loading subcategories...</div>
                 </div>
@@ -1412,14 +1415,38 @@
                 container.innerHTML = '<div class="loading">Loading subcategories...</div>';
 
                 try {
-                    const { data, error } = await supabase
-                        .from('subcategories')
-                        .select('*')
-                        .order('category_type, sort_order');
+                    // Load both subcategories and main categories to show "All" entries
+                    const [subcategoriesResult, mainCategoriesResult] = await Promise.all([
+                        supabase.from('subcategories').select('*').order('category_type, sort_order'),
+                        supabase.from('main_categories').select('*').eq('active', true).order('sort_order')
+                    ]);
 
-                    if (error) throw error;
+                    if (subcategoriesResult.error) throw subcategoriesResult.error;
+                    if (mainCategoriesResult.error) throw mainCategoriesResult.error;
 
-                    if (!data || data.length === 0) {
+                    const subcategories = subcategoriesResult.data || [];
+                    const mainCategories = mainCategoriesResult.data || [];
+
+                    // Create virtual "All" subcategories for each main category
+                    const allSubcategories = [];
+                    
+                    mainCategories.forEach(mainCat => {
+                        // Add virtual "All" subcategory for each main category
+                        allSubcategories.push({
+                            slug: 'all',
+                            category_type: mainCat.slug,
+                            title_en: 'All',
+                            title_ar: 'الكل',
+                            sort_order: -1, // Always first
+                            active: true,
+                            isVirtual: true // Mark as virtual/system-generated
+                        });
+                    });
+                    
+                    // Combine virtual "All" entries with real subcategories
+                    const allData = [...allSubcategories, ...subcategories];
+
+                    if (allData.length === 0) {
                         container.innerHTML = '<div class="empty-state">No subcategories found. Click "Add" to create one.</div>';
                         return;
                     }
@@ -1438,9 +1465,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${data.map(sub => `
-                                    <tr>
-                                        <td><code>${sub.slug}</code></td>
+                                ${allData.map(sub => `
+                                    <tr ${sub.isVirtual ? 'style="background-color: #f8f9fa; font-style: italic;"' : ''}>
+                                        <td><code>${sub.slug}</code> ${sub.isVirtual ? '<small style="color: #6c757d;">(System)</small>' : ''}</td>
                                         <td><span class="badge badge-${sub.category_type}">${sub.category_type}</span></td>
                                         <td>${sub.title_en || ''}</td>
                                         <td>${sub.title_ar || ''}</td>
@@ -1449,8 +1476,11 @@
                                             ${sub.active ? '✅' : '❌'}
                                         </td>
                                         <td class="actions-cell">
-                                            <button class="btn btn-warning btn-sm" onclick="editSubcategory('${sub.slug.replace(/'/g, "\\'")}')">✏️</button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteSubcategory('${sub.slug.replace(/'/g, "\\'")}')">🗑️</button>
+                                            ${sub.isVirtual ? 
+                                                '<small style="color: #6c757d;">System Generated</small>' : 
+                                                `<button class="btn btn-warning btn-sm" onclick="editSubcategory('${sub.slug.replace(/'/g, "\\'")}')">✏️</button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteSubcategory('${sub.slug.replace(/'/g, "\\'")}')">🗑️</button>`
+                                            }
                                         </td>
                                     </tr>
                                 `).join('')}
