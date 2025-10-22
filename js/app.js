@@ -614,6 +614,8 @@ function buildSubFilters() {
   // Clear existing containers
   subcategoryWrapper.innerHTML = '';
   
+  console.log(`🏗️ Building subcategory containers. currentMain: ${currentMain}`);
+  
   // Create containers for each main category
   mainCategories.forEach((cat) => {
     const isVisible = cat.slug === currentMain;
@@ -622,11 +624,15 @@ function buildSubFilters() {
     container.id = `subFilters${cat.slug.charAt(0).toUpperCase() + cat.slug.slice(1)}`;
     container.setAttribute('aria-label', `${currentLang === 'ar' && cat.title_ar ? cat.title_ar : cat.title_en} Subcategories`);
     
+    console.log(`📦 Creating container for ${cat.slug}: ID=${container.id}, visible=${isVisible}, className=${container.className}`);
+    
     if (SUBCATS[cat.slug]) {
-      container.innerHTML = SUBCATS[cat.slug].map((c,i)=>{
+      const subcatButtons = SUBCATS[cat.slug].map((c,i)=>{
         const translatedText = translateSubcategory(c);
         return `<button class="filter-btn${i===0?' active':''}" data-sub="${c}" data-main="${cat.slug}">${translatedText}</button>`;
       }).join('');
+      container.innerHTML = subcatButtons;
+      console.log(`   Added ${SUBCATS[cat.slug].length} subcategory buttons: ${SUBCATS[cat.slug].join(', ')}`);
     }
     
     subcategoryWrapper.appendChild(container);
@@ -705,16 +711,24 @@ function initMainTabs() {
       }
       
       // Hide all subcategory containers and show only the current one
+      console.log(`🔧 Hiding all subcategory containers...`);
       document.querySelectorAll('.sub-filters').forEach(container => {
+        console.log(`   Hiding container: ${container.id}`);
         container.classList.add('hidden');
       });
       
       // Show subcategories for current main category
-      const activeContainer = document.getElementById(`subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`);
+      const expectedId = `subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`;
+      console.log(`🔍 Looking for container with ID: ${expectedId}`);
+      const activeContainer = document.getElementById(expectedId);
       if (activeContainer) {
+        console.log(`✅ Found and showing container: ${activeContainer.id}`);
         activeContainer.classList.remove('hidden');
         // Reset active button to 'all'
         activeContainer.querySelectorAll('.filter-btn').forEach((b,i)=>{b.classList.toggle('active', i===0);});
+      } else {
+        console.log(`❌ Container not found: ${expectedId}`);
+        console.log(`Available containers:`, Array.from(document.querySelectorAll('.sub-filters')).map(c => c.id));
       }
       
       renderProducts();
