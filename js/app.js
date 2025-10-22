@@ -1055,6 +1055,9 @@ async function tryRemoteLoad(){
     if (sectionsErr && /not found/i.test(sectionsErr.message)) {
       console.warn('Supabase table sections not found.');
     }
+    
+    console.log('🔍 Loaded sections from database:', sections);
+    
     if (sections?.length){
       // Store sections data globally for renderCustomSections to use
       window.sectionsData = sections;
@@ -1065,7 +1068,11 @@ async function tryRemoteLoad(){
       // Sort sections by sort_order to maintain proper ordering
       const sortedSections = sections.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
       
+      console.log('📄 Processing sections:', sortedSections.map(s => s.key));
+      
       sortedSections.forEach(section => {
+        console.log(`🔧 Processing section: ${section.key}`, section);
+        
         // Update SITE_OVERRIDES for specific sections that need it
         if (section.key === 'hero') {
           SITE_OVERRIDES.hero = { 
@@ -1081,6 +1088,7 @@ async function tryRemoteLoad(){
             image: section.image_url,
             fullContent: section.body_en || section.content_en
           };
+          console.log('✅ About section SITE_OVERRIDES set:', SITE_OVERRIDES.about);
         }
         if (section.key === 'products') {
           SITE_OVERRIDES.products = { 
@@ -1092,8 +1100,77 @@ async function tryRemoteLoad(){
         // Update all section content - now fully editable from admin
         updateSectionContent(section.key, section);
       });
+    } else {
+      console.warn('⚠️ No sections found in database. About section will show hardcoded content.');
+      // Auto-create about section if it doesn't exist
+      await createDefaultAboutSection(client);
     }
   } catch(err){ console.warn('Remote load failed', err); }
+}
+
+// Auto-create default about section if it doesn't exist
+async function createDefaultAboutSection(client) {
+  try {
+    console.log('🔧 Creating default about section...');
+    
+    const aboutSectionData = {
+      key: 'about',
+      title_en: 'Our Story',
+      title_ar: 'قصتنا',
+      content_en: 'Learn about our heritage and commitment to authentic Lebanese flavors.',
+      content_ar: 'تعرف على تراثنا والتزامنا بالنكهات اللبنانية الأصيلة.',
+      body_en: `
+        <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p>
+        <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p>
+        <ul class="values-list">
+          <li>Authentic Recipes</li>
+          <li>Natural Ingredients</li>
+          <li>Handcrafted Quality</li>
+          <li>Sustainable Sourcing</li>
+        </ul>
+      `,
+      body_ar: `
+        <p>وُلد كرم لبنان من حب النكهات اللبنانية الأصيلة المتوارثة عبر الأجيال. نحن متخصصون في المنتجات المنزلية والمعلبة بعناية التي تعكس قلب أرضنا - بساتين الزيتون والبساتين المشمسة والأعشاب الجبلية.</p>
+        <p>مهمتنا هي الحفاظ على التقاليد مع احتضان الجودة والاستدامة. كل جرة ومنتج مصنوع يدوياً يمثل التراث والعناية والأصالة.</p>
+        <ul class="values-list">
+          <li>وصفات أصيلة</li>
+          <li>مكونات طبيعية</li>
+          <li>جودة مصنوعة يدوياً</li>
+          <li>مصادر مستدامة</li>
+        </ul>
+      `,
+      image_url: 'images/ourstory.png',
+      sort_order: 1
+    };
+    
+    const { data, error } = await client
+      .from('sections')
+      .insert([aboutSectionData])
+      .select();
+    
+    if (error) {
+      console.error('❌ Failed to create about section:', error);
+      return;
+    }
+    
+    console.log('✅ About section created successfully:', data[0]);
+    
+    // Update the content immediately
+    if (data && data[0]) {
+      SITE_OVERRIDES = SITE_OVERRIDES || {};
+      SITE_OVERRIDES.about = { 
+        heading: data[0].title_en, 
+        text: [data[0].body_en], 
+        image: data[0].image_url,
+        fullContent: data[0].body_en
+      };
+      updateSectionContent('about', data[0]);
+      console.log('🔄 About section content updated on page');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error creating default about section:', error);
+  }
 }
 
 // Generate overlay CSS based on section data
@@ -1130,9 +1207,13 @@ function generateOverlayCSS(sectionData) {
 
 // Update section content dynamically based on section data from database
 function updateSectionContent(sectionKey, sectionData) {
+  console.log(`🔄 updateSectionContent called for: ${sectionKey}`, sectionData);
+  
   // Handle hero/home ID mismatch - hero section in HTML has id="home"
   const actualSectionId = sectionKey === 'hero' ? 'home' : sectionKey;
   let section = document.getElementById(actualSectionId);
+  
+  console.log(`📍 Found section element for ${sectionKey}:`, section);
   
   // If section doesn't exist, create it dynamically (but not for hero - it already exists as "home")
   if (!section && sectionKey !== 'hero') {
@@ -1189,19 +1270,52 @@ function updateSectionContent(sectionKey, sectionData) {
       contactInfo.innerHTML = (h3 ? h3.outerHTML : '<h3>Company Info</h3>') + sectionData.body_en;
     }
   } else if (sectionKey === 'about') {
+    console.log('🔧 Updating about section with data:', sectionData);
+    
     // For about section, replace the entire content div with full HTML
-    const contentDiv = section.querySelector('.container > .grid > div:first-child');
+    const contentDiv = section.querySelector('.container .grid div:first-child');
+    console.log('📍 Found content div:', contentDiv);
+    
     if (contentDiv && sectionData.body_en) {
       // Keep the title, replace everything else
-      const title = contentDiv.querySelector('h2');
-      const titleHTML = title ? title.outerHTML : `<h2 id="aboutHeading" class="section-title">${sectionData.title_en}</h2>`;
+      const title = contentDiv.querySelector('h2, .section-title');
+      const titleHTML = title ? title.outerHTML : `<h2 id="aboutHeading" class="section-title">${sectionData.title_en || 'Our Story'}</h2>`;
+      
+      console.log('🔄 Replacing content with:', titleHTML + sectionData.body_en);
       contentDiv.innerHTML = titleHTML + sectionData.body_en;
+      
+      console.log('✅ About section content updated successfully');
+    } else {
+      console.warn('❌ Could not find content div or body_en data', {
+        contentDiv: !!contentDiv,
+        body_en: !!sectionData.body_en,
+        sectionData
+      });
+      
+      // Fallback: try to find and update paragraphs directly
+      const paragraphs = section.querySelectorAll('p');
+      if (paragraphs.length > 0 && sectionData.body_en) {
+        console.log('🔄 Fallback: updating paragraphs directly');
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = sectionData.body_en;
+        const newParagraphs = tempDiv.querySelectorAll('p, ul');
+        
+        // Replace existing paragraphs with new content
+        paragraphs.forEach((p, index) => {
+          if (newParagraphs[index]) {
+            p.outerHTML = newParagraphs[index].outerHTML;
+          }
+        });
+      }
     }
     
     // Update the image if provided
     if (sectionData.image_url) {
       const img = section.querySelector('.about-image-wrapper img, .about-image');
-      if (img) img.src = sectionData.image_url;
+      if (img) {
+        img.src = sectionData.image_url;
+        console.log('🖼️ Updated about section image');
+      }
     }
   } else {
     // For other sections, update general content areas
