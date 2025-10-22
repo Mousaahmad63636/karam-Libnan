@@ -704,12 +704,12 @@ function initMainTabs() {
         activeDescription.classList.remove('hidden');
       }
       
-      // Hide all subcategory containers
+      // Hide all subcategory containers and show only the current one
       document.querySelectorAll('.sub-filters').forEach(container => {
         container.classList.add('hidden');
       });
       
-      // Show the container for current main category
+      // Show subcategories for current main category
       const activeContainer = document.getElementById(`subFilters${currentMain.charAt(0).toUpperCase() + currentMain.slice(1)}`);
       if (activeContainer) {
         activeContainer.classList.remove('hidden');
