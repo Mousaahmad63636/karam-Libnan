@@ -531,28 +531,20 @@ function updateBanner() {
   }
   
   banner.style.backgroundImage = `url('${BANNERS[key] || BANNERS.default}')`;
-  console.log(`Banner: currentMain=${currentMain}, currentSub=${currentSub}, key=${key}, url=${BANNERS[key] || BANNERS.default}`);
   
-  // Use translated subcategory name for banner text
-  const bannerText = currentSub === 'all' 
-    ? (currentLang === 'ar' 
-        ? (currentMainCategory?.title_ar || currentMainCategory?.title_en || currentMain) + ' منتجات'
-        : (currentMainCategory?.title_en || currentMain) + ' products')
-    : translateSubcategory(currentSub);
-  
-  // Get description for main category (only show when viewing 'all' subcategory)
-  const description = currentSub === 'all' && currentMainCategory 
-    ? (currentLang === 'ar' && currentMainCategory.description_ar 
-        ? currentMainCategory.description_ar 
-        : currentMainCategory.description_en || '')
-    : '';
-  
-  banner.innerHTML = `
-    <div class="banner-content">
-      <span class="banner-title">${bannerText}</span>
-      ${description ? `<p class="banner-description">${description}</p>` : ''}
-    </div>
-  `;
+  // Only show text content for specific subcategories, not for "All"
+  if (currentSub === 'all') {
+    // For "All" - show only the banner image, no text content
+    banner.innerHTML = '';
+  } else {
+    // For specific subcategories - show subcategory name
+    const bannerText = translateSubcategory(currentSub);
+    banner.innerHTML = `
+      <div class="banner-content">
+        <span class="banner-title">${bannerText}</span>
+      </div>
+    `;
+  }
   banner.setAttribute('aria-hidden','false');
 }
 
@@ -1207,16 +1199,12 @@ async function tryRemoteLoad(){
             const categorySlug = s.slug.replace('-all', '');
             const bannerKey = `${categorySlug}-all`;
             BANNERS[bannerKey] = s.banner_image_url;
-            console.log(`Mapped virtual "All" banner: ${bannerKey} -> ${s.banner_image_url}`);
           } else {
             const bannerKey = s.slug.replace(/-/g,' ');
             BANNERS[bannerKey] = s.banner_image_url;
-            console.log(`Mapped subcategory banner: ${bannerKey} -> ${s.banner_image_url}`);
           }
         }
       });
-      
-      console.log('All banners loaded:', BANNERS);
     }
     // Load products with their section assignments
     const { data: prods, error: prodsErr } = await client.from('products').select(`
