@@ -899,6 +899,14 @@ function initializeLanguageToggle() {
       renderSeasonal();
       renderCustomSections();
       
+      // Update all sections with language-appropriate content
+      if (window.sectionsData) {
+        window.sectionsData.forEach(section => {
+          updateSectionContent(section.key, section);
+        });
+        console.log(`🌐 Updated all sections for language: ${currentLang}`);
+      }
+      
       console.log(`Language switched to: ${currentLang}`);
     } catch (error) {
       console.error('Error switching language:', error);
@@ -1073,27 +1081,31 @@ async function tryRemoteLoad(){
       sortedSections.forEach(section => {
         console.log(`🔧 Processing section: ${section.key}`, section);
         
-        // Update SITE_OVERRIDES for specific sections that need it
+        // Update SITE_OVERRIDES for specific sections that need it (language-aware)
+        const sectionTitle = currentLang === 'ar' ? (section.title_ar || section.title_en) : section.title_en;
+        const sectionContent = currentLang === 'ar' ? (section.content_ar || section.content_en) : section.content_en;
+        const sectionBody = currentLang === 'ar' ? (section.body_ar || section.body_en) : section.body_en;
+        
         if (section.key === 'hero') {
           SITE_OVERRIDES.hero = { 
-            title: section.title_en, 
-            lead: section.body_en || section.content_en, 
+            title: sectionTitle, 
+            lead: sectionBody || sectionContent, 
             image: section.image_url 
           };
         }
         if (section.key === 'about') {
           SITE_OVERRIDES.about = { 
-            heading: section.title_en, 
-            text: section.body_en ? [section.body_en] : (section.content_en ? [section.content_en] : []), 
+            heading: sectionTitle, 
+            text: sectionBody ? [sectionBody] : (sectionContent ? [sectionContent] : []), 
             image: section.image_url,
-            fullContent: section.body_en || section.content_en
+            fullContent: sectionBody || sectionContent
           };
           console.log('✅ About section SITE_OVERRIDES set:', SITE_OVERRIDES.about);
         }
         if (section.key === 'products') {
           SITE_OVERRIDES.products = { 
-            title: section.title_en, 
-            intro: section.content_en || section.body_en 
+            title: sectionTitle, 
+            intro: sectionContent || sectionBody 
           };
         }
         
@@ -1207,13 +1219,18 @@ function generateOverlayCSS(sectionData) {
 
 // Update section content dynamically based on section data from database
 function updateSectionContent(sectionKey, sectionData) {
-  console.log(`🔄 updateSectionContent called for: ${sectionKey}`, sectionData);
+  console.log(`🔄 updateSectionContent called for: ${sectionKey} (lang: ${currentLang})`, sectionData);
   
   // Handle hero/home ID mismatch - hero section in HTML has id="home"
   const actualSectionId = sectionKey === 'hero' ? 'home' : sectionKey;
   let section = document.getElementById(actualSectionId);
   
   console.log(`📍 Found section element for ${sectionKey}:`, section);
+  
+  // Get language-specific content
+  const title = currentLang === 'ar' ? (sectionData.title_ar || sectionData.title_en) : sectionData.title_en;
+  const content = currentLang === 'ar' ? (sectionData.content_ar || sectionData.content_en) : sectionData.content_en;
+  const body = currentLang === 'ar' ? (sectionData.body_ar || sectionData.body_en) : sectionData.body_en;
   
   // If section doesn't exist, create it dynamically (but not for hero - it already exists as "home")
   if (!section && sectionKey !== 'hero') {
@@ -1229,16 +1246,16 @@ function updateSectionContent(sectionKey, sectionData) {
   
   // Update section title if exists
   const titleElement = section.querySelector('.section-title, h2, h3, h1');
-  if (titleElement && sectionData.title_en) {
-    titleElement.textContent = sectionData.title_en;
+  if (titleElement && title) {
+    titleElement.textContent = title;
   }
   
   // Handle different section types
   if (sectionKey === 'hero') {
     // For hero section, update the lead paragraph
     const leadElement = section.querySelector('.lead, .hero-content p');
-    if (leadElement && sectionData.body_en) {
-      leadElement.innerHTML = sectionData.body_en;
+    if (leadElement && body) {
+      leadElement.innerHTML = body;
     }
     
     // Update hero background image and overlay if provided
@@ -1258,16 +1275,16 @@ function updateSectionContent(sectionKey, sectionData) {
   } else if (sectionKey === 'products') {
     // For products section, update the intro paragraph
     const introElement = section.querySelector('.section-intro');
-    if (introElement && sectionData.content_en) {
-      introElement.textContent = sectionData.content_en;
+    if (introElement && content) {
+      introElement.textContent = content;
     }
   } else if (sectionKey === 'contact') {
     // For contact section, update the contact-info content
     const contactInfo = section.querySelector('.contact-info');
-    if (contactInfo && sectionData.body_en) {
+    if (contactInfo && body) {
       // Keep the h3 title, replace the content after it
       const h3 = contactInfo.querySelector('h3');
-      contactInfo.innerHTML = (h3 ? h3.outerHTML : '<h3>Company Info</h3>') + sectionData.body_en;
+      contactInfo.innerHTML = (h3 ? h3.outerHTML : '<h3>Company Info</h3>') + body;
     }
   } else if (sectionKey === 'about') {
     console.log('🔧 Updating about section with data:', sectionData);
@@ -1279,28 +1296,28 @@ function updateSectionContent(sectionKey, sectionData) {
                       section.querySelector('.container > div:first-child');
     console.log('📍 Found content div:', contentDiv);
     
-    if (contentDiv && sectionData.body_en) {
+    if (contentDiv && body) {
       // Keep the title, replace everything else
-      const title = contentDiv.querySelector('h2, .section-title');
-      const titleHTML = title ? title.outerHTML : `<h2 id="aboutHeading" class="section-title">${sectionData.title_en || 'Our Story'}</h2>`;
+      const titleElement = contentDiv.querySelector('h2, .section-title');
+      const titleHTML = titleElement ? titleElement.outerHTML : `<h2 id="aboutHeading" class="section-title">${title || 'Our Story'}</h2>`;
       
-      console.log('🔄 Replacing content with:', titleHTML + sectionData.body_en);
-      contentDiv.innerHTML = titleHTML + sectionData.body_en;
+      console.log('🔄 Replacing content with:', titleHTML + body);
+      contentDiv.innerHTML = titleHTML + body;
       
       console.log('✅ About section content updated successfully');
     } else {
-      console.warn('❌ Could not find content div or body_en data', {
+      console.warn('❌ Could not find content div or body data', {
         contentDiv: !!contentDiv,
-        body_en: !!sectionData.body_en,
+        body: !!body,
         sectionData
       });
       
       // Fallback: try to find and update paragraphs directly
       const paragraphs = section.querySelectorAll('p');
-      if (paragraphs.length > 0 && sectionData.body_en) {
+      if (paragraphs.length > 0 && body) {
         console.log('🔄 Fallback: updating paragraphs directly');
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = sectionData.body_en;
+        tempDiv.innerHTML = body;
         const newParagraphs = tempDiv.querySelectorAll('p, ul');
         
         // Replace existing paragraphs with new content
@@ -1323,8 +1340,8 @@ function updateSectionContent(sectionKey, sectionData) {
   } else {
     // For other sections, update general content areas
     const bodyElement = section.querySelector('.section-content, .section-text, p:not(.form-status)');
-    if (bodyElement && sectionData.body_en) {
-      bodyElement.innerHTML = sectionData.body_en;
+    if (bodyElement && body) {
+      bodyElement.innerHTML = body;
     }
   }
   
@@ -1332,7 +1349,7 @@ function updateSectionContent(sectionKey, sectionData) {
   const imageElement = section.querySelector('img:not([src*="maps"])'); // Exclude maps iframe
   if (imageElement && sectionData.image_url) {
     imageElement.src = sectionData.image_url;
-    imageElement.alt = sectionData.title_en || 'Section image';
+    imageElement.alt = title || 'Section image';
   }
   
   console.log(`Updated section: ${sectionKey} (HTML id: ${actualSectionId})`, sectionData);
