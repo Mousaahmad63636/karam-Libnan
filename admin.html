@@ -2177,35 +2177,7 @@
                             </div>
                         </div>
                         
-                        <!-- Hero Overlay Controls (shown only for hero section) -->
-                        <div id="heroOverlayControls" style="display: none;">
-                            <h3 style="margin: 20px 0 15px 0; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">🎨 Hero Overlay Controls</h3>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="overlay_type">Overlay Type</label>
-                                    <select id="overlay_type" name="overlay_type">
-                                        <option value="solid">Solid Color</option>
-                                        <option value="linear">Linear Gradient</option>
-                                        <option value="radial">Radial Gradient</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="overlay_opacity">Overlay Intensity (%)</label>
-                                    <input type="range" id="overlay_opacity" name="overlay_opacity" min="0" max="100" value="40" oninput="updateOpacityDisplay(this.value)">
-                                    <small>Opacity: <span id="opacityDisplay">40%</span></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="overlay_primary_color">Primary Color</label>
-                                    <input type="color" id="overlay_primary_color" name="overlay_primary_color" value="#29241d">
-                                    <small>Main overlay color</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="overlay_secondary_color">Secondary Color</label>
-                                    <input type="color" id="overlay_secondary_color" name="overlay_secondary_color" value="#29241d">
-                                    <small>For gradient overlays</small>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Note: Hero overlay controls removed as these fields don't exist in database schema -->
                         
                         <div class="form-group">
                             <label for="content_en">Content (English)</label>
@@ -2241,10 +2213,7 @@
                     await this.saveSection();
                 };
                 
-                // Add event listener to key input to show/hide overlay controls
-                document.getElementById('key').addEventListener('input', (e) => {
-                    toggleHeroOverlayControls(e.target.value);
-                });
+                // Note: Overlay controls event listener removed
             }
 
             async saveSection() {
@@ -2272,13 +2241,8 @@
                         sort_order: parseInt(formData.get('sort_order')) || 0
                     };
                     
-                    // Add overlay controls for hero section
-                    if (formData.get('key') === 'hero' || this.editingItem === 'hero') {
-                        data.overlay_type = formData.get('overlay_type') || 'linear';
-                        data.overlay_opacity = parseInt(formData.get('overlay_opacity')) || 40;
-                        data.overlay_primary_color = formData.get('overlay_primary_color') || '#29241d';
-                        data.overlay_secondary_color = formData.get('overlay_secondary_color') || '#29241d';
-                    }
+                    // Note: Overlay controls removed as these columns don't exist in sections table
+                    // Hero section styling is handled via CSS and JavaScript, not database fields
 
                     if (this.editingItem) {
                         const { error } = await supabase
@@ -2350,35 +2314,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Hero Overlay Controls (shown only for hero section) -->
-                            <div id="heroOverlayControlsEdit" style="display: ${data.key === 'hero' ? 'block' : 'none'};">
-                                <h3 style="margin: 20px 0 15px 0; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;">🎨 Hero Overlay Controls</h3>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="overlay_type">Overlay Type</label>
-                                        <select id="overlay_type" name="overlay_type">
-                                            <option value="solid" ${data.overlay_type === 'solid' ? 'selected' : ''}>Solid Color</option>
-                                            <option value="linear" ${data.overlay_type === 'linear' || !data.overlay_type ? 'selected' : ''}>Linear Gradient</option>
-                                            <option value="radial" ${data.overlay_type === 'radial' ? 'selected' : ''}>Radial Gradient</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="overlay_opacity">Overlay Intensity (%)</label>
-                                        <input type="range" id="overlay_opacity" name="overlay_opacity" min="0" max="100" value="${data.overlay_opacity || 40}" oninput="updateOpacityDisplay(this.value)">
-                                        <small>Opacity: <span id="opacityDisplay">${data.overlay_opacity || 40}%</span></small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="overlay_primary_color">Primary Color</label>
-                                        <input type="color" id="overlay_primary_color" name="overlay_primary_color" value="${data.overlay_primary_color || '#29241d'}">
-                                        <small>Main overlay color</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="overlay_secondary_color">Secondary Color</label>
-                                        <input type="color" id="overlay_secondary_color" name="overlay_secondary_color" value="${data.overlay_secondary_color || '#29241d'}">
-                                        <small>For gradient overlays</small>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Note: Hero overlay controls removed as these fields don't exist in database schema -->
                             
                             <div class="form-group">
                                 <label for="content_en">Content (English)</label>
@@ -2523,26 +2459,9 @@
             }
         }
 
-        // Update opacity display
-        function updateOpacityDisplay(value) {
-            const display = document.getElementById('opacityDisplay');
-            if (display) {
-                display.textContent = value + '%';
-            }
-        }
+        // Note: updateOpacityDisplay function removed as overlay controls no longer exist
 
-        // Show/hide hero overlay controls based on section key
-        function toggleHeroOverlayControls(key) {
-            const controls = document.getElementById('heroOverlayControls');
-            const controlsEdit = document.getElementById('heroOverlayControlsEdit');
-            
-            if (controls) {
-                controls.style.display = key === 'hero' ? 'block' : 'none';
-            }
-            if (controlsEdit) {
-                controlsEdit.style.display = key === 'hero' ? 'block' : 'none';
-            }
-        }
+        // Note: toggleHeroOverlayControls function removed as overlay controls no longer exist
 
         // Global functions for button clicks
         window.loadDashboard = () => admin.loadDashboard();
@@ -2554,8 +2473,6 @@
         window.closeModal = () => admin.closeModal();
         window.previewImage = previewImage;
         window.previewSectionImage = previewSectionImage;
-        window.updateOpacityDisplay = updateOpacityDisplay;
-        window.toggleHeroOverlayControls = toggleHeroOverlayControls;
 
         // Main Categories CRUD
         window.showAddMainCategoryModal = () => admin.showAddMainCategoryModal();
