@@ -650,10 +650,44 @@ function buildSubFilters() {
 
 // Helper function to translate subcategory names
 function translateSubcategory(subcat) {
-  if (currentLang === 'en') return capitalizeWords(subcat);
-  const key = `subcat.${subcat}`;
-  const map = translations[currentLang];
-  return map && map[key] ? map[key] : capitalizeWords(subcat);
+  // Handle 'all' category
+  if (subcat === 'all') {
+    if (currentLang === 'ar') {
+      const map = translations[currentLang];
+      return map && map['subcat.all'] ? map['subcat.all'] : 'الكل';
+    }
+    return 'All';
+  }
+  
+  // Try to find subcategory in database first
+  if (window.subcategoriesData) {
+    const subcatSlug = subcat.replace(/\s+/g, '-'); // Convert back to slug format
+    const subcatData = window.subcategoriesData.find(s => s.slug === subcatSlug);
+    
+    if (subcatData) {
+      console.log(`🏷️ Found subcategory in DB: ${subcat} -> ${currentLang === 'ar' ? subcatData.title_ar : subcatData.title_en}`);
+      if (currentLang === 'ar' && subcatData.title_ar) {
+        return subcatData.title_ar;
+      }
+      if (subcatData.title_en) {
+        return subcatData.title_en;
+      }
+    } else {
+      console.log(`⚠️ Subcategory not found in DB: ${subcat} (slug: ${subcatSlug})`);
+    }
+  }
+  
+  // Fallback to hardcoded translations
+  if (currentLang === 'ar') {
+    const key = `subcat.${subcat}`;
+    const map = translations[currentLang];
+    if (map && map[key]) {
+      return map[key];
+    }
+  }
+  
+  // Final fallback to capitalized subcat name
+  return capitalizeWords(subcat);
 }
 
 function initMainTabs() {
@@ -1058,6 +1092,9 @@ async function tryRemoteLoad(){
       return; // abort further remote attempts
     }
     if (subs?.length){
+      // Store subcategories data globally for translation
+      window.subcategoriesData = subs;
+      
       // Reset SUBCATS and rebuild based on available main categories
       Object.keys(SUBCATS).forEach(key => {
         if (!mainCategories.some(cat => cat.slug === key)) {
