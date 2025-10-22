@@ -516,11 +516,22 @@ function renderProducts() {
 function updateBanner() {
   const banner = document.getElementById('categoryBanner');
   if (!banner) return;
-  const key = currentSub === 'all' ? 'default' : currentSub;
-  banner.style.backgroundImage = `url('${BANNERS[key] || BANNERS.default}')`;
-  
   // Get current main category data
   const currentMainCategory = mainCategories.find(c => c.slug === currentMain);
+  
+  // Determine banner key - for 'all' subcategory, look for category-specific banner first
+  let key;
+  if (currentSub === 'all') {
+    key = `${currentMain}-all`; // Look for category-specific "All" banner first
+    if (!BANNERS[key]) {
+      key = 'default'; // Fallback to default if no category-specific "All" banner
+    }
+  } else {
+    key = currentSub;
+  }
+  
+  banner.style.backgroundImage = `url('${BANNERS[key] || BANNERS.default}')`;
+  console.log(`Banner: currentMain=${currentMain}, currentSub=${currentSub}, key=${key}, url=${BANNERS[key] || BANNERS.default}`);
   
   // Use translated subcategory name for banner text
   const bannerText = currentSub === 'all' 
@@ -1190,14 +1201,22 @@ async function tryRemoteLoad(){
       // banners mapping
       subs.forEach(s => { 
         if (s.banner_image_url) {
-          // Handle virtual "all" banners - map them to 'all' key for their category
+          // Handle virtual "all" banners - map them to category-specific 'all' key
           if (s.slug.endsWith('-all')) {
-            BANNERS['all'] = s.banner_image_url;
+            // Extract category from slug (e.g., 'mouneh-all' -> 'mouneh')
+            const categorySlug = s.slug.replace('-all', '');
+            const bannerKey = `${categorySlug}-all`;
+            BANNERS[bannerKey] = s.banner_image_url;
+            console.log(`Mapped virtual "All" banner: ${bannerKey} -> ${s.banner_image_url}`);
           } else {
-            BANNERS[s.slug.replace(/-/g,' ')] = s.banner_image_url;
+            const bannerKey = s.slug.replace(/-/g,' ');
+            BANNERS[bannerKey] = s.banner_image_url;
+            console.log(`Mapped subcategory banner: ${bannerKey} -> ${s.banner_image_url}`);
           }
         }
       });
+      
+      console.log('All banners loaded:', BANNERS);
     }
     // Load products with their section assignments
     const { data: prods, error: prodsErr } = await client.from('products').select(`
