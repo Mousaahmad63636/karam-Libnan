@@ -1061,38 +1061,37 @@ async function tryRemoteLoad(){
       
       SITE_OVERRIDES = SITE_OVERRIDES || {};
       
-      // Define section order: hero, about, products, custom sections, then contact at end
-      const fixedSections = ['hero', 'about', 'products'];
-      const contactSection = sections.find(s => s.key === 'contact');
+      // Process all sections - make them fully editable from admin panel
+      // Sort sections by sort_order to maintain proper ordering
+      const sortedSections = sections.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
       
-      // Process fixed sections first (hero, about, products)
-      fixedSections.forEach(key => {
-        const section = sections.find(s => s.key === key);
-        if (section) {
-          if (section.key === 'hero') {
-            SITE_OVERRIDES.hero = { title: section.title_en, lead: section.body_en, image: section.image_url };
-          }
-          if (section.key === 'about') {
-            SITE_OVERRIDES.about = { 
-              heading: section.title_en, 
-              text: section.body_en ? [section.body_en] : [], 
-              image: section.image_url,
-              fullContent: section.body_en // Store full HTML content
-            };
-          }
-          if (section.key === 'products') {
-            SITE_OVERRIDES.products = { title: section.title_en, intro: section.content_en };
-          }
-          updateSectionContent(section.key, section);
+      sortedSections.forEach(section => {
+        // Update SITE_OVERRIDES for specific sections that need it
+        if (section.key === 'hero') {
+          SITE_OVERRIDES.hero = { 
+            title: section.title_en, 
+            lead: section.body_en || section.content_en, 
+            image: section.image_url 
+          };
         }
+        if (section.key === 'about') {
+          SITE_OVERRIDES.about = { 
+            heading: section.title_en, 
+            text: section.body_en ? [section.body_en] : (section.content_en ? [section.content_en] : []), 
+            image: section.image_url,
+            fullContent: section.body_en || section.content_en
+          };
+        }
+        if (section.key === 'products') {
+          SITE_OVERRIDES.products = { 
+            title: section.title_en, 
+            intro: section.content_en || section.body_en 
+          };
+        }
+        
+        // Update all section content - now fully editable from admin
+        updateSectionContent(section.key, section);
       });
-      
-      // Skip custom sections here - they'll be handled by renderCustomSections with products
-      
-      // Process contact section last (always at bottom)
-      if (contactSection) {
-        updateSectionContent('contact', contactSection);
-      }
     }
   } catch(err){ console.warn('Remote load failed', err); }
 }
