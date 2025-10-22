@@ -964,13 +964,27 @@ function initializeLanguageToggle() {
 
 function applyTranslations() {
   const map = translations[currentLang];
-  if (!map) return; // English is default, no translations needed
+  
+  // Store original English text on first run
+  if (!window.originalTexts) {
+    window.originalTexts = {};
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      window.originalTexts[key] = el.textContent;
+    });
+  }
   
   // Translate all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (map[key]) {
-      // Handle different element types
+    
+    if (currentLang === 'en') {
+      // Restore original English text
+      if (window.originalTexts[key]) {
+        el.textContent = window.originalTexts[key];
+      }
+    } else if (map && map[key]) {
+      // Apply translation
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
         if (el.placeholder) el.placeholder = map[key];
       } else {
