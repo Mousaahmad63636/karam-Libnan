@@ -901,10 +901,45 @@ function initializeLanguageToggle() {
       
       // Update all sections with language-appropriate content
       if (window.sectionsData) {
+        // First update SITE_OVERRIDES for the new language
+        SITE_OVERRIDES = SITE_OVERRIDES || {};
+        
         window.sectionsData.forEach(section => {
+          // Update SITE_OVERRIDES for specific sections that need it (language-aware)
+          const sectionTitle = currentLang === 'ar' ? (section.title_ar || section.title_en) : section.title_en;
+          const sectionContent = currentLang === 'ar' ? (section.content_ar || section.content_en) : section.content_en;
+          const sectionBody = currentLang === 'ar' ? (section.body_ar || section.body_en) : section.body_en;
+          
+          if (section.key === 'hero') {
+            SITE_OVERRIDES.hero = { 
+              title: sectionTitle, 
+              lead: sectionBody || sectionContent, 
+              image: section.image_url 
+            };
+          }
+          if (section.key === 'about') {
+            SITE_OVERRIDES.about = { 
+              heading: sectionTitle, 
+              text: sectionBody ? [sectionBody] : (sectionContent ? [sectionContent] : []), 
+              image: section.image_url,
+              fullContent: sectionBody || sectionContent
+            };
+          }
+          if (section.key === 'products') {
+            SITE_OVERRIDES.products = { 
+              title: sectionTitle, 
+              intro: sectionContent || sectionBody 
+            };
+          }
+          
+          // Update section content
           updateSectionContent(section.key, section);
         });
-        console.log(`🌐 Updated all sections for language: ${currentLang}`);
+        
+        // Apply content overrides after updating sections
+        applyContentOverrides();
+        
+        console.log(`🌐 Updated all sections and overrides for language: ${currentLang}`);
       }
       
       console.log(`Language switched to: ${currentLang}`);
@@ -1231,6 +1266,14 @@ function updateSectionContent(sectionKey, sectionData) {
   const title = currentLang === 'ar' ? (sectionData.title_ar || sectionData.title_en) : sectionData.title_en;
   const content = currentLang === 'ar' ? (sectionData.content_ar || sectionData.content_en) : sectionData.content_en;
   const body = currentLang === 'ar' ? (sectionData.body_ar || sectionData.body_en) : sectionData.body_en;
+  
+  console.log(`🌐 Language-specific content for ${sectionKey}:`, {
+    currentLang,
+    title,
+    hasContent: !!content,
+    hasBody: !!body,
+    usingArabic: currentLang === 'ar' && (sectionData.title_ar || sectionData.content_ar || sectionData.body_ar)
+  });
   
   // If section doesn't exist, create it dynamically (but not for hero - it already exists as "home")
   if (!section && sectionKey !== 'hero') {
