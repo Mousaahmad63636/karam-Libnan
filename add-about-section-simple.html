@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add About Section - Karam Libnan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; margin-bottom: 20px; }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        button:hover { background: #2980b9; }
+        button:disabled { background: #bdc3c7; cursor: not-allowed; }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix "Our Story" Section</h1>
+        <p>This will add the "Our Story" section to your database so it becomes fully editable from the admin panel.</p>
+        
+        <div id="status"></div>
+        
+        <button onclick="addAboutSection()">➕ Add About Section to Database</button>
+        <button onclick="testConnection()">🔗 Test Database Connection</button>
+        
+        <script type="module">
+            import { supabase } from './js/supabaseClient.js';
+            window.supabase = supabase;
+            
+            function showStatus(message, type) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = message;
+                statusDiv.className = `status ${type}`;
+            }
+            
+            window.testConnection = async function() {
+                showStatus('Testing database connection...', 'info');
+                try {
+                    const { data, error } = await supabase.from('sections').select('key').limit(1);
+                    if (error) throw error;
+                    showStatus('✅ Database connection successful!', 'success');
+                } catch (error) {
+                    showStatus('❌ Database connection failed: ' + error.message, 'error');
+                }
+            };
+            
+            window.addAboutSection = async function() {
+                showStatus('Adding About section to database...', 'info');
+                
+                const aboutSectionData = {
+                    key: 'about',
+                    title_en: 'Our Story',
+                    title_ar: 'قصتنا',
+                    content_en: 'Learn about our heritage and commitment to authentic Lebanese flavors.',
+                    content_ar: 'تعرف على تراثنا والتزامنا بالنكهات اللبنانية الأصيلة.',
+                    body_en: `
+                        <p>Karam Libnan was born from a love for authentic Lebanese flavors passed down through generations. We specialize in homemade and lovingly canned goods that reflect the heart of our land—olive groves, sun-kissed orchards, and mountain herbs.</p>
+                        <p>Our mission is to preserve tradition while embracing quality and sustainability. Each jar and handcrafted product represents heritage, care, and authenticity.</p>
+                        <ul class="values-list">
+                            <li>Authentic Recipes</li>
+                            <li>Natural Ingredients</li>
+                            <li>Handcrafted Quality</li>
+                            <li>Sustainable Sourcing</li>
+                        </ul>
+                    `,
+                    body_ar: `
+                        <p>وُلد كرم لبنان من حب النكهات اللبنانية الأصيلة المتوارثة عبر الأجيال. نحن متخصصون في المنتجات المنزلية والمعلبة بعناية التي تعكس قلب أرضنا - بساتين الزيتون والبساتين المشمسة والأعشاب الجبلية.</p>
+                        <p>مهمتنا هي الحفاظ على التقاليد مع احتضان الجودة والاستدامة. كل جرة ومنتج مصنوع يدوياً يمثل التراث والعناية والأصالة.</p>
+                        <ul class="values-list">
+                            <li>وصفات أصيلة</li>
+                            <li>مكونات طبيعية</li>
+                            <li>جودة مصنوعة يدوياً</li>
+                            <li>مصادر مستدامة</li>
+                        </ul>
+                    `,
+                    image_url: 'images/ourstory.png',
+                    sort_order: 1
+                };
+                
+                try {
+                    // First check if it already exists
+                    const { data: existing } = await supabase
+                        .from('sections')
+                        .select('key')
+                        .eq('key', 'about');
+                    
+                    if (existing && existing.length > 0) {
+                        showStatus('ℹ️ About section already exists! You can edit it in the admin panel.', 'info');
+                        return;
+                    }
+                    
+                    // Insert the new section
+                    const { data, error } = await supabase
+                        .from('sections')
+                        .insert([aboutSectionData])
+                        .select();
+                    
+                    if (error) throw error;
+                    
+                    showStatus('✅ About section added successfully! Now refresh your main website - the "Our Story" section should be fully editable from the admin panel.', 'success');
+                    
+                } catch (error) {
+                    showStatus('❌ Error adding about section: ' + error.message, 'error');
+                }
+            };
+            
+            // Auto-test connection on load
+            window.addEventListener('load', () => {
+                setTimeout(testConnection, 500);
+            });
+        </script>
+    </div>
+</body>
+</html>
