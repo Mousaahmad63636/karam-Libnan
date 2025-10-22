@@ -301,6 +301,12 @@ function renderFeatured() {
     const orderB = b.sort_order ?? 999;
     return orderA - orderB;
   });
+  
+  console.log(`🌟 Rendering ${featured.length} featured products for language: ${currentLang}`);
+  featured.forEach(p => {
+    console.log(`📦 Featured product: ${getLocalizedText(p, 'name')} (EN: ${p.name_en}, AR: ${p.name_ar})`);
+  });
+  
   container.innerHTML = featured.map(p => cardTemplate(p, true)).join('');
 }
 
@@ -850,10 +856,17 @@ let currentLang = localStorage.getItem('preferredLanguage') || 'en';
 
 // Helper functions for localized content
 function getLocalizedText(item, field) {
-  if (currentLang === 'ar' && item[`${field}_ar`]) {
-    return item[`${field}_ar`];
+  const arField = `${field}_ar`;
+  const enField = `${field}_en`;
+  
+  if (currentLang === 'ar' && item[arField]) {
+    console.log(`🌐 Using Arabic ${field} for ${item.name_en}: ${item[arField]}`);
+    return item[arField];
   }
-  return item[`${field}_en`] || item[field] || '';
+  
+  const result = item[enField] || item[field] || '';
+  console.log(`🌐 Using English ${field} for ${item.name_en}: ${result}`);
+  return result;
 }
 
 function getLocalizedArray(item, field) {
