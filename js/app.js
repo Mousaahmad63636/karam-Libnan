@@ -1273,7 +1273,10 @@ function updateSectionContent(sectionKey, sectionData) {
     console.log('🔧 Updating about section with data:', sectionData);
     
     // For about section, replace the entire content div with full HTML
-    const contentDiv = section.querySelector('.container .grid div:first-child');
+    const contentDiv = section.querySelector('.container.grid.two-col > div:first-child') || 
+                      section.querySelector('.container .grid div:first-child') ||
+                      section.querySelector('.grid div:first-child') ||
+                      section.querySelector('.container > div:first-child');
     console.log('📍 Found content div:', contentDiv);
     
     if (contentDiv && sectionData.body_en) {
