@@ -88,7 +88,7 @@ a:hover, a:focus { color: var(--color-secondary); }
 /* Desktop logo positioning override */
 @media (min-width: 960px) {
   .site-header .logo {
-    margin-left: 5rem !important; /* Move logo to the right on desktop */
+    margin-left: 2rem !important; /* Adjusted from 5rem to 2rem - moved back left */
   }
 }
 
