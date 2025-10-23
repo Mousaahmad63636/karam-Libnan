@@ -480,8 +480,8 @@ body.searching .product-grid { opacity: 1; transform: scale(0.98); }
 }
 
 .whatsapp-icon {
-  width: 65px;
-  height: 65px;
+  width: 50px; /* Reduced from 65px */
+  height: 50px; /* Reduced from 65px */
   transition: transform 0.3s ease;
 }
 
