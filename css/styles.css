@@ -726,7 +726,7 @@ body.rtl .search-icon-btn {
   body.searching .product-grid { grid-template-columns: repeat(4,1fr); }
   
   /* Desktop-specific logo and search positioning */
-  .logo { margin-left: -4rem !important; }
+  .logo { margin-left: -2rem !important; } /* Moved right from -4rem to -2rem */
   #productSearchDesktop.expanded { right: 45% !important; margin-right: 1rem !important; }
 }
 /* Mobile scroll indicator and enhancements */
