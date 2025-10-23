@@ -85,6 +85,13 @@ a:hover, a:focus { color: var(--color-secondary); }
   margin-left: -3rem !important;
 }
 
+/* Desktop logo positioning override */
+@media (min-width: 960px) {
+  .site-header .logo {
+    margin-left: 5rem !important; /* Move logo to the right on desktop */
+  }
+}
+
 /* Ensure all header child elements are fully opaque and visible */
 .site-header * { 
   opacity: 1 !important; 
@@ -725,8 +732,8 @@ body.rtl .search-icon-btn {
   .product-grid { grid-template-columns: repeat(4,1fr); }
   body.searching .product-grid { grid-template-columns: repeat(4,1fr); }
   
-  /* Desktop-specific logo and search positioning */
-  .logo { margin-left: 5rem !important; } /* Moved right by 80px (5rem) from 0rem */
+  /* Desktop-specific search positioning */
+  /* Logo positioning moved to more specific selector above */
   #productSearchDesktop.expanded { right: 45% !important; margin-right: 1rem !important; }
 }
 /* Mobile scroll indicator and enhancements */
