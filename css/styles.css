@@ -739,7 +739,7 @@ body.rtl .search-icon-btn {
 /* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
   .container { padding: 0 0.8rem; }
-  .logo { margin-left: 0.625rem; } /* Moved right by 10px (0.625rem) on mobile */
+  .site-header .logo { margin-left: 0.625rem !important; } /* Mobile logo moved right by 10px */
   .logo-image { height: 65px; max-width: 200px; }
   .search-wrapper { max-width: none; }
   #productSearch.expanded { width: 120px; }
