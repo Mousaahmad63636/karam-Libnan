@@ -911,19 +911,24 @@ function getLocalizedArray(item, field) {
 // Language toggle functionality - moved to initialization function
 function initializeLanguageToggle() {
   const langBtn = document.getElementById('langToggle');
-  if (!langBtn) {
-    console.warn('Language toggle button not found. Retrying in 100ms...');
+  const langBtnDesktop = document.getElementById('langToggleDesktop');
+  
+  if (!langBtn && !langBtnDesktop) {
+    console.warn('Language toggle buttons not found. Retrying in 100ms...');
     setTimeout(initializeLanguageToggle, 100);
     return;
   }
   
-  // Set initial button text
-  langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
+  // Set initial button text for both buttons
+  if (langBtn) langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
+  if (langBtnDesktop) langBtnDesktop.textContent = currentLang === 'en' ? 'AR' : 'EN';
   
-  langBtn.addEventListener('click', () => {
+  // Function to handle language toggle
+  const handleLanguageToggle = () => {
     try {
       currentLang = currentLang === 'en' ? 'ar' : 'en';
-      langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
+      if (langBtn) langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
+      if (langBtnDesktop) langBtnDesktop.textContent = currentLang === 'en' ? 'AR' : 'EN';
       document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
       document.documentElement.lang = currentLang;
       document.body.classList.toggle('rtl', currentLang === 'ar');
@@ -1074,7 +1079,11 @@ function initializeLanguageToggle() {
     } catch (error) {
       console.error('Error switching language:', error);
     }
-  });
+  };
+  
+  // Add event listeners to both buttons
+  if (langBtn) langBtn.addEventListener('click', handleLanguageToggle);
+  if (langBtnDesktop) langBtnDesktop.addEventListener('click', handleLanguageToggle);
 }
 
 function applyTranslations() {
