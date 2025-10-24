@@ -2367,7 +2367,7 @@
 
                 modalTitle.textContent = 'Add New Event';
                 modalBody.innerHTML = `
-                    <form id="add-event-form" onsubmit="admin.saveEvent(event)">
+                    <form id="add-event-form" onsubmit="admin.saveEvent(event); return false;">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="event-title-en">Title (English) *</label>
@@ -2431,7 +2431,7 @@
 
                     modalTitle.textContent = 'Edit Event';
                     modalBody.innerHTML = `
-                        <form id="edit-event-form" onsubmit="admin.saveEvent(event, ${id})">
+                        <form id="edit-event-form" onsubmit="admin.saveEvent(event, ${id}); return false;">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="event-title-en">Title (English) *</label>
