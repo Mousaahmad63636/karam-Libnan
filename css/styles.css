@@ -1007,17 +1007,17 @@ body.rtl .section-subtitle {
     position: fixed; 
     top: 0; 
     right: 0; 
-    width: 280px; /* Fixed width instead of responsive */
+    width: 220px; /* Reduced width for more elegant appearance */
     height: 100vh;
     flex-direction: column; 
-    background: linear-gradient(145deg, #ffffff, #f8f9fa); 
+    background: rgba(255, 255, 255, 0.95); 
     padding: 0;
-    box-shadow: -15px 0 40px rgba(0,0,0,0.15); /* Enhanced shadow */
+    box-shadow: -8px 0 25px rgba(0,0,0,0.1); /* Softer shadow */
     z-index: 500;
     transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother animation */
-    border-left: 1px solid var(--color-border);
-    backdrop-filter: blur(10px); /* Professional blur effect */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 1px solid rgba(200,16,46,0.1);
+    backdrop-filter: blur(15px); /* Enhanced blur for elegance */
   }
   
   .nav-close {
@@ -1072,28 +1072,25 @@ body.rtl .section-subtitle {
   
   .nav-list a { 
     width: 100%; 
-    padding: 0.8rem 2rem;
+    padding: 1rem 1.5rem;
     border: none;
     margin: 0;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 0.95rem;
+    font-weight: 400;
     display: block;
     color: var(--color-navy);
-    transition: all 0.3s ease;
+    transition: color 0.2s ease;
     position: relative;
+    text-decoration: none;
   }
   
   .nav-list a:hover {
-    background: linear-gradient(90deg, rgba(200,16,46,0.1), transparent);
     color: var(--color-secondary);
-    padding-left: 2.5rem;
   }
   
   .nav-list a.active {
-    background: linear-gradient(90deg, rgba(200,16,46,0.15), transparent);
     color: var(--color-secondary);
     font-weight: 600;
-    border-left: 4px solid var(--color-secondary);
   }
   
   .nav-list li:first-child {
@@ -1136,7 +1133,7 @@ body.rtl .section-subtitle {
     position: fixed;
     top: 0;
     left: 0;
-    width: calc(100vw - 280px); /* Match fixed sidebar width */
+    width: calc(100vw - 220px); /* Match reduced sidebar width */
     height: 100vh;
     background: rgba(0,0,0,0.4); /* Slightly darker overlay */
     z-index: 200;
