@@ -77,18 +77,23 @@ a:hover, a:focus { color: var(--color-secondary); }
 /* Header-specific full-width container */
 .site-header .container {
   max-width: 100% !important;
-  padding: 0 2rem;
+  padding: 0 2rem 0 4rem;
 }
 
 /* Header logo spacing adjustment */
 .site-header .logo {
   margin-left: 2rem !important;
+  padding-left: 1rem !important;
 }
 
 /* Desktop logo positioning override */
 @media (min-width: 960px) {
+  .site-header .container {
+    padding: 0 2rem 0 5rem !important;
+  }
   .site-header .logo {
-    margin-left: 2.5rem !important; /* Increased to create better balance with search bar spacing */
+    margin-left: 0 !important;
+    padding-left: 0 !important;
   }
 }
 
@@ -802,7 +807,8 @@ body.rtl .section-subtitle {
 /* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
   .container { padding: 0 0.8rem; }
-  .site-header .logo { margin-left: 1rem !important; } /* Mobile logo with some spacing */
+  .site-header .container { padding: 0 0.8rem 0 2rem !important; }
+  .site-header .logo { margin-left: 0 !important; padding-left: 0 !important; }
   .logo-image { height: 65px; max-width: 200px; }
   .search-wrapper { max-width: none; }
   #productSearch.expanded { width: 120px; }
