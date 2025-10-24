@@ -82,7 +82,7 @@ a:hover, a:focus { color: var(--color-secondary); }
 
 /* Header logo spacing adjustment */
 .site-header .logo {
-  margin-left: -3rem !important;
+  margin-left: 2rem !important;
 }
 
 /* Desktop logo positioning override */
@@ -126,7 +126,7 @@ a:hover, a:focus { color: var(--color-secondary); }
   color: var(--color-primary); 
   display: flex; 
   align-items: center; 
-  margin-left: -3.5rem; 
+  margin-left: 2rem; 
 }
 
 .logo-image { 
@@ -802,7 +802,7 @@ body.rtl .section-subtitle {
 /* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
   .container { padding: 0 0.8rem; }
-  .site-header .logo { margin-left: 0rem !important; } /* Mobile logo moved more to left */
+  .site-header .logo { margin-left: 1rem !important; } /* Mobile logo with some spacing */
   .logo-image { height: 65px; max-width: 200px; }
   .search-wrapper { max-width: none; }
   #productSearch.expanded { width: 120px; }
