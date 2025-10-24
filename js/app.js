@@ -122,11 +122,20 @@ function applyContentOverrides() {
 }
 
 // Navigation initialization function
+let navigationInitialized = false;
 function initializeNavigation() {
+  if (navigationInitialized) return; // Prevent duplicate initialization
+  
   // Navigation toggle with sidebar and overlay
   const navToggle = document.querySelector('.nav-toggle');
   const navList = document.querySelector('.nav-list');
   const navOverlay = document.getElementById('navOverlay');
+  
+  if (!navToggle || !navList || !navOverlay) {
+    console.warn('Navigation elements not found, retrying in 100ms...');
+    setTimeout(initializeNavigation, 100);
+    return;
+  }
 
   function toggleNavigation() {
     const expanded = navToggle.getAttribute('aria-expanded') === 'true';
@@ -207,13 +216,25 @@ function initializeNavigation() {
 
   // Search functionality (after navigation is loaded)
   initializeSearch();
+  
+  // Mark navigation as initialized
+  navigationInitialized = true;
 }
 
 // Search initialization with debouncing and performance improvements
 let searchTimeout;
+let searchInitialized = false;
 function initializeSearch() {
+  if (searchInitialized) return; // Prevent duplicate initialization
+  
   const searchInput = document.getElementById('productSearch');
   const searchInputDesktop = document.getElementById('productSearchDesktop');
+  
+  if (!searchInput || !searchInputDesktop) {
+    console.warn('Search elements not found, retrying in 100ms...');
+    setTimeout(initializeSearch, 100);
+    return;
+  }
 
   // Debounced search function to reduce lag
   function performSearch(inputElement) {
@@ -290,6 +311,9 @@ function initializeSearch() {
       }
     }
   });
+  
+  // Mark search as initialized
+  searchInitialized = true;
 }
 
 // Inject featured products
@@ -1154,6 +1178,9 @@ async function initializeSite(){
   
   // Initialize language toggle after everything else is loaded
   initializeLanguageToggle();
+  
+  // Initialize navigation after DOM is ready
+  initializeNavigation();
 }
 
 async function tryRemoteLoad(){

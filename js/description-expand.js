@@ -1,9 +1,2 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const descriptions = document.querySelectorAll('.tab-description-below');
-    
-    descriptions.forEach(description => {
-        description.addEventListener('click', function() {
-            this.classList.toggle('expanded');
-        });
-    });
-});
+// This functionality is now handled in app.js to prevent duplicate event listeners
+// File kept for compatibility but functionality moved to main app.js
