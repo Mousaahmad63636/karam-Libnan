@@ -88,7 +88,7 @@ a:hover, a:focus { color: var(--color-secondary); }
 /* Desktop logo positioning override */
 @media (min-width: 960px) {
   .site-header .logo {
-    margin-left: 1rem !important; /* Adjusted from 2rem to 1rem - moved more left */
+    margin-left: 2.5rem !important; /* Increased to create better balance with search bar spacing */
   }
 }
 
@@ -789,7 +789,7 @@ body.rtl .section-subtitle {
   .contact-layout { grid-template-columns: 1.1fr 1fr; }
   
   /* Tablet and desktop logo positioning */
-  .logo { margin-left: -3.5rem !important; }
+  .logo { margin-left: 1.5rem !important; }
 }
 @media (min-width: 960px) {
   .product-grid { grid-template-columns: repeat(4,1fr); }
