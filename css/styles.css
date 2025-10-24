@@ -540,11 +540,29 @@ body.searching .product-grid { opacity: 1; transform: scale(0.98); }
 /* Ensure no space above hero */
 .hero:first-of-type, section:first-of-type { margin-top: 0 !important; padding-top: 0 !important; }
 .hero-overlay { position: absolute; inset: 0; background: var(--gradient-hero); }
-.hero-content { position: relative; z-index: 2; }
-.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem,6vw,3.4rem); margin: 0 0 1rem; }
-.hero p { font-size: 1.1rem; max-width: 700px; margin: 0 auto 1.6rem; }
-.hero .lead { font-size:1.15rem; opacity:.95; }
+.hero-content { position: relative; z-index: 2; text-align: center !important; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem,6vw,3.4rem); margin: 0 0 1rem; text-align: center !important; }
+.hero p { font-size: 1.1rem; max-width: 700px; margin: 0 auto 1.6rem; text-align: center !important; }
+.hero .lead { font-size:1.15rem; opacity:.95; text-align: center !important; }
 .hero-actions { display:flex; gap:.9rem; justify-content:center; flex-wrap:wrap; margin-top: 8rem; }
+
+/* Ensure hero stays centered in both LTR and RTL */
+body.rtl .hero,
+body.rtl .hero-content,
+body.rtl .hero h1,
+body.rtl .hero p,
+body.rtl .hero .lead {
+  text-align: center !important;
+  direction: ltr;
+}
+body.rtl .hero-content {
+  direction: rtl;
+}
+body.rtl .hero h1,
+body.rtl .hero p,
+body.rtl .hero .lead {
+  direction: inherit;
+}
 
 /* Enhanced buttons */
 .btn-lg { padding:1rem 1.75rem; font-size:.95rem; }
