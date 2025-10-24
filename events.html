@@ -20,9 +20,7 @@
     <h1 class="section-title">Events</h1>
     <p>Upcoming tasting sessions, market appearances, and cultural showcases.</p>
     <div class="grid cards-3" id="eventsGrid">
-      <article class="card"><div class="card-body"><h3 class="card-title">Local Farmers Market</h3><p>Meet us and sample fresh pickles & molasses.</p><p><strong>Date:</strong> TBA</p></div></article>
-      <article class="card"><div class="card-body"><h3 class="card-title">Olive Harvest Tour</h3><p>Experience traditional olive pressing methods.</p><p><strong>Date:</strong> Coming Soon</p></div></article>
-      <article class="card"><div class="card-body"><h3 class="card-title">Heritage Food Workshop</h3><p>Learn about Lebanese preserving techniques.</p><p><strong>Date:</strong> Coming Soon</p></div></article>
+      <!-- Events will be loaded dynamically from database -->
     </div>
   </div>
     </section>
@@ -52,5 +50,60 @@
       .catch(error => console.error('Error loading navigation:', error));
   </script>
   <script src="js/app.js" defer></script>
+  
+  <!-- Events Loading Script -->
+  <script>
+    // Load events from database
+    async function loadEvents() {
+      try {
+        const { data: events, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('is_active', true)
+          .order('event_date', { ascending: true });
+
+        if (error) throw error;
+
+        const container = document.getElementById('eventsGrid');
+        
+        if (!events || events.length === 0) {
+          container.innerHTML = '<div class="no-events"><p>No upcoming events at the moment. Check back soon!</p></div>';
+          return;
+        }
+
+        container.innerHTML = events.map(event => `
+          <article class="card">
+            ${event.image_url ? `<img src="${event.image_url}" alt="${event.title_en}" class="card-image">` : ''}
+            <div class="card-body">
+              <h3 class="card-title">${currentLang === 'ar' && event.title_ar ? event.title_ar : event.title_en}</h3>
+              <p>${currentLang === 'ar' && event.description_ar ? event.description_ar : event.description_en || 'More details coming soon.'}</p>
+              <p><strong data-i18n="events.date">Date:</strong> ${event.event_date ? new Date(event.event_date).toLocaleDateString() : 'TBA'}</p>
+            </div>
+          </article>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading events:', error);
+        document.getElementById('eventsGrid').innerHTML = '<div class="error">Error loading events. Please try again later.</div>';
+      }
+    }
+
+    // Load events when page loads and when language changes
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for supabase to be available
+      if (typeof supabase !== 'undefined') {
+        loadEvents();
+      } else {
+        // Retry after a short delay if supabase isn't loaded yet
+        setTimeout(() => {
+          if (typeof supabase !== 'undefined') {
+            loadEvents();
+          }
+        }, 1000);
+      }
+    });
+
+    // Reload events when language changes
+    document.addEventListener('languageChanged', loadEvents);
+  </script>
 </body>
 </html>

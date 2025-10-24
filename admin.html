@@ -146,6 +146,22 @@
         .btn-warning { background: #f39c12; }
         .btn-warning:hover { background: #e67e22; }
 
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         .btn-sm {
             padding: 4px 8px;
             font-size: 12px;
@@ -780,6 +796,7 @@
             <button class="nav-item" data-section="main-categories" onclick="closeMobileMenu()">📂 Main Categories</button>
             <button class="nav-item" data-section="subcategories" onclick="closeMobileMenu()">📁 Subcategories</button>
             <button class="nav-item" data-section="products" onclick="closeMobileMenu()">🥫 Products</button>
+            <button class="nav-item" data-section="events" onclick="closeMobileMenu()">📅 Events</button>
             <button class="nav-item" data-section="sections" onclick="closeMobileMenu()">📄 Sections</button>
             <button class="nav-item" data-section="media" onclick="closeMobileMenu()">🖼️ Media</button>
         </nav>
@@ -841,6 +858,20 @@
                 </div>
                 <div id="products-table" class="table-container">
                     <div class="loading">Loading products...</div>
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="events" class="section">
+                <div class="section-header">
+                    <h2>📅 Events</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showAddEventModal()">➕ Add</button>
+                        <button class="btn" onclick="loadEvents()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="events-table" class="table-container">
+                    <div class="loading">Loading events...</div>
                 </div>
             </section>
 
@@ -1047,6 +1078,9 @@
                         break;
                     case 'products':
                         this.loadProducts();
+                        break;
+                    case 'events':
+                        this.loadEvents();
                         break;
                     case 'sections':
                         this.loadSections();
@@ -2257,6 +2291,278 @@
                 }
             }
 
+            // EVENTS CRUD
+            async loadEvents() {
+                const container = document.getElementById('events-table');
+                container.innerHTML = '<div class="loading">Loading events...</div>';
+
+                try {
+                    const { data: events, error } = await supabase
+                        .from('events')
+                        .select('*')
+                        .order('event_date', { ascending: true });
+
+                    if (error) throw error;
+
+                    if (!events || events.length === 0) {
+                        container.innerHTML = '<div class="no-data">No events found. <button class="btn btn-success" onclick="showAddEventModal()">Add First Event</button></div>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${events.map(event => `
+                                    <tr>
+                                        <td>
+                                            ${event.image_url ? 
+                                                `<img src="${event.image_url}" alt="${event.title_en}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">` : 
+                                                '<div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px;">No Image</div>'
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>${event.title_en}</strong>
+                                            ${event.title_ar ? `<br><small style="color: #666;">${event.title_ar}</small>` : ''}
+                                        </td>
+                                        <td class="description-cell">
+                                            ${event.description_en ? event.description_en.substring(0, 100) + (event.description_en.length > 100 ? '...' : '') : 'No description'}
+                                        </td>
+                                        <td>
+                                            ${event.event_date ? new Date(event.event_date).toLocaleDateString() : 'TBA'}
+                                        </td>
+                                        <td>
+                                            <span class="status-badge ${event.is_active ? 'active' : 'inactive'}">
+                                                ${event.is_active ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-warning btn-sm" onclick="editEvent(${event.id})">✏️</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteEvent(${event.id})">🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `<div class="error">Error loading events: ${error.message}</div>`;
+                    console.error('Error loading events:', error);
+                }
+            }
+
+            showAddEventModal() {
+                const modal = document.getElementById('modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalBody = document.getElementById('modal-body');
+
+                modalTitle.textContent = 'Add New Event';
+                modalBody.innerHTML = `
+                    <form id="add-event-form" onsubmit="admin.saveEvent(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="event-title-en">Title (English) *</label>
+                                <input type="text" id="event-title-en" name="title_en" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="event-title-ar">Title (Arabic)</label>
+                                <input type="text" id="event-title-ar" name="title_ar">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-description-en">Description (English)</label>
+                            <textarea id="event-description-en" name="description_en" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-description-ar">Description (Arabic)</label>
+                            <textarea id="event-description-ar" name="description_ar" rows="3"></textarea>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="event-date">Event Date</label>
+                                <input type="date" id="event-date" name="event_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="event-status">Status</label>
+                                <select id="event-status" name="is_active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-image">Event Image *</label>
+                            <input type="file" id="event-image" name="image" accept="image/*" onchange="previewEventImage(this)" required>
+                            <small style="color: #666;">Upload an image for the event (JPG, PNG, WebP)</small>
+                            <div id="event-image-preview" style="margin-top: 10px;"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save Event</button>
+                        </div>
+                    </form>
+                `;
+
+                modal.style.display = 'block';
+            }
+
+            async editEvent(id) {
+                try {
+                    const { data: event, error } = await supabase
+                        .from('events')
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+
+                    if (error) throw error;
+
+                    const modal = document.getElementById('modal');
+                    const modalTitle = document.getElementById('modal-title');
+                    const modalBody = document.getElementById('modal-body');
+
+                    modalTitle.textContent = 'Edit Event';
+                    modalBody.innerHTML = `
+                        <form id="edit-event-form" onsubmit="admin.saveEvent(event, ${id})">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="event-title-en">Title (English) *</label>
+                                    <input type="text" id="event-title-en" name="title_en" value="${event.title_en || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-title-ar">Title (Arabic)</label>
+                                    <input type="text" id="event-title-ar" name="title_ar" value="${event.title_ar || ''}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="event-description-en">Description (English)</label>
+                                <textarea id="event-description-en" name="description_en" rows="3">${event.description_en || ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="event-description-ar">Description (Arabic)</label>
+                                <textarea id="event-description-ar" name="description_ar" rows="3">${event.description_ar || ''}</textarea>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="event-date">Event Date</label>
+                                    <input type="date" id="event-date" name="event_date" value="${event.event_date || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-status">Status</label>
+                                    <select id="event-status" name="is_active">
+                                        <option value="true" ${event.is_active ? 'selected' : ''}>Active</option>
+                                        <option value="false" ${!event.is_active ? 'selected' : ''}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="event-image">Event Image</label>
+                                ${event.image_url ? `<div style="margin-bottom: 10px;"><strong>Current Image:</strong><br><img src="${event.image_url}" alt="Current image" style="max-width: 200px; height: auto; border-radius: 4px; border: 2px solid #ddd;"></div>` : ''}
+                                <input type="file" id="event-image" name="image" accept="image/*" onchange="previewEventImage(this)">
+                                <small style="color: #666;">Upload a new image to replace the current one (JPG, PNG, WebP)</small>
+                                <div id="event-image-preview" style="margin-top: 10px;"></div>
+                                <input type="hidden" id="event-image-url" name="image_url" value="${event.image_url || ''}">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-warning">Update Event</button>
+                            </div>
+                        </form>
+                    `;
+
+                    modal.style.display = 'block';
+                } catch (error) {
+                    this.showMessage('❌ Error loading event: ' + error.message, 'error');
+                }
+            }
+
+            async saveEvent(event, eventId = null) {
+                event.preventDefault();
+                
+                try {
+                    const formData = new FormData(event.target);
+                    const imageFile = formData.get('image');
+                    let imageUrl = formData.get('image_url'); // For existing images
+
+                    // For new events, image upload is required
+                    if (!eventId && (!imageFile || imageFile.size === 0)) {
+                        throw new Error('Please upload an image for the event');
+                    }
+
+                    // Handle image upload if file is selected
+                    if (imageFile && imageFile.size > 0) {
+                        this.showMessage('📤 Uploading image...', 'info');
+                        imageUrl = await this.uploadImageToStorage(imageFile, 'events');
+                    }
+
+                    // For updates, keep existing image if no new image uploaded
+                    if (eventId && (!imageFile || imageFile.size === 0) && !imageUrl) {
+                        throw new Error('Event must have an image');
+                    }
+
+                    const eventData = {
+                        title_en: formData.get('title_en'),
+                        title_ar: formData.get('title_ar') || null,
+                        description_en: formData.get('description_en') || null,
+                        description_ar: formData.get('description_ar') || null,
+                        event_date: formData.get('event_date') || null,
+                        is_active: formData.get('is_active') === 'true',
+                        image_url: imageUrl
+                    };
+
+                    let result;
+                    if (eventId) {
+                        // Update existing event
+                        result = await supabase
+                            .from('events')
+                            .update(eventData)
+                            .eq('id', eventId);
+                    } else {
+                        // Create new event
+                        result = await supabase
+                            .from('events')
+                            .insert([eventData]);
+                    }
+
+                    const { error } = result;
+                    if (error) throw error;
+
+                    this.showMessage(`✅ Event ${eventId ? 'updated' : 'created'} successfully!`, 'success');
+                    this.closeModal();
+                    this.loadEvents();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error saving event: ' + error.message, 'error');
+                }
+            }
+
+            async deleteEvent(id) {
+                if (!confirm('Are you sure you want to delete this event?')) return;
+
+                try {
+                    const { error } = await supabase
+                        .from('events')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+
+                    this.showMessage('✅ Event deleted successfully!', 'success');
+                    this.loadEvents();
+                    this.loadDashboard();
+                } catch (error) {
+                    this.showMessage('❌ Error deleting event: ' + error.message, 'error');
+                }
+            }
+
             // SECTIONS CRUD
             async loadSections() {
                 const container = document.getElementById('sections-table');
@@ -2628,6 +2934,20 @@
             }
         }
 
+        // Event image preview function
+        function previewEventImage(input) {
+            const preview = document.getElementById('event-image-preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Event preview" style="max-width: 200px; height: auto; border-radius: 4px; margin-top: 10px;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
         // Note: updateOpacityDisplay function removed as overlay controls no longer exist
 
         // Note: toggleHeroOverlayControls function removed as overlay controls no longer exist
@@ -2637,11 +2957,13 @@
         window.loadMainCategories = () => admin.loadMainCategories();
         window.loadSubcategories = () => admin.loadSubcategories();
         window.loadProducts = () => admin.loadProducts();
+        window.loadEvents = () => admin.loadEvents();
         window.loadSections = () => admin.loadSections();
         window.loadMedia = () => admin.loadMedia();
         window.closeModal = () => admin.closeModal();
         window.previewImage = previewImage;
         window.previewSectionImage = previewSectionImage;
+        window.previewEventImage = previewEventImage;
 
         // Main Categories CRUD
         window.showAddMainCategoryModal = () => admin.showAddMainCategoryModal();
@@ -2658,6 +2980,11 @@
         window.showAddProductModal = () => admin.showAddProductModal();
         window.editProduct = (id) => admin.editProduct(id);
         window.deleteProduct = (id) => admin.deleteProduct(id);
+
+        // Events CRUD
+        window.showAddEventModal = () => admin.showAddEventModal();
+        window.editEvent = (id) => admin.editEvent(id);
+        window.deleteEvent = (id) => admin.deleteEvent(id);
 
         // Sections CRUD
         window.showAddSectionModal = () => admin.showAddSectionModal();
