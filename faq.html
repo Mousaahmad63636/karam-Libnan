@@ -5,24 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>FAQ | Karam Libnan</title>
 <link rel="stylesheet" href="css/styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-<header class="site-header" id="top">
-  <div class="container flex between center-v">
-    <div class="logo">Karam <span>Libnan</span></div>
-    <nav class="main-nav">
-      <ul class="nav-list">
-        <li><a href="index.html#home">Home</a></li>
-        <li><a href="index.html#about">About</a></li>
-        <li><a href="index.html#products">Products</a></li>
-        <li><a href="events.html">Events</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li><a href="faq.html" class="active">F&Q</a></li>
-        <li><a href="index.html#contact">Contact</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
+  <!-- Navigation Component -->
+  <div id="navigation-container"></div>
 <section class="section-padding">
   <div class="container">
     <h1 class="section-title">Frequently Asked Questions</h1>
@@ -36,6 +25,20 @@
 <footer class="site-footer">
   <div class="sub-footer"><p>&copy; <span id="year"></span> Karam Libnan.</p></div>
 </footer>
-<script src="js/app.js" defer></script>
+  <!-- Load Navigation Component -->
+  <script>
+    // Load navigation component
+    fetch('components/navigation.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navigation-container').innerHTML = data;
+        // Initialize navigation after loading
+        if (typeof initializeNavigation === 'function') {
+          initializeNavigation();
+        }
+      })
+      .catch(error => console.error('Error loading navigation:', error));
+  </script>
+  <script src="js/app.js" defer></script>
 </body>
 </html>
