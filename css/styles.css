@@ -77,39 +77,39 @@ a:hover, a:focus { color: var(--color-secondary); }
 /* Header-specific full-width container */
 .site-header .container {
   max-width: 100% !important;
-  padding: 0 2rem 0 4rem;
+  padding: 0 2rem 0 1rem;
 }
 
-/* Header logo spacing adjustment - More spacing */
+/* Header logo spacing adjustment - Move logo to the left */
 .site-header .container .logo {
-  margin-left: 1rem !important;
-  padding-left: 1rem !important;
+  margin-left: -1rem !important;
+  padding-left: 0 !important;
 }
 
 .site-header .header-inner .logo {
-  margin-left: 1rem !important;
-  padding-left: 1rem !important;
+  margin-left: -1rem !important;
+  padding-left: 0 !important;
 }
 
 /* Force logo positioning with exact class structure */
 .site-header .container.flex.between.center-v .logo {
-  margin-left: 1.5rem !important;
-  padding-left: 1rem !important;
+  margin-left: -0.5rem !important;
+  padding-left: 0 !important;
 }
 
 div.logo#logo {
-  margin-left: 1.5rem !important;
-  padding-left: 1rem !important;
+  margin-left: -0.5rem !important;
+  padding-left: 0 !important;
 }
 
 /* Desktop logo positioning override */
 @media (min-width: 960px) {
   .site-header .container {
-    padding: 0 2rem 0 4.5rem !important;
+    padding: 0 2rem 0 1.5rem !important;
   }
   .site-header .container .logo {
-    margin-left: 1.5rem !important;
-    padding-left: 1rem !important;
+    margin-left: -1rem !important;
+    padding-left: 0 !important;
   }
 }
 
