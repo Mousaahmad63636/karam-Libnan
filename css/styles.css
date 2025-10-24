@@ -710,6 +710,51 @@ body.rtl #productSearch.expanded, body.rtl #productSearchDesktop.expanded {
 body.rtl .search-icon-btn {
   order: 0;
 }
+
+/* RTL Support for Main Category Tabs */
+body.rtl .main-cat-tabs {
+  text-align: right;
+}
+body.rtl .main-cat-tab {
+  text-align: right;
+}
+body.rtl .main-cat-tab::after {
+  right: 0;
+  left: auto;
+}
+
+/* RTL Support for Tab Descriptions */
+body.rtl .tab-description-below {
+  text-align: right;
+  direction: rtl;
+}
+
+/* RTL Support for Filters */
+body.rtl .filters {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+/* RTL Support for Product Grid */
+body.rtl .product-grid {
+  direction: rtl;
+}
+
+/* RTL Support for Cards */
+body.rtl .card {
+  text-align: right;
+}
+
+/* RTL Support for General Text */
+body.rtl .container {
+  text-align: right;
+}
+body.rtl .section-title {
+  text-align: right;
+}
+body.rtl .section-subtitle {
+  text-align: right;
+}
 .error { color: #8b0000; font-size: .7rem; min-height: .8rem; }
 .form-status { margin-top: .5rem; font-size: .85rem; font-weight: 600; }
 .contact-info { margin-top: 2rem; }

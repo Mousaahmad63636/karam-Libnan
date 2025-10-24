@@ -923,6 +923,11 @@ function initializeLanguageToggle() {
   if (langBtn) langBtn.textContent = currentLang === 'en' ? 'AR' : 'EN';
   if (langBtnDesktop) langBtnDesktop.textContent = currentLang === 'en' ? 'AR' : 'EN';
   
+  // Set initial RTL state based on saved language preference
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = currentLang;
+  document.body.classList.toggle('rtl', currentLang === 'ar');
+  
   // Function to handle language toggle
   const handleLanguageToggle = () => {
     try {
