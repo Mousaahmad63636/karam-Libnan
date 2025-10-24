@@ -878,7 +878,7 @@ body.rtl .section-subtitle {
   }
   
   .cards-3 .card img {
-    height: 120px; /* Increased from 100px to 120px */
+    aspect-ratio: 1 / 1; /* Square images on mobile */
     width: 100%;
     object-fit: cover;
     flex-shrink: 0;
