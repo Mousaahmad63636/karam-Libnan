@@ -2367,7 +2367,7 @@
 
                 modalTitle.textContent = 'Add New Event';
                 modalBody.innerHTML = `
-                    <form id="add-event-form" onsubmit="admin.saveEvent(event); return false;">
+                    <form id="add-event-form">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="event-title-en">Title (English) *</label>
@@ -2413,6 +2413,13 @@
                 `;
 
                 modal.style.display = 'block';
+                
+                // Add event listener to prevent form submission
+                const form = document.getElementById('add-event-form');
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveEvent(e);
+                });
             }
 
             async editEvent(id) {
@@ -2431,7 +2438,7 @@
 
                     modalTitle.textContent = 'Edit Event';
                     modalBody.innerHTML = `
-                        <form id="edit-event-form" onsubmit="admin.saveEvent(event, ${id}); return false;">
+                        <form id="edit-event-form">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="event-title-en">Title (English) *</label>
@@ -2479,6 +2486,13 @@
                     `;
 
                     modal.style.display = 'block';
+                    
+                    // Add event listener to prevent form submission
+                    const form = document.getElementById('edit-event-form');
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.saveEvent(e, id);
+                    });
                 } catch (error) {
                     this.showMessage('❌ Error loading event: ' + error.message, 'error');
                 }
@@ -2486,6 +2500,7 @@
 
             async saveEvent(event, eventId = null) {
                 event.preventDefault();
+                console.log('🎯 saveEvent called', { eventId });
                 
                 try {
                     const formData = new FormData(event.target);
