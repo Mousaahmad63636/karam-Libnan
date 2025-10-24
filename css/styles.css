@@ -823,8 +823,8 @@ body.rtl .section-subtitle {
 /* Mobile scroll indicator and enhancements */
 @media (max-width: 640px) {
   .container { padding: 0 0.8rem; }
-  .site-header .container { padding: 0 0.8rem 0 2rem !important; }
-  .site-header .logo { margin-left: 0 !important; padding-left: 0 !important; }
+  .site-header .container { padding: 0 0.8rem 0 0.5rem !important; }
+  .site-header .logo { margin-left: -0.5rem !important; padding-left: 0 !important; }
   .logo-image { height: 65px; max-width: 200px; }
   .search-wrapper { max-width: none; }
   #productSearch.expanded { width: 120px; }
