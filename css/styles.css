@@ -1056,19 +1056,14 @@ body.rtl .section-subtitle {
   }
   
   .nav-logo {
-    height: 40px;
+    height: 60px;
     width: auto;
-    margin: 0 auto 0.3rem;
+    margin: 0 auto 1rem;
     display: block;
   }
   
   .nav-header h3 {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--color-primary);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    display: none; /* Hide the "NAVIGATION" text */
   }
   
   .nav-list.open { 
