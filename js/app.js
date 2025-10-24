@@ -866,18 +866,22 @@ const translations = {
     'contact.error':'يرجى تصحيح الأخطاء أعلاه.',
     
     // Footer
-    'footer.tagline':'منتجات لبنانية أصيلة مصنوعة يدوياً ومعلبة. تقليد محفوظ في كل برطمان.',
+    'footer.tagline':'منتجات لبنانية أصيلة منزلية ومعلبة. التقليد محفوظ في كل برطمان.',
     'footer.home':'الرئيسية',
-    'footer.about':'من نحن',
+    'footer.about':'حولنا',
     'footer.products':'المنتجات',
     'footer.events':'الفعاليات',
     'footer.services':'الخدمات',
-    'footer.faq':'الأسئلة',
+    'footer.faq':'الأسئلة الشائعة',
     'footer.contact':'اتصل بنا',
+    'footer.contactTitle':'تواصل معنا',
     'footer.email':'البريد:',
     'footer.phone':'الهاتف:',
+    'footer.location':'الموقع:',
+    'footer.locationValue':'بعبدا، بيروت',
+    'footer.followUs':'تابعنا',
     'footer.rights':'كرم لبنان. جميع الحقوق محفوظة.',
-    'footer.backToTop':'العودة للأعلى',
+    'footer.backToTop':'▲ العودة للأعلى',
     
     // Search
     'search.placeholder':'ابحث عن منتجات',
@@ -1030,8 +1034,12 @@ function initializeLanguageToggle() {
             'footer.services': 'Services',
             'footer.faq': 'F&Q',
             'footer.contact': 'Contact',
+            'footer.contactTitle': 'Get in Touch',
             'footer.email': 'Email:',
             'footer.phone': 'Phone:',
+            'footer.location': 'Location:',
+            'footer.locationValue': 'Baabda, Beirut',
+            'footer.followUs': 'Follow Us',
             'footer.rights': 'Karam Libnan. All rights reserved.',
             'footer.backToTop': '▲'
           };
