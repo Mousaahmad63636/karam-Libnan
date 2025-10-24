@@ -80,9 +80,27 @@ a:hover, a:focus { color: var(--color-secondary); }
   padding: 0 2rem 0 4rem;
 }
 
-/* Header logo spacing adjustment */
-.site-header .logo {
-  margin-left: 2rem !important;
+/* Header logo spacing adjustment - High specificity */
+.site-header .container .logo {
+  margin-left: 3rem !important;
+  padding-left: 2rem !important;
+  transform: translateX(20px) !important;
+}
+
+.site-header .header-inner .logo {
+  margin-left: 3rem !important;
+  padding-left: 2rem !important;
+}
+
+/* Force logo positioning with exact class structure */
+.site-header .container.flex.between.center-v .logo {
+  margin-left: 4rem !important;
+  padding-left: 1rem !important;
+  transform: translateX(30px) !important;
+}
+
+div.logo#logo {
+  margin-left: 4rem !important;
   padding-left: 1rem !important;
 }
 
